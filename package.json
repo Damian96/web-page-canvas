@@ -1,0 +1,15 @@
+{
+  "name": "highlightor",
+  "version": "0.0.1",
+  "description": "A firefox extension for annotating the browser's current page.",
+  "repository": {
+    "url": "https://github.com/Damian96/highlightor.git"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Damianos Giankakis",
+  "license": "UNLICENSED",
+  "dependencies": {}
+}
