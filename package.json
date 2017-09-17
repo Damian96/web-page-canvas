@@ -1,5 +1,5 @@
 {
-  "name": "highlightor",
+  "name": "Highlightor",
   "version": "0.0.1",
   "description": "A firefox extension for annotating the browser's current page.",
   "repository": {
@@ -7,9 +7,13 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "minifyAssets": "npm-run minify -t ./../{{filename}}.min.{{ext}} ./content-scripts/css/beautified/ && npm-run minify -t ./../{{filename}}.min.{{ext}} ./content-scripts/js/beautified/"
   },
   "author": "Damianos Giankakis",
   "license": "UNLICENSED",
-  "dependencies": {}
+  "dependencies": {
+    "minifier": "^0.8.1",
+    "npm-run": "^4.1.2"
+  }
 }
