@@ -28,11 +28,9 @@ browser.browserAction.onClicked.addListener(function() {
                     highlighterOpen[tabInfo.id] = true;
                 } else if(typeof highlighterOpen[tabInfo.id] === 'boolean') {
                     if(highlighterOpen[tabInfo.id]) {
-                        console.log('sending message to hide overlay');
                         browser.tabs.sendMessage(tabInfo.id, {handleOverlay: false});
                         highlighterOpen[tabInfo.id] = false;
                     } else {
-                        console.log('sending message to open overlay');
                         browser.tabs.sendMessage(tabInfo.id, {handleOverlay: true});
                         highlighterOpen[tabInfo.id] = true;
                     }

@@ -9,9 +9,8 @@
     z-index: 2147483647;
 }
 
-#canvas,
-#controls,
-#canvas-overlay {
+#canvas-container,
+#controls {
     box-sizing: border-box;
     margin-right: -4px;
     height: 100%;
@@ -24,18 +23,17 @@
     display: inline-block;
 }
 
-#canvas {
+#canvas-container {
     width: 95%;
     display: inline-block;
 }
 
-#canvas.contained {
+#canvas-container.contained {
     overflow: hidden;
     max-height: 100%;
 }
 
-#canvas.expanded {
-    overflow: scroll;
+#canvas-container.expanded {
     max-height: none;
 }
 
@@ -53,6 +51,7 @@
     top: 0;
     left: 0;
     width: 100%;
+    height: 100%;
 }
 
 #canvas-overlay {
@@ -63,7 +62,6 @@
 }
 
 #canvas-drawing {
-    height: 100%;
     z-index: 2147483648;
 }
 
@@ -74,7 +72,7 @@
     left: 49.8%;
     transform: translate(-50%, 0%);
     font-size: 28px;
-    color: #ffffff;
+    color: #000000;
     cursor: pointer;
 }
 
@@ -124,8 +122,15 @@
     display: block;
 }
 
-#highlighter-overlay .icon-container:first-of-type.active {
+#highlighter-overlay .icon-container.active {
     border-width: 2px 4px 1px 2px;
     border-style: inset inset solid inset;
+}
+
+#highlighter-overlay .icon-container:first-of-type.active {
     border-color: #007706 yellow #000000 #007706;
+}
+
+#highlighter-overlay .icon-container:nth-of-type(2).active {
+    border-color: #007706 red #000000 #007706;
 }
