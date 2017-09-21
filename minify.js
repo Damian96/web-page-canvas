@@ -5,10 +5,10 @@ compressor.minify({
     input: './content-scripts/js/beautified/highlight.js',
     output: './content-scripts/js/highlight.min.js',
     options: {
-      compilation_level: 'WHITESPACE_ONLY',
-      language: 'ECMASCRIPT6'
+      compilation_level: 'WHITESPACE_ONLY'
     },
-    callback: function (err, min) {}
+    callback: function (err, min) {
+    }
 });
 
 compressor.minify({
@@ -19,5 +19,6 @@ compressor.minify({
       advanced: false, // set to false to disable advanced optimizations - selector & property merging, reduction, etc.
       aggressiveMerging: false // set to false to disable aggressive merging of properties.
     },
-    callback: function (err, min) {}
+    callback: function (err, min) {
+    }
   });
