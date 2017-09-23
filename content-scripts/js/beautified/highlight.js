@@ -1,4 +1,4 @@
-/* globals EXTENSIONPATH, document */
+/* globals chrome, EXTENSIONPATH */
 
 /**
  * The main frontend plugin class.
@@ -7,10 +7,6 @@
  */
 class Highlightor {
     constructor() {
-        this.activeIcon = {
-            id: null,
-            element: null
-        };
         this.canvas = {
             isDrawing: false,
             drawEnabled: false,
@@ -20,66 +16,21 @@ class Highlightor {
         this.htmlInserted = false;
     }
 
-    iconClickHandler(element, event) {
-        var icon = element.firstElementChild;
-        if(icon.id === "highlighter") {
-            if(!element.classList.contains('active')) {
-                this.disableAllIcons();
-                this.activeIcon = {
-                    id: "highlighter",
-                    object: icon
-                };
-                element.classList.add('active');
-                icon.src = EXTENSIONPATH + 'images/highlighter-32_yellow.png';
-                document.querySelector('#highlighter-overlay canvas').style.cursor = "url(" + EXTENSIONPATH + "icons/highlighter-cursor-16.png), pointer";
-            } else {
-                icon.src = EXTENSIONPATH + 'images/highlighter-32.png';
-                element.classList.remove('active');
-                this.activeIcon = {};
-            }
-        } else if(icon.id === "eraser") {
-            if(!element.classList.contains('active')) {
-                this.activeIcon = {
-                    id: "eraser",
-                    object: icon
-                };
-                this.disableAllIcons();
-                element.classList.add('active');
-                icon.src = EXTENSIONPATH + 'images/eraser-32_red.png';
-                document.querySelector('#highlighter-overlay canvas').style.cursor = "url(" + EXTENSIONPATH + "icons/eraser-cursor-16.png), pointer";
-            } else {
-                element.classList.remove('active');
-                icon.src = EXTENSIONPATH + 'images/eraser-32.png';
-                this.activeIcon = {};
-            }
-        }
-        return true;
-    }
-
-    insertIcons() {
-        document.querySelector('#highlighter-overlay img#highlighter.highlighter-icon').src = EXTENSIONPATH + "images/highlighter-32.png";
-        document.querySelector('#highlighter-overlay img#eraser.highlighter-icon').src = EXTENSIONPATH + "images/eraser-32.png";
-    }
-
-    attachHandlers() {        
-        Array.from(document.querySelectorAll('#highlighter-overlay .icon-container')).forEach(function(element) {
-            element.addEventListener('click', this.iconClickHandler.bind(this, element));
-        }, this);
-        var closeIcon = document.querySelector("#highlighter-overlay #close-overlay");
+    attachHandlers() {
+        var closeIcon = document.querySelector("#close-overlay.highlighter"),
+            confirmBtn = document.querySelector("#confirm-message.highlighter");
         closeIcon.addEventListener("click", function() {
             closeIcon.parentElement.style.display = "none";
-            document.querySelector('#highlighter-overlay #canvas-container').className = 'expanded';
             this.canvas.drawEnabled = true;
         }.bind(this, closeIcon));
-        var confirm = document.querySelector("#highlighter-overlay #confirm-overlay");
-        confirm.addEventListener('click', function() {
-            confirm.parentNode.parentElement.style.display = "none";
-            document.querySelector('#highlighter-overlay #canvas-container').className = 'expanded';
+        confirmBtn.addEventListener('click', function() {
+            confirmBtn.parentNode.parentElement.style.display = "none";
             this.canvas.drawEnabled = true;
-        }.bind(this, confirm), false);
+        }.bind(this, confirmBtn));
     }
 
     insertOverlay() {
+        'use strict';
         var request = new XMLHttpRequest();
         request.open('GET', EXTENSIONPATH + "content-scripts/html/highlight.html", true);
         request.overrideMimeType("text/plain; charset=utf-8");
@@ -93,24 +44,17 @@ class Highlightor {
     }
 
     closeOverlay() {
-        document.getElementById('highlighter-overlay').remove();
-    }
-
-    disableAllIcons() {
-        this.activeIcon = {};
-        document.querySelector('#highlighter-overlay canvas').style.cursor = "default";
-        Array.from(document.querySelectorAll('#highlighter-overlay #controls .icon-container.active')).forEach(function(element) {
-            element.classList.remove('active');
-            element.firstElementChild.src = EXTENSIONPATH + 'images/' + element.firstElementChild.id + '-32.png';
-        });
+        document.querySelector('#canvas.highlighter').remove();
+        document.querySelector('#canvas-overlay.highlighter').remove();
     }
 
     initCanvas() {
         // assign proper variables
         this.canvas.element = document.querySelector('#highlighter-overlay #canvas-drawing');
+        this.canvas.element.width = window.innerWidth;
+        this.canvas.element.height = document.documentElement.offsetHeight;
         this.canvas.context = this.canvas.element.getContext('2d');
         this.canvas.context.fillCircle = function(x, y, radius, fillColor) {
-            console.log('drawing', x, y, radius, fillColor);
             this.fillStyle = fillColor;
             this.beginPath();
             this.moveTo(x, y);
@@ -139,36 +83,76 @@ class Highlightor {
     }
 }
 
-var highlightorObj = new Highlightor();
-
 function insertHighlighterContent() {
-    highlightorObj.insertOverlay();
-    var checkCodeExists = setInterval(function() {
-        if(highlightorObj.htmlInserted) {
-            highlightorObj.insertIcons();
-            highlightorObj.attachHandlers();    
-            highlightorObj.initCanvas();
-            clearInterval(checkCodeExists);
-        }
-    }, 500);
+    var obj = new Highlightor();
+    obj.insertOverlay();
+    setTimeout(function() {
+        obj.attachHandlers();
+        // obj.initCanvas();
+    }, 750);
 }
 
 function removeHighlighterContent() {
-    highlightorObj.closeOverlay();
+    var object = new Highlightor();
+    object.closeOverlay();
 }
 
 function handleContent(message) {
-    if(message.handleOverlay) {
-        if(document.getElementById('highlighter-overlay') == null) {
-            insertHighlighterContent();
-        }
+    if(message.handleOverlay && (document.querySelector('#canvas.highlighter') == null)) {
+        insertHighlighterContent();
     } else {
-        if((typeof document.getElementById('highlighter-overlay') !== 'undefined') && (document.getElementById('highlighter-overlay') != null)) {
-            removeHighlighterContent();
-        }
+        removeHighlighterContent();
     }
 }
 
-browser.runtime.onMessage.addListener(handleContent);
+chrome.runtime.onMessage.addListener(handleContent);
 
 insertHighlighterContent();
+
+// iconClickHandler(element, event) {
+//     var icon = element.firstElementChild;
+//     if(icon.id === "highlighter") {
+//         if(!element.classList.contains('active')) {
+//             this.disableAllIcons();
+//             this.activeIcon = {
+//                 id: "highlighter",
+//                 object: icon
+//             };
+//             element.classList.add('active');
+//             icon.src = EXTENSIONPATH + 'images/highlighter-32_yellow.png';
+//             document.querySelector('#highlighter-overlay canvas').style.cursor = "url(" + EXTENSIONPATH + "icons/highlighter-cursor-16.png), pointer";
+//         } else {
+//             icon.src = EXTENSIONPATH + 'images/highlighter-32.png';
+//             element.classList.remove('active');
+//             this.activeIcon = {};
+//         }
+//     } else if(icon.id === "eraser") {
+//         if(!element.classList.contains('active')) {
+//             this.activeIcon = {
+//                 id: "eraser",
+//                 object: icon
+//             };
+//             this.disableAllIcons();
+//             element.classList.add('active');
+//             icon.src = EXTENSIONPATH + 'images/eraser-32_red.png';
+//             document.querySelector('#highlighter-overlay canvas').style.cursor = "url(" + EXTENSIONPATH + "icons/eraser-cursor-16.png), pointer";
+//         } else {
+//             element.classList.remove('active');
+//             icon.src = EXTENSIONPATH + 'images/eraser-32.png';
+//             this.activeIcon = {};
+//         }
+//     }
+//     return true;
+// }
+// this.activeIcon = {
+//     id: null,
+//     element: null
+// };
+// disableAllIcons() {
+//     this.activeIcon = {};
+//     document.querySelector('#highlighter-overlay canvas').style.cursor = "default";
+//     Array.from(document.querySelectorAll('#highlighter-overlay #controls .icon-container.active')).forEach(function(element) {
+//         element.classList.remove('active');
+//         element.firstElementChild.src = EXTENSIONPATH + 'images/' + element.firstElementChild.id + '-32.png';
+//     });
+// }

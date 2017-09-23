@@ -1,49 +1,25 @@
 {
   "manifest_version": 2,
   "name": "Web Page Highlighter",
-  "description": "Displays a sidebar that lets you take notes on web pages.",
-  "version": "1.0",
-  "applications": {
-    "gecko": {
-      "strict_min_version": "54.0a1"
-    }
-  },
-
+  "description": "Lets you take notes on the web page.",
+  "version": "0.0.1",
   "browser_action": {
-    "browser_style": true,
     "default_icon": {
-      "16": "icons/draw-16.png",
-      "32": "icons/draw-32.png"
+      "16": "images/draw-16.png",
+      "32": "images/draw-32.png"
     },
     "default_title": "Highlight Page"
   },
-
   "background": {
     "scripts": ["background.js"]
   },
-
-  "permissions": ["activeTab", "<all_urls>"],
-
+  "permissions": [
+    "activeTab"
+  ],
   "web_accessible_resources": [
-    "icons/highlighter-16.png",
-    "icons/highlighter-32.png",
-    "icons/highlighter-32_yellow.png",
-    "icons/eraser-16.png",
-    "icons/eraser-32.png",
-    "icons/eraser-32_red.png",
-    "icons/eraser-cursor-16.png",
-    "icons/eraser-cursor-32.png",
-    "icons/highlighter-cursor.png",
-    "icons/highlighter-cursor-16.png",
-    "icons/highlighter-cursor-32.png"
+    "images/*.png",
+    "content-scripts/html/highlight.html",
+    "content-scripts/css/highlight.min.css",
+    "content-scripts/js/highlight.min.js"
   ]
-
-  // "commands": {
-  //   "_execute_sidebar_action": {
-  //     "suggested_key": {
-  //       "default": "Ctrl+Shift+Y"
-  //     }
-  //   }
-  // }
-
 }

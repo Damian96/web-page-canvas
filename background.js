@@ -1,49 +1,32 @@
-var highlighterOpen = {};
+/* globals chrome */
 
-browser.browserAction.onClicked.addListener(function() {
-    var querying = browser.tabs.query({currentWindow: true, active: true});
-    querying.then(function(tabs) {
-        if (tabs.length > 0) {
-            var gettingInfo = browser.tabs.get(tabs[0].id);
-            gettingInfo.then(function(tabInfo) {
-                if(typeof highlighterOpen[tabInfo.id] === 'undefined') {
-                    var injectUri = browser.tabs.executeScript(
-                        tabInfo.id,
-                        {
-                            code: "var EXTENSIONPATH = '" + browser.extension.getURL('/') + "';"
-                        }
-                    );
-                    var injectJS = browser.tabs.executeScript(
-                        tabInfo.id,
-                        {
-                            file: 'content-scripts/js/highlight.min.js'
-                        }
-                    );
-                    var injectCSS = browser.tabs.insertCSS(
-                        tabInfo.id,
-                        {
-                            file: 'content-scripts/css/highlight.min.css'
-                        }
-                    );
-                    highlighterOpen[tabInfo.id] = true;
-                } else if(typeof highlighterOpen[tabInfo.id] === 'boolean') {
-                    if(highlighterOpen[tabInfo.id]) {
-                        browser.tabs.sendMessage(tabInfo.id, {handleOverlay: false});
-                        highlighterOpen[tabInfo.id] = false;
-                    } else {
-                        browser.tabs.sendMessage(tabInfo.id, {handleOverlay: true});
-                        highlighterOpen[tabInfo.id] = true;
-                    }
-                }
-            });
-        }
-    });
+var highlighterOpen = [];
+
+chrome.browserAction.onClicked.addListener(function(tab) {
+    if(highlighterOpen[tab.id] == null) {
+        chrome.tabs.executeScript(tab.id,
+        {
+            code: "var EXTENSIONPATH = '" + chrome.runtime.getURL('/') + "';"
+        });
+        chrome.tabs.executeScript(tab.id,
+        {
+            file: 'content-scripts/js/highlight.min.js'
+        });
+        chrome.tabs.insertCSS(tab.id,
+        {
+            file: 'content-scripts/css/highlight.min.css'
+        });
+        highlighterOpen[tab.id] = true;
+    } else if(typeof highlighterOpen[tab.id] === 'boolean') {
+        chrome.tabs.sendMessage(tab.id, {handleOverlay: !highlighterOpen[tab.id]});
+        highlighterOpen[tab.id] = !highlighterOpen[tab.id];
+    }
 });
 
-browser.tabs.onUpdated.addListener(handleUpdated);
+chrome.tabs.onUpdated.addListener(handleUpdated);
 
-function handleUpdated(tabId, changeInfo, tabInfo) {
-    if(typeof highlighterOpen[tabId] !== 'undefined') {
+function handleUpdated(tabId) {
+    if(typeof highlighterOpen[tabId] === 'boolean') {
         highlighterOpen[tabId] = undefined;
     }
 }
