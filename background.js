@@ -11,6 +11,10 @@ chrome.browserAction.onClicked.addListener(function(tab) {
         });
         chrome.tabs.executeScript(tab.id,
         {
+            file: 'content-scripts/js/dom-to-image.min.js'
+        });
+        chrome.tabs.executeScript(tab.id,
+        {
             file: 'content-scripts/js/highlight.min.js'
         });
         chrome.tabs.insertCSS(tab.id,

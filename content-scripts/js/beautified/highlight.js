@@ -11,12 +11,18 @@ class Highlightor {
             id: 'highlighter'
         };
         this.canvas = {
+            clickX: [],
+            clickY: [],
+            clickDrag: [],
             isDrawing: false,
+            color: '#faff00',
+            lineWidth: 5,
             drawEnabled: false,
             element: null,
             context: null
         };
         this.htmlInserted = false;
+        this.downloads = 0;
     }
 
     attachHandlers() {
@@ -32,6 +38,13 @@ class Highlightor {
         }.bind(this, confirmBtn));
         Array.from(document.querySelectorAll("#toolbar.highlighter .tool-container:not([title='Clear All'])")).forEach(function(element) {
             element.addEventListener('click', this.iconClickHandler.bind(this, element));
+        }.bind(this));
+        document.querySelector('#toolbar.highlighter #save-page').addEventListener('click', function() {
+            var link = document.createElement('a');
+            link.src = dataUrl;
+            link.download = location.hostname + '_' + this.getCurrentDate();
+            document.body.appendChild(link);
+            link.click();
         }.bind(this));
     }
 
@@ -55,9 +68,35 @@ class Highlightor {
         document.querySelector('#toolbar.highlighter').remove();
     }
 
+    getCurrentDate() {
+        var today = new Date();
+        var days = today.getDate();
+        var months = today.getMonth() + 1;
+        var years = today.getFullYear();
+        var hours  = today.getHours();
+        var minutes = today.getMinutes();
+        var seconds = today.getSeconds();
+
+        days = this.addZero(days);
+        months = this.addZero(months);
+        years = this.addZero(years);
+        hours = this.addZero(hours);
+        minutes = this.addZero(minutes);
+        seconds = this.addZero(seconds);
+
+        return days + '-' + months + '-' + years + '_' + hours + '-' + minutes + '-' + seconds;
+    }
+
+    addZero(num) {
+        if(num < 10) {
+            return '0' + num;
+        }
+        return num;
+    }
+
     initCanvas() {
         // assign proper variables
-        this.canvas.element = document.querySelector('#highlighter-overlay #canvas-drawing');
+        this.canvas.element = document.querySelector('#canvas.highlighter');
         this.canvas.element.width = window.innerWidth;
         this.canvas.element.height = document.documentElement.offsetHeight;
         this.canvas.context = this.canvas.element.getContext('2d');
@@ -74,19 +113,50 @@ class Highlightor {
     
         // bind mouse events
         this.canvas.element.onmousemove = function(e) {
-            if(!this.canvas.drawEnabled || !this.canvas.isDrawing) {
-                return;
+            if(this.canvas.drawEnabled && this.canvas.isDrawing) {
+                this.addClick(e.pageX - this.canvas.element.offsetLeft, e.pageY - this.canvas.element.offsetTop, true);
+                this.draw();
             }
-            var radius = 3;
-            var fillColor = '#ff0000';
-            this.canvas.context.fillCircle(e.pageX - this.canvas.element.offsetLeft * 2, e.pageY - this.canvas.element.offsetTop, radius, fillColor);
         }.bind(this);
-        this.canvas.element.onmousedown = function() {
+        this.canvas.element.onmousedown = function(e) {
             this.canvas.isDrawing = true;
+            this.addClick(e.pageX - this.canvas.element.offsetLeft, e.pageY - this.canvas.element.offsetTop);            
+            this.draw();
         }.bind(this);
         this.canvas.element.onmouseup = function() {
             this.canvas.isDrawing = false;
         }.bind(this);
+        this.canvas.element.onmouseleave = function() {
+            this.canvas.isDrawing = false;
+        }.bind(this);
+    }
+
+    addClick(x, y, dragging) {
+        this.canvas.clickX.push(x);
+        this.canvas.clickY.push(y);
+        this.canvas.clickDrag.push(dragging);
+    }
+
+    draw() {
+        this.canvas.context.strokeStyle = this.canvas.color;
+        this.canvas.context.lineJoin = "round";
+        this.canvas.context.lineWidth = this.canvas.lineWidth;
+                  
+        for(var i=0; i < this.canvas.clickX.length; i++) {		
+            this.canvas.context.beginPath();
+            if(this.canvas.clickDrag[i] && i){
+                this.canvas.context.moveTo(this.canvas.clickX[i-1], this.canvas.clickY[i-1]);
+            } else {
+                this.canvas.context.moveTo(this.canvas.clickX[i]-1, this.canvas.clickY[i]);
+            }
+            this.canvas.context.lineTo(this.canvas.clickX[i], this.canvas.clickY[i]);
+            this.canvas.context.closePath();
+            this.canvas.context.stroke();
+        }
+    }
+    
+    clearCanvas() {
+        this.canvas.context.clearRect(0, 0, this.canvas.context.canvas.width, this.canvas.context.canvas.height); // Clears the canvas
     }
 
     iconClickHandler(element) {
@@ -112,10 +182,11 @@ class Highlightor {
 
 function insertHighlighterContent() {
     var obj = new Highlightor();
+    console.log(domtoimage);
     obj.insertOverlay();
     setTimeout(function() {
         obj.attachHandlers();
-        // obj.initCanvas();
+        obj.initCanvas();
     }, 750);
 }
 

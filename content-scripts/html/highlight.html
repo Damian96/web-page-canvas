@@ -2,21 +2,32 @@
 <div id="canvas-overlay" class="highlighter">
     <span id='close-overlay' class="highlighter" title="Close">&#10006;</span>
     <p id='overlay-message' class="highlighter">
-        Use the tools to your left to begin annotating the page.
+        Use the tools to your top to begin annotating the page.
         <br/><button id='confirm-message' class="highlighter" title="Close">&#10003;&nbsp;OK</button>
     </p>
 </div>
-<div id="toolbar" class="highlighter">
-    <div class="tool-container active" title="Highlighter">
-        <i id="highlighter" class="icon-pen_highlighter"></i>
+<div id="toolbar" class="aligned-top highlighter">
+    <div id="tools-box">
+            <div class="tool-container active" title="Highlighter">
+                    <i id="highlighter" class="icon-pen_highlighter"></i>
+                </div>
+                <div class="tool-container" title="Eraser">
+                    <i id="eraser" class="icon-eraser_highlighter"></i>
+                </div>
+                <div class="tool-container" title="Clear All">
+                    <i id="clear" class="icon-close_highlighter"></i>
+                </div>
     </div>
-    <div class="tool-container" title="Eraser">
-        <i id="eraser" class="icon-eraser_highlighter"></i>
-    </div>
-    <div class="tool-container" title="Clear All">
-        <i id="clear" class="icon-close_highlighter"></i>
-    </div>
-    <div id="close-toolbar" title="Close Toolbar">
-        <i id="cancel" class="icon-cancel_highlighter"></i>
+    <div id="options-box">
+        <div id="save-page" title="Save Notes">
+            <i id="save" class="icon-floppy-disk_highlighter"></i>
+        </div>
+        <div id="toolbar-alignment" title="Change Toolbar Position">
+            <i id="alignment" class="top icon-caret-square-o-down_highlighter"></i>
+            <i id="alignment" class="right icon-caret-square-o-down_highlighter"></i>
+        </div>
+        <div id="close-toolbar" title="Close Toolbar">
+            <i id="cancel" class="icon-cancel_highlighter"></i>
+        </div>
     </div>
 </div>

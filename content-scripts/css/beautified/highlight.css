@@ -1,3 +1,14 @@
+html, body {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.higlighter-download {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
 #canvas.highlighter {
     position: absolute;
     z-index: 2147483646;
@@ -61,25 +72,39 @@
 
 #toolbar.highlighter {
     position: fixed;
-    width: 80%;
-    height: 35px;
     display: block;
     z-index: 2147483647;
-    transform: translate(12.5%, 0);
     background-color: #7c7c7c;
     border: 1px solid #000000;
 }
 
-#toolbar.highlighter > .tool-container,
-#toolbar.highlighter > #close-toolbar,
+#toolbar.aligned-top {
+    left: 10%;
+    top: 0;
+    width: 80%;
+    height: 35px;
+}
+
+#toolbar.aligned-right {
+    top: 10%;
+    left: 100%;
+    transform: translate(-100%, 0);
+    width: 35px;
+    height: 80%;
+}
+
+#toolbar.highlighter > #tools-box,
+#toolbar.highlighter > #options-box,
+#toolbar.highlighter .tool-container,
+#toolbar.highlighter > #options-box > div,
 #toolbar.highlighter i {
     box-sizing: border-box;
     user-select: none;
     -webkit-user-select: none;
 }
 
-#toolbar.highlighter > .tool-container,
-#toolbar.highlighter > #close-toolbar {
+#toolbar.highlighter .tool-container,
+#toolbar.highlighter > #options-box > div {
     display: inline-block;
     width: 35px;
     height: 36px;
@@ -91,36 +116,75 @@
     position: relative;
 }
 
-#toolbar.highlighter > .tool-container {
-    border-right: 1px solid #000000;
+#toolbar.aligned-top.highlighter > #tools-box,
+#toolbar.aligned-top.highlighter > #options-box {
+    display: inline-block;
+    width: auto;
+    height: 36px;
+}
+
+#toolbar.aligned-right.highlighter > #tools-box,
+#toolbar.aligned-right.highlighter > #options-box {
+    display: block;
+    width: 35px;
+    height: auto;
+}
+
+#toolbar.aligned-top.highlighter > #options-box {
+    float: right;
+}
+
+#toolbar.aligned-right.highlighter > #options-box {
+    position: absolute;
+    top: 100%;
+    transform: translate(0, -100%);
+}
+
+#toolbar.highlighter .tool-container {
     position: relative;
 }
 
-#toolbar.highlighter > .tool-container.active:not([title="Clear All"]) {
+#toolbar.aligned-top.highlighter .tool-container {
+    border-right: 1px solid #000000;
+}
+
+#toolbar.aligned-right.highlighter .tool-container {
+    border-bottom: 1px solid #000000;
+}
+
+#toolbar.highlighter .tool-container.active:not([title="Clear All"]) {
     box-shadow: 0px 1px 2px 4px #494949 inset;
 }
 
-#toolbar.highlighter > .tool-container[title="Highlighter"].active {
+#toolbar.aligned-top.highlighter .tool-container[title="Highlighter"].active {
     border-bottom: 2px inset #FFFB00;
 }
 
-#toolbar.highlighter > .tool-container[title="Eraser"].active {
+#toolbar.aligned-right.highlighter .tool-container[title="Highlighter"].active {
+    border-left: 2px inset #FFFB00;
+}
+
+#toolbar.aligned-top.highlighter .tool-container[title="Eraser"].active {
     border-bottom: 2px inset #ff0000;
 }
 
-#toolbar.highlighter > .tool-container[title="Clear All"]:hover > i {
+#toolbar.aligned-right.highlighter .tool-container[title="Eraser"].active {
+    border-left: 2px inset #ff0000;
+}
+
+#toolbar.highlighter .tool-container[title="Clear All"]:hover > i {
     color: #ff0000;
 }
 
-#toolbar.highlighter > .tool-container:not([title="Highlighter"]) {
+#toolbar.aligned-top.highlighter .tool-container:not([title="Highlighter"]) {
     margin-left: -3.2px;
 }
 
-#toolbar.highlighter > .tool-container[title="Highlighter"] {
+#toolbar.aligned-top.highlighter .tool-container[title="Highlighter"] {
     top: -6px;
 }
 
-#toolbar.highlighter > .tool-container[title="Eraser"] {
+#toolbar.aligned-top.highlighter .tool-container[title="Eraser"] {
     top: -3px;
 }
 
@@ -142,14 +206,59 @@
     left: 3px;
 }
 
-#toolbar.highlighter #close-toolbar {
-    float: right;
+#toolbar.aligned-top.highlighter #save-page {
+    position: relative;
+    top: -5px;
+}
+
+#toolbar.aligned-right.highlighter #save-page {
+    position: relative;
+}
+
+#toolbar.highlighter i#save {
+    font-size: 19px;
+    position: relative;
+    top: 8.5px;
+    left: 7px;
+}
+
+#toolbar.highlighter #save-page:hover > i {
+    color: #1100FF;
+}
+
+#toolbar.aligned-top.highlighter #close-toolbar {
     border-left: 1px solid #000000;
+}
+
+#toolbar.aligned-right.highlighter #close-toolbar {
+    border-top: 1px solid #000000;
 }
 
 #toolbar.highlighter i#cancel {
     font-size: 23px;
     left: 5px;
-    color: #ff0000;
     top: 5px;
+    color: #ff0000;
+}
+
+#toolbar.aligned-top.highlighter > #options-box > div:not(#close-toolbar) {
+    margin-right: -3.2px;
+}
+
+#toolbar.highlighter #toolbar-alignment > i {
+    color: #ffffff;
+    font-size: 23px;
+    left: 7px;
+    top: 5px;
+    color: #0cff00;
+}
+
+#toolbar.aligned-top.highlighter #toolbar-alignment > i.right {
+    display: none;
+    border-left: 1px solid #000000;
+}
+
+#toolbar.aligned-right.highlighter #toolbar-alignment > i.top {
+    display: none;
+    border-top: 1px solid #000000;
 }
