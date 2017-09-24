@@ -12,13 +12,25 @@ compressor.minify({
 });
 
 compressor.minify({
-    compressor: 'clean-css',
-    input: './content-scripts/css/beautified/highlight.css',
-    output: './content-scripts/css/highlight.min.css',
-    options: {
-      advanced: false, // set to false to disable advanced optimizations - selector & property merging, reduction, etc.
-      aggressiveMerging: false // set to false to disable aggressive merging of properties.
-    },
-    callback: function (err, min) {
-    }
-  });
+  compressor: 'clean-css',
+  input: './content-scripts/css/beautified/highlight.css',
+  output: './content-scripts/css/highlight.min.css',
+  options: {
+    advanced: false, // set to false to disable advanced optimizations - selector & property merging, reduction, etc.
+    aggressiveMerging: false // set to false to disable aggressive merging of properties.
+  },
+  callback: function (err, min) {
+  }
+});
+
+compressor.minify({
+  compressor: 'clean-css',
+  input: './content-scripts/css/beautified/icons.css',
+  output: './content-scripts/css/icons.min.css',
+  options: {
+    advanced: false, // set to false to disable advanced optimizations - selector & property merging, reduction, etc.
+    aggressiveMerging: false // set to false to disable aggressive merging of properties.
+  },
+  callback: function (err, min) {
+  }
+});

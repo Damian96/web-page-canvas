@@ -10,8 +10,7 @@
     "debug-content": "jshint ./content-scripts/js/beautified/highlight.js",
     "debug-bg": "jshint background.js",
     "debug": "jshint ./content-scripts/js/beautified/highlight.js && jshint background.js",
-    "minify-content": "node ./node_scripts/minify-content.js",
-    "minify-panel": ""
+    "minify": "node ./node_scripts/minify-content.js"
   },
   "author": "Damianos Giankakis",
   "license": "UNLICENSED",

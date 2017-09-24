@@ -7,6 +7,9 @@
  */
 class Highlightor {
     constructor() {
+        this.activeIcon = {
+            id: 'highlighter'
+        };
         this.canvas = {
             isDrawing: false,
             drawEnabled: false,
@@ -27,6 +30,9 @@ class Highlightor {
             confirmBtn.parentNode.parentElement.style.display = "none";
             this.canvas.drawEnabled = true;
         }.bind(this, confirmBtn));
+        Array.from(document.querySelectorAll("#toolbar.highlighter .tool-container:not([title='Clear All'])")).forEach(function(element) {
+            element.addEventListener('click', this.iconClickHandler.bind(this, element));
+        }.bind(this));
     }
 
     insertOverlay() {
@@ -46,6 +52,7 @@ class Highlightor {
     closeOverlay() {
         document.querySelector('#canvas.highlighter').remove();
         document.querySelector('#canvas-overlay.highlighter').remove();
+        document.querySelector('#toolbar.highlighter').remove();
     }
 
     initCanvas() {
@@ -81,6 +88,26 @@ class Highlightor {
             this.canvas.isDrawing = false;
         }.bind(this);
     }
+
+    iconClickHandler(element) {
+        var isActive = element.classList.contains('active');
+        this.disableAllIcons();
+        if(!isActive) {
+            element.classList.add('active');
+            var icon = element.firstElementChild;
+            this.activeIcon.id = icon.id;                    
+        } else {
+            this.activeIcon.id = null;
+        }
+    }
+
+    disableAllIcons() {
+        this.activeIcon.id = null;
+        // document.querySelector('#highlighter-overlay canvas').style.cursor = "default";
+        Array.from(document.querySelectorAll('#toolbar.highlighter .tool-container.active')).forEach(function(element) {
+            element.classList.remove('active');
+        });
+    }
 }
 
 function insertHighlighterContent() {
@@ -108,51 +135,3 @@ function handleContent(message) {
 chrome.runtime.onMessage.addListener(handleContent);
 
 insertHighlighterContent();
-
-// iconClickHandler(element, event) {
-//     var icon = element.firstElementChild;
-//     if(icon.id === "highlighter") {
-//         if(!element.classList.contains('active')) {
-//             this.disableAllIcons();
-//             this.activeIcon = {
-//                 id: "highlighter",
-//                 object: icon
-//             };
-//             element.classList.add('active');
-//             icon.src = EXTENSIONPATH + 'images/highlighter-32_yellow.png';
-//             document.querySelector('#highlighter-overlay canvas').style.cursor = "url(" + EXTENSIONPATH + "icons/highlighter-cursor-16.png), pointer";
-//         } else {
-//             icon.src = EXTENSIONPATH + 'images/highlighter-32.png';
-//             element.classList.remove('active');
-//             this.activeIcon = {};
-//         }
-//     } else if(icon.id === "eraser") {
-//         if(!element.classList.contains('active')) {
-//             this.activeIcon = {
-//                 id: "eraser",
-//                 object: icon
-//             };
-//             this.disableAllIcons();
-//             element.classList.add('active');
-//             icon.src = EXTENSIONPATH + 'images/eraser-32_red.png';
-//             document.querySelector('#highlighter-overlay canvas').style.cursor = "url(" + EXTENSIONPATH + "icons/eraser-cursor-16.png), pointer";
-//         } else {
-//             element.classList.remove('active');
-//             icon.src = EXTENSIONPATH + 'images/eraser-32.png';
-//             this.activeIcon = {};
-//         }
-//     }
-//     return true;
-// }
-// this.activeIcon = {
-//     id: null,
-//     element: null
-// };
-// disableAllIcons() {
-//     this.activeIcon = {};
-//     document.querySelector('#highlighter-overlay canvas').style.cursor = "default";
-//     Array.from(document.querySelectorAll('#highlighter-overlay #controls .icon-container.active')).forEach(function(element) {
-//         element.classList.remove('active');
-//         element.firstElementChild.src = EXTENSIONPATH + 'images/' + element.firstElementChild.id + '-32.png';
-//     });
-// }

@@ -20,6 +20,8 @@
     "images/*.png",
     "content-scripts/html/highlight.html",
     "content-scripts/css/highlight.min.css",
-    "content-scripts/js/highlight.min.js"
+    "content-scripts/css/icons.min.css",
+    "content-scripts/js/highlight.min.js",
+    "content-scripts/fonts/*.*"
   ]
 }
