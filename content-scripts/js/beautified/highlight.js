@@ -40,11 +40,17 @@ class Highlightor {
             element.addEventListener('click', this.iconClickHandler.bind(this, element));
         }.bind(this));
         document.querySelector('#toolbar.highlighter #save-page').addEventListener('click', function() {
-            var link = document.createElement('a');
-            link.src = dataUrl;
-            link.download = location.hostname + '_' + this.getCurrentDate();
-            document.body.appendChild(link);
-            link.click();
+            var scope = this;
+            html2canvas(document.body, {
+                onrendered: function(canvas) {
+                    // canvas is the final rendered <canvas> element
+                    var link = document.createElement('a');
+                    link.href = canvas.toDataURL();
+                    link.download = location.hostname + '_' + scope.getCurrentDate() + '.png';
+                    document.body.appendChild(link);
+                    link.click();
+                }
+            });
         }.bind(this));
     }
 
@@ -173,7 +179,6 @@ class Highlightor {
 
     disableAllIcons() {
         this.activeIcon.id = null;
-        // document.querySelector('#highlighter-overlay canvas').style.cursor = "default";
         Array.from(document.querySelectorAll('#toolbar.highlighter .tool-container.active')).forEach(function(element) {
             element.classList.remove('active');
         });
@@ -182,7 +187,6 @@ class Highlightor {
 
 function insertHighlighterContent() {
     var obj = new Highlightor();
-    console.log(domtoimage);
     obj.insertOverlay();
     setTimeout(function() {
         obj.attachHandlers();

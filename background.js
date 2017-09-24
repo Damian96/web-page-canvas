@@ -11,7 +11,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
         });
         chrome.tabs.executeScript(tab.id,
         {
-            file: 'content-scripts/js/dom-to-image.min.js'
+            file: 'content-scripts/js/html2canvas.min.js'
         });
         chrome.tabs.executeScript(tab.id,
         {
