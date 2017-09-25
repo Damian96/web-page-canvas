@@ -72,7 +72,7 @@ class Highlightor {
             chrome.runtime.sendMessage({overlayStatus: false});
         }.bind(this));
         Array.from(document.querySelectorAll('.highlighter.popup span.color')).forEach(function(element) {
-            element.addEventListener('click', this.toolColorClickHandler.bind(this, element));
+            element.addEventListener('mousedown', this.toolColorClickHandler.bind(this, element));
         }.bind(this));
     }
 
@@ -211,7 +211,8 @@ class Highlightor {
             this.activeIcon.id = icon.id;
             this.changeToolColor(icon.id);
         } else {
-            element.style.borderColor = '';
+            element.style.borderBottomColor = '';
+            element.style.borderLeftColor = '';
         }
     }
 
@@ -220,7 +221,8 @@ class Highlightor {
         var element = document.querySelector('#toolbar.highlighter i#' + iconId).parentElement;
         switch(iconId) {
             case 'paint-brush':
-                element.style.borderColor = this.canvas.brushColor;
+                element.style.borderBottomColor = this.canvas.brushColor;
+                element.style.borderLeftColor = this.canvas.brushColor;
                 break;
         }
     }
@@ -244,21 +246,32 @@ class Highlightor {
 
     optionsPopupHandler(element, event) {
         'use strict';
-        if(event.type === 'mouseenter') {
-            var id = element.firstElementChild.id;
-            var popup = document.querySelector('#' + id + '.popup.highlighter');
-            if(popup == null) {
-                return;
-            }
-            if(popup.classList.contains('hidden')) {
-                var x = element.offsetLet + element.offsetWidth;
-                var y = element.offsetTop + element.offsetHeight;
-                popup.classList.remove('hidden');
-                popup.classList.add('visible');
-                popup.style.left = x + 'px';
-                popup.style.top = y + 'px';
+        var id = element.firstElementChild.id;
+        var popup = document.querySelector('#' + id + '.popup.highlighter');
+        if((popup == null) || !element.classList.contains('active')) {
+            return;
+        }
+        if((event.type === 'mouseenter') && (popup.classList.contains('hidden'))) {
+            var rect = element.getBoundingClientRect();
+            var x = rect.x;
+            var y = rect.y + element.offsetHeight;
+            popup.classList.remove('hidden');
+            popup.classList.add('visible');
+            popup.style.left = x + 'px';
+            popup.style.top = y + 'px';
+        } else if((event.type === 'mouseleave') && (popup.classList.contains('visible'))) {
+            if((event.toElement.id === id) && event.toElement.classList.contains('popup')) {
+                popup.addEventListener('mouseleave', this.hidePopup.bind(this, popup));
+                popup.addEventListener('mousedown', this.hidePopup.bind(this, popup));
+            } else {
+                this.hidePopup(popup);
             }
         }
+    }
+
+    hidePopup(element) {
+        element.classList.remove('visible');
+        element.classList.add('hidden');
     }
 
     disableAllIcons() {
@@ -272,6 +285,7 @@ class Highlightor {
 function insertHighlighterContent() {
     'use strict';
     var object = new Highlightor();
+    console.log(EXTENSIONPATH + 'content-scripts/html/highlight.html');
     object.insertOverlay();
     setTimeout(function() {
         object.attachHandlers();

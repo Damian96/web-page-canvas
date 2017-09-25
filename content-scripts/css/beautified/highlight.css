@@ -1,3 +1,5 @@
+/* Canvas and Overlay CSS */
+
 html, body {
     user-select: none;
     -webkit-user-select: none;
@@ -69,6 +71,8 @@ html, body {
     left: 50%;
     transform: translate(-50%, -75%);
 }
+
+/* Toolbar CSS */
 
 #toolbar.highlighter {
     position: fixed;
@@ -302,6 +306,7 @@ html, body {
     border-width: 0 1px 1px 1px;
     border-style: solid;
     border-color: #000000;
+    padding: 0 10px;
 }
 
 .popup.highlighter.visible .color {
