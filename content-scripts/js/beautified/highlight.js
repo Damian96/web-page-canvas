@@ -1,4 +1,4 @@
-/* globals chrome, EXTENSIONPATH */
+/* globals chrome, EXTENSIONPATH, html2canvas */
 
 /**
  * The main frontend plugin class.
@@ -14,8 +14,11 @@ class Highlightor {
             clickX: [],
             clickY: [],
             clickDrag: [],
+            clickColor: [],
             isDrawing: false,
-            color: '#faff00',
+            brushColor: '#0000FF',
+            markerColor: '#FFFF00',
+            highlightColor: '#ff0000',
             lineWidth: 5,
             drawEnabled: false,
             element: null,
@@ -36,21 +39,40 @@ class Highlightor {
             confirmBtn.parentNode.parentElement.style.display = "none";
             this.canvas.drawEnabled = true;
         }.bind(this, confirmBtn));
-        Array.from(document.querySelectorAll("#toolbar.highlighter .tool-container:not([title='Clear All'])")).forEach(function(element) {
+        Array.from(document.querySelectorAll("#toolbar.highlighter .tool-container")).forEach(function(element) {
             element.addEventListener('click', this.iconClickHandler.bind(this, element));
+            element.addEventListener('mouseenter', this.optionsPopupHandler.bind(this, element));
+            element.addEventListener('mouseleave', this.optionsPopupHandler.bind(this, element));
         }.bind(this));
         document.querySelector('#toolbar.highlighter #save-page').addEventListener('click', function() {
             var scope = this;
             html2canvas(document.body, {
                 onrendered: function(canvas) {
-                    // canvas is the final rendered <canvas> element
                     var link = document.createElement('a');
+                    link.className = "highlighter-download";
                     link.href = canvas.toDataURL();
                     link.download = location.hostname + '_' + scope.getCurrentDate() + '.png';
                     document.body.appendChild(link);
                     link.click();
                 }
             });
+        }.bind(this));
+        document.querySelector('#toolbar.highlighter #toolbar-alignment').addEventListener('click', function() {
+            var toolbar = document.querySelector('#toolbar.highlighter');
+            if(toolbar.classList.contains('aligned-top')) {
+                toolbar.classList.remove('aligned-top');
+                toolbar.classList.add('aligned-right');
+            } else if(toolbar.classList.contains('aligned-right')) {
+                toolbar.classList.remove('aligned-right');
+                toolbar.classList.add('aligned-top');                
+            }
+        });
+        document.querySelector('#toolbar.highlighter #close-toolbar').addEventListener('click', function() {
+            this.closeOverlay();
+            chrome.runtime.sendMessage({overlayStatus: false});
+        }.bind(this));
+        Array.from(document.querySelectorAll('.highlighter.popup span.color')).forEach(function(element) {
+            element.addEventListener('click', this.toolColorClickHandler.bind(this, element));
         }.bind(this));
     }
 
@@ -119,15 +141,21 @@ class Highlightor {
     
         // bind mouse events
         this.canvas.element.onmousemove = function(e) {
-            if(this.canvas.drawEnabled && this.canvas.isDrawing) {
-                this.addClick(e.pageX - this.canvas.element.offsetLeft, e.pageY - this.canvas.element.offsetTop, true);
+            if(this.canvas.drawEnabled && this.canvas.isDrawing && (this.activeIcon.id === 'paint-brush')) {
+                var x = e.pageX - this.canvas.element.offsetLeft;
+                var y = e.pageY - this.canvas.element.offsetTop;
+                this.addClick(x, y, true);
                 this.draw();
             }
         }.bind(this);
         this.canvas.element.onmousedown = function(e) {
-            this.canvas.isDrawing = true;
-            this.addClick(e.pageX - this.canvas.element.offsetLeft, e.pageY - this.canvas.element.offsetTop);            
-            this.draw();
+            if(this.activeIcon.id === 'paint-brush') {
+                var x = e.pageX - this.canvas.element.offsetLeft;
+                var y = e.pageY - this.canvas.element.offsetTop;
+                this.canvas.isDrawing = true;
+                this.addClick(x, y, false);            
+                this.draw();
+            }
         }.bind(this);
         this.canvas.element.onmouseup = function() {
             this.canvas.isDrawing = false;
@@ -141,39 +169,95 @@ class Highlightor {
         this.canvas.clickX.push(x);
         this.canvas.clickY.push(y);
         this.canvas.clickDrag.push(dragging);
+        this.canvas.clickColor.push(this.canvas.brushColor);
     }
 
     draw() {
-        this.canvas.context.strokeStyle = this.canvas.color;
         this.canvas.context.lineJoin = "round";
         this.canvas.context.lineWidth = this.canvas.lineWidth;
-                  
-        for(var i=0; i < this.canvas.clickX.length; i++) {		
+        for(var i=0; i < this.canvas.clickX.length; i++) {
             this.canvas.context.beginPath();
             if(this.canvas.clickDrag[i] && i){
-                this.canvas.context.moveTo(this.canvas.clickX[i-1], this.canvas.clickY[i-1]);
+                this.canvas.context.moveTo(this.canvas.clickX[i - 1], this.canvas.clickY[i - 1]);
             } else {
-                this.canvas.context.moveTo(this.canvas.clickX[i]-1, this.canvas.clickY[i]);
+                this.canvas.context.moveTo(this.canvas.clickX[i] - 1, this.canvas.clickY[i]);
             }
             this.canvas.context.lineTo(this.canvas.clickX[i], this.canvas.clickY[i]);
             this.canvas.context.closePath();
+            this.canvas.context.strokeStyle = this.canvas.clickColor[i];
             this.canvas.context.stroke();
         }
     }
     
     clearCanvas() {
-        this.canvas.context.clearRect(0, 0, this.canvas.context.canvas.width, this.canvas.context.canvas.height); // Clears the canvas
+        this.canvas.clickX = [];
+        this.canvas.clickY = [];
+        this.canvas.clickDrag = [];
+        this.canvas.context.clearRect(0, 0, this.canvas.element.width, this.canvas.element.height);
     }
 
     iconClickHandler(element) {
+        'use strict';
+        if(element.title === 'Clear All') {
+            this.clearCanvas();
+            this.disableAllIcons();
+            return;
+        }
         var isActive = element.classList.contains('active');
         this.disableAllIcons();
         if(!isActive) {
             element.classList.add('active');
             var icon = element.firstElementChild;
-            this.activeIcon.id = icon.id;                    
+            this.activeIcon.id = icon.id;
+            this.changeToolColor(icon.id);
         } else {
-            this.activeIcon.id = null;
+            element.style.borderColor = '';
+        }
+    }
+
+    changeToolColor(iconId) {
+        'use strict';
+        var element = document.querySelector('#toolbar.highlighter i#' + iconId).parentElement;
+        switch(iconId) {
+            case 'paint-brush':
+                element.style.borderColor = this.canvas.brushColor;
+                break;
+        }
+    }
+
+    toolColorClickHandler(element) {
+        'use strict';
+        var toolId = element.parentElement.id;
+        if((toolId == null) || (toolId === 'eraser')) {
+            return;
+        }
+        switch(toolId) {
+            case 'paint-brush':
+                this.canvas.brushColor = element.id;
+                break;
+            case 'highlighter':
+                this.canvas.markerColor = element.id;
+                break;
+        }
+        this.changeToolColor(toolId);
+    }
+
+    optionsPopupHandler(element, event) {
+        'use strict';
+        if(event.type === 'mouseenter') {
+            var id = element.firstElementChild.id;
+            var popup = document.querySelector('#' + id + '.popup.highlighter');
+            if(popup == null) {
+                return;
+            }
+            if(popup.classList.contains('hidden')) {
+                var x = element.offsetLet + element.offsetWidth;
+                var y = element.offsetTop + element.offsetHeight;
+                popup.classList.remove('hidden');
+                popup.classList.add('visible');
+                popup.style.left = x + 'px';
+                popup.style.top = y + 'px';
+            }
         }
     }
 
@@ -186,15 +270,17 @@ class Highlightor {
 }
 
 function insertHighlighterContent() {
-    var obj = new Highlightor();
-    obj.insertOverlay();
+    'use strict';
+    var object = new Highlightor();
+    object.insertOverlay();
     setTimeout(function() {
-        obj.attachHandlers();
-        obj.initCanvas();
+        object.attachHandlers();
+        object.initCanvas();
     }, 750);
 }
 
 function removeHighlighterContent() {
+    'use strict';
     var object = new Highlightor();
     object.closeOverlay();
 }

@@ -142,6 +142,7 @@ html, body {
 
 #toolbar.highlighter .tool-container {
     position: relative;
+    border-width: 0px;
 }
 
 #toolbar.aligned-top.highlighter .tool-container {
@@ -165,11 +166,23 @@ html, body {
 }
 
 #toolbar.aligned-top.highlighter .tool-container[title="Eraser"].active {
-    border-bottom: 2px inset #ff0000;
+    border-width: 0 0 2px 0;
+    border-bottom-style: inset;
+    border-bottom-color: #ff0000;
 }
 
 #toolbar.aligned-right.highlighter .tool-container[title="Eraser"].active {
     border-left: 2px inset #ff0000;
+}
+
+#toolbar.aligned-top.highlighter .tool-container[title='Paint Brush'].active {
+    border-width: 0 0 2px 0;
+    border-bottom-style: inset;
+}
+
+#toolbar.aligned-right.highlighter .tool-container[title='Paint Brush'].active {
+    border-width: 0 0 0 2px;
+    border-left-style: inset;
 }
 
 #toolbar.highlighter .tool-container[title="Clear All"]:hover > i {
@@ -177,7 +190,7 @@ html, body {
 }
 
 #toolbar.aligned-top.highlighter .tool-container:not([title="Highlighter"]) {
-    margin-left: -3.2px;
+    margin-left: -3.6px;
 }
 
 #toolbar.aligned-top.highlighter .tool-container[title="Highlighter"] {
@@ -186,6 +199,10 @@ html, body {
 
 #toolbar.aligned-top.highlighter .tool-container[title="Eraser"] {
     top: -3px;
+}
+
+#toolbar.aligned-top.highlighter .tool-container[title='Paint Brush'] {
+    top: -7px;
 }
 
 #toolbar.highlighter i#highlighter {
@@ -204,6 +221,12 @@ html, body {
     font-size: 25px;  
     top: 5px;
     left: 3px;
+}
+
+#toolbar.highlighter i#paint-brush {
+    font-size: 18px;
+    top: 9px;
+    left: 7px;
 }
 
 #toolbar.aligned-top.highlighter #save-page {
@@ -261,4 +284,63 @@ html, body {
 #toolbar.aligned-right.highlighter #toolbar-alignment > i.top {
     display: none;
     border-top: 1px solid #000000;
+}
+
+/* Popups CSS */
+
+.popup.highlighter.hidden {
+    display: none;
+}
+
+.popup.highlighter.visible {
+    width: 200px;
+    height: auto;
+    display: inline-block;
+    background-color: #ffffff;
+    z-index: 2147483649;
+    position: absolute;
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    border-color: #000000;
+}
+
+.popup.highlighter.visible .color {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+    cursor: pointer;
+}
+
+.popup.highlighter #red.color {
+    background-color: #FF0000;
+}
+
+.popup.highlighter #green.color {
+    background-color: #008000;
+}
+
+.popup.highlighter #blue.color {
+    background-color: #0000FF;
+}
+
+.popup.highlighter  #yellow.color {
+    background-color: #FFFF00;
+}
+
+.popup.highlighter #purple.color {
+    background-color: #800080;
+}
+
+.popup.highlighter #brown.color {
+    background-color: #A52A2A;
+}
+
+.popup.highlighter #black.color {
+    background-color: #000000;
+}
+
+.popup.highlighter hr {
+    border-bottom: 1px solid #000000;
 }

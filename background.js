@@ -29,9 +29,9 @@ chrome.browserAction.onClicked.addListener(function(tab) {
             file: 'content-scripts/css/icons.min.css'
         });
         highlighterOpen[tab.id] = true;
-    } else if(typeof highlighterOpen[tab.id] === 'boolean') {
-        chrome.tabs.sendMessage(tab.id, {handleOverlay: !highlighterOpen[tab.id]});
-        highlighterOpen[tab.id] = !highlighterOpen[tab.id];
+    } else if(highlighterOpen[tab.id]) {
+        chrome.tabs.sendMessage(tab.id, {handleOverlay: false});
+        highlighterOpen[tab.id] = undefined;
     }
 });
 
@@ -42,3 +42,9 @@ function handleUpdated(tabId) {
         highlighterOpen[tabId] = undefined;
     }
 }
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if(sender.tab && (request.overlayStatus == false)) {
+        highlighterOpen[sender.tab.id] = undefined;
+    }
+});
