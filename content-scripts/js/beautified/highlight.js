@@ -1,4 +1,4 @@
-/* globals chrome, EXTENSIONPATH, html2canvas */
+/* globals chrome */
 
 /**
  * The main frontend plugin class.
@@ -28,6 +28,11 @@ class Highlightor {
         this.downloads = 0;
     }
 
+    init() {
+        this.attachHandlers();
+        this.initCanvas();
+    }
+
     attachHandlers() {
         var closeIcon = document.querySelector("#close-overlay.highlighter"),
             confirmBtn = document.querySelector("#confirm-message.highlighter");
@@ -45,16 +50,9 @@ class Highlightor {
             element.addEventListener('mouseleave', this.optionsPopupHandler.bind(this, element));
         }.bind(this));
         document.querySelector('#toolbar.highlighter #save-page').addEventListener('click', function() {
-            var scope = this;
-            html2canvas(document.body, {
-                onrendered: function(canvas) {
-                    var link = document.createElement('a');
-                    link.className = "highlighter-download";
-                    link.href = canvas.toDataURL();
-                    link.download = location.hostname + '_' + scope.getCurrentDate() + '.png';
-                    document.body.appendChild(link);
-                    link.click();
-                }
+            chrome.runtime.sendMessage({
+                takeScreenshot: true,
+                canvasSrc: document.querySelector('canvas').toDataURL()
             });
         }.bind(this));
         document.querySelector('#toolbar.highlighter #toolbar-alignment').addEventListener('click', function() {
@@ -69,31 +67,14 @@ class Highlightor {
         });
         document.querySelector('#toolbar.highlighter #close-toolbar').addEventListener('click', function() {
             this.closeOverlay();
-            chrome.runtime.sendMessage({overlayStatus: false});
         }.bind(this));
         Array.from(document.querySelectorAll('.highlighter.popup span.color')).forEach(function(element) {
             element.addEventListener('mousedown', this.toolColorClickHandler.bind(this, element));
         }.bind(this));
     }
 
-    insertOverlay() {
-        'use strict';
-        var request = new XMLHttpRequest();
-        request.open('GET', EXTENSIONPATH + "content-scripts/html/highlight.html", true);
-        request.overrideMimeType("text/plain; charset=utf-8");
-        request.send();
-        request.onreadystatechange = function() {
-            if((request.readyState === 4) && (request.status == 200) || ((request.status == 0))) {
-                document.body.innerHTML += request.responseText;
-                this.htmlInserted = true;
-            }
-        }.bind(this);
-    }
-
     closeOverlay() {
-        document.querySelector('#canvas.highlighter').remove();
-        document.querySelector('#canvas-overlay.highlighter').remove();
-        document.querySelector('#toolbar.highlighter').remove();
+        chrome.runtime.sendMessage({handleOverlay: false});
     }
 
     getCurrentDate() {
@@ -282,31 +263,5 @@ class Highlightor {
     }
 }
 
-function insertHighlighterContent() {
-    'use strict';
-    var object = new Highlightor();
-    console.log(EXTENSIONPATH + 'content-scripts/html/highlight.html');
-    object.insertOverlay();
-    setTimeout(function() {
-        object.attachHandlers();
-        object.initCanvas();
-    }, 750);
-}
-
-function removeHighlighterContent() {
-    'use strict';
-    var object = new Highlightor();
-    object.closeOverlay();
-}
-
-function handleContent(message) {
-    if(message.handleOverlay && (document.querySelector('#canvas.highlighter') == null)) {
-        insertHighlighterContent();
-    } else {
-        removeHighlighterContent();
-    }
-}
-
-chrome.runtime.onMessage.addListener(handleContent);
-
-insertHighlighterContent();
+var object = new Highlightor();
+object.init();

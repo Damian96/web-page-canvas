@@ -1,6 +1,9 @@
 /* Canvas and Overlay CSS */
 
 html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
     user-select: none;
     -webkit-user-select: none;
 }
@@ -14,6 +17,8 @@ html, body {
 #canvas.highlighter {
     position: absolute;
     z-index: 2147483646;
+    width: 100%;
+    height: 100%;
 }
 
 #canvas-overlay.highlighter {

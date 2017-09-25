@@ -11,7 +11,9 @@
     "default_title": "Highlight Page"
   },
   "background": {
-    "scripts": ["background.js"]
+    "scripts": [
+      "background.js"
+    ]
   },
   "permissions": [
     "activeTab"

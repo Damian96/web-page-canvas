@@ -12,6 +12,17 @@ compressor.minify({
 });
 
 compressor.minify({
+  compressor: 'gcc',
+  input: './content-scripts/js/beautified/init.js',
+  output: './content-scripts/js/init.min.js',
+  options: {
+    compilation_level: 'WHITESPACE_ONLY'
+  },
+  callback: function (err, min) {
+  }
+});
+
+compressor.minify({
   compressor: 'clean-css',
   input: './content-scripts/css/beautified/highlight.css',
   output: './content-scripts/css/highlight.min.css',
