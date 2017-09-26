@@ -1,5 +1,8 @@
 /* globals chrome */
 
+var tabInfo = null;
+var background = chrome.extension.getBackgroundPage();
+
 /**
  * The main frontend plugin class.
  * Used for creating the Highlighting Mode layout.
@@ -27,7 +30,14 @@ class Main {
         this.attachHandlers();
     }
 
-    reload() {
+    reload(attributes) {
+        console.log(attributes);
+        this.activeTool = null;
+        this.toolInfo = null;
+        for(key in attributes) {
+            this[key] = attributes[key];
+        }
+        console.log(this);
         this.attachHandlers();
         this.reloadValues();
     }
@@ -51,9 +61,11 @@ class Main {
         var toolElement = document.querySelector(".tab-title" + dataSelector);
         this.toolClickHandler(toolElement);
         if(this.activeTool.id === 'paint-brush') {
-            var colorElement = document.querySelector(".tab-content" + dataSelector + " .color[data-color-code='" + this.toolInfo.paintBrush.colorCode)
-            var sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range");
-            var opacityElement = document.querySelector(".tab-content" + dataSelector + " .opacity-range");
+            var colorElement = document.querySelector(".tab-content" + dataSelector + " .color[data-color-code='" + this.toolInfo.paintBrush.color + "']"),
+                sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range"),
+                opacityElement = document.querySelector(".tab-content" + dataSelector + " .opacity-range");
+            sizeElement.value = this.toolInfo.paintBrush.size
+            opacityElement.value = 100 - this.toolInfo.paintBrush.opacity * 100;
             this.colorClickHandler(colorElement);
             this.rangeHandler(sizeElement);
             this.rangeHandler(opacityElement);
@@ -97,9 +109,9 @@ class Main {
             element.nextElementSibling.innerHTML = value + 'px';
         } else if(element.classList.contains('opacity-range')) {
             type = 'opacity';
-            value = 1 - parseFloat(element.value);
+            value = (100 - parseFloat(element.value)) / 100;
             if((value > 0) && (value < 1)) {
-                element.nextElementSibling.innerHTML = element.value.charAt(2) + '0%';
+                element.nextElementSibling.innerHTML = parseFloat(element.value) + '%';
             } else if(value == 0) {
                 element.nextElementSibling.innerHTML = '100%';
             } else if(value == 1) {
@@ -133,18 +145,24 @@ class Main {
     }
 }
 
-window.onbeforeunload = function() {
-    chrome.runtime.sendMessage({saveObject: true, data: JSON.stringify(object)});
-}
+var object = new Main();
 
-chrome.runtime.onMessage.addListener(function(request, sender) {
-    if((request.message === 'initMain')) {
-        if(!data) {
-            var object = new Main();
-            object.init();
-        } else {
-            var object = JSON.parse(request.data);
-            object.reload();
-        }
-    }
-});
+window.onunload = function(event) {
+    background.popupObjects[tabInfo.id] = object;
+};
+
+window.onload = function() {
+    chrome.tabs.query({active: true}, function(tabArray) {
+        var tab = tabArray[0];
+        tabInfo = tab;
+        chrome.runtime.sendMessage({message: 'init-object', tabId: tab.id}, function(response) {
+            console.log(response);
+            if(response.data !== 'do-it-yourself') {
+                console.log(response.data);
+                object.reload(response.data);
+            } else {
+                object.init();
+            }
+        });
+    });
+};
