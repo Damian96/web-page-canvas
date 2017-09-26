@@ -40,14 +40,12 @@ function handleUpdated(tabId) {
 chrome.runtime.onMessage.addListener(function(request, sender) {
     if(sender.tab) {
         if((request.handleOverlay == false)) {
-            closeOverlay(sender.tab.id);
             highlighterOpen[sender.tab.id] = undefined;
             screenshotInjeced[sender.tab.id] = undefined;
         }
         if(request.takeScreenshot && (typeof request.canvasSrc === 'string')) {
             closeOverlay(sender.tab.id);
             var callFn = "takeHighlighterScreenshot('" + request.canvasSrc + "');";
-            console.log(screenshotInjeced[sender.tab.id]);
             if(screenshotInjeced[sender.tab.id] == null) {
                 chrome.tabs.executeScript(sender.tab.id,
                 {

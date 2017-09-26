@@ -9,8 +9,11 @@
   "scripts": {
     "debug-content": "jshint ./content-scripts/js/beautified/highlight.js && jshint ./content-scripts/js/beautified/init.js",
     "debug-bg": "jshint background.js",
-    "debug": "jshint ./content-scripts/js/beautified/highlight.js && jshint background.js",
-    "minify": "node ./node_scripts/minify-content.js"
+    "debug-popup": "jshint ./popup/js/beautified/highlight-popup.js",
+    "debug": "jshint ./content-scripts/js/beautified/highlight.js && jshint background.js && jshint ./popup/js/beautified/highlight-popup.js",
+    "minify-content": "node ./node_scripts/minify-content.js",
+    "minify-popup": "node ./node_scripts/minify-popup.js",
+    "minify": "node ./node_scripts/minify-content.js && node ./node_scripts/minify-popup.js"
   },
   "author": "Damianos Giankakis",
   "license": "UNLICENSED",
