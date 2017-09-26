@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Web Page Highlighter",
+  "name": "Draw Page",
   "description": "Lets you take notes on the web page.",
   "version": "0.0.1",
   "browser_action": {
@@ -8,8 +8,8 @@
       "16": "images/draw-16.png",
       "32": "images/draw-32.png"
     },
-    "default_title": "Highlight Page",
-    "default_popup": "./popup/html/highlight-popup.html"
+    "default_title": "Draw Page",
+    "default_popup": "/popup/html/highlight-popup.html"
   },
   "background": {
     "scripts": [
