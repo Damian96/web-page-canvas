@@ -10,16 +10,28 @@ class Highlightor {
         this.activeIcon = {
             id: 'highlighter'
         };
+        this.tools = {
+            highlighter: {
+                id: 'highlighter',
+                color: '#FFFF00'
+            },
+            paintBrush: {
+                id: 'paint-brush',
+                color: '#ff0000',
+                size: 5,
+                opacity: 1
+            },
+            eraser: {
+                id: 'eraser',
+                size: 5
+            }
+        }
         this.canvas = {
             clickX: [],
             clickY: [],
             clickDrag: [],
             clickColor: [],
             isDrawing: false,
-            brushColor: '#0000FF',
-            markerColor: '#FFFF00',
-            highlightColor: '#ff0000',
-            lineWidth: 5,
             drawEnabled: false,
             element: null,
             context: null
@@ -80,15 +92,9 @@ class Highlightor {
         chrome.runtime.sendMessage({handleOverlay: false});
     }
 
-    keepToolbarFixed(scrollY) {
-        var toolbar = document.querySelector('#toolbar');
-        if(scrollY > 0) {
-            toolbar.style.position.top = scrollY + 'px';
-        } else {
-            toolbar.style.position.top = '0px';
-        }
-    }
-
+    /**
+     * @return {string} The current date;
+     */
     getCurrentDate() {
         var today = new Date();
         var days = today.getDate();
@@ -108,11 +114,29 @@ class Highlightor {
         return days + '-' + months + '-' + years + '_' + hours + '-' + minutes + '-' + seconds;
     }
 
+    /**
+     * @param {number} num 
+     * @return {number} The resulting number.
+     */
     addZero(num) {
         if(num < 10) {
             return '0' + num;
         }
         return num;
+    }
+
+    /**
+     * @return {Array} of all the tools' ids
+     */
+    getToolIds() {
+        'use strict';
+        var result = [];
+        for(var key in this.tools) {
+            if(this.tools.hasOwnProperty(key)) {
+                result.push(tools[key].id);
+            }
+        }
+        return result;
     }
 
     initCanvas() {
@@ -222,16 +246,16 @@ class Highlightor {
 
     toolColorClickHandler(element) {
         'use strict';
-        var toolId = element.parentElement.id;
-        if((toolId == null) || (toolId === 'eraser')) {
+        var toolId = element.parentElement.parentElement.id;
+        if((toolId == null) || (this.getToolIds().indexOf(toolId) == -1)) {
             return;
         }
         switch(toolId) {
             case 'paint-brush':
-                this.canvas.brushColor = element.id;
+                this.tools.paintBrush.color = element.dataset.colorCode;
                 break;
             case 'highlighter':
-                this.canvas.markerColor = element.id;
+                this.tools.highlighter.color = element.dataset.colorCode;
                 break;
         }
         this.changeToolColor(toolId);

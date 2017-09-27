@@ -8,6 +8,14 @@ html, body {
     -webkit-user-select: none;
 }
 
+.hidden {
+    display: none;
+}
+
+.row {
+    display: block;
+}
+
 .higlighter-download {
     display: none;
     width: 0;
@@ -297,11 +305,7 @@ html, body {
 
 /* Popups CSS */
 
-.popup.highlighter.hidden {
-    display: none;
-}
-
-.popup.highlighter.visible {
+.popup.highlighter:not(.hidden) {
     width: 200px;
     height: auto;
     display: inline-block;
@@ -314,7 +318,7 @@ html, body {
     padding: 0 10px;
 }
 
-.popup.highlighter.visible .color {
+.popup.highlighter:not(.hidden) .color {
     width: 20px;
     height: 20px;
     border-radius: 50%;
@@ -323,34 +327,52 @@ html, body {
     cursor: pointer;
 }
 
-.popup.highlighter #red.color {
+.popup.highlighter:not(.hidden) .color.active {
+    background: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.5),
+    rgba(0, 0, 0, 0.5) 5px,
+    rgba(0, 0, 0, 0.6) 5px,
+    rgba(0, 0, 0, 0.6) 10px
+    );
+}
+
+.popup.highlighter:not(.hidden) h3 {
+    margin-bottom: 15px;
+}
+
+.popup.highlighter:not(.hidden) .color.red {
     background-color: #FF0000;
 }
 
-.popup.highlighter #green.color {
+.popup.highlighter:not(.hidden) .color.green {
     background-color: #008000;
 }
 
-.popup.highlighter #blue.color {
+.popup.highlighter:not(.hidden) .color.blue {
     background-color: #0000FF;
 }
 
-.popup.highlighter  #yellow.color {
+.popup.highlighter:not(.hidden)  .color.yellow {
     background-color: #FFFF00;
 }
 
-.popup.highlighter #purple.color {
+.popup.highlighter:not(.hidden) .color.purple {
     background-color: #800080;
 }
 
-.popup.highlighter #brown.color {
+.popup.highlighter:not(.hidden) .color.brown {
     background-color: #A52A2A;
 }
 
-.popup.highlighter #black.color {
+.popup.highlighter:not(.hidden) .color.black {
     background-color: #000000;
 }
 
-.popup.highlighter hr {
+.popup.highlighter:not(.hidden) .color.white {
+    background-color: #ffffff;
+}
+
+.popup.highlighter:not(.hidden) hr {
     border-bottom: 1px solid #000000;
 }

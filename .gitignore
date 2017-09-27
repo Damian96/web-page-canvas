@@ -1,6 +1,12 @@
 # Ignore Assets
 /assets
 
+# Ignore Popup
+/popup
+
+# Dont ignore manifest.json
+!manifest.json
+
 # Logs
 logs
 *.log
