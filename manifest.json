@@ -16,15 +16,26 @@
       "background.js"
     ]
   },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "css": [
+        "content-scripts/css/canvas-draw.css"
+      ],
+      "js": [
+        "content-scripts/js/canvas-draw.js",
+        "content-scripts/js/html2canvas.min.js"
+      ]
+    }
+  ],
   "permissions": [
-    "activeTab",
-    "tabs"
+    "activeTab"
   ],
   "web_accessible_resources": [
     "images/*.png",
-    "content-scripts/js/*.js",
     "content-scripts/css/*.css",
-    "content-scripts/html/highlight.html",
+    "content-scripts/js/*.js",
+    "content-scripts/html/*.html",
     "content-scripts/fonts/*.*"
   ]
 }

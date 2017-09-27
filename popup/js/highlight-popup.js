@@ -1,8 +1,8 @@
 /* globals chrome */
 
-var tabInfo = null;
-var background = chrome.extension.getBackgroundPage();
-var codeInserted = false;
+var tabInfo,
+    background = chrome.extension.getBackgroundPage(),
+    basePath = chrome.extension.getURL('');
 
 /**
  * The main frontend plugin class.
@@ -12,19 +12,19 @@ var codeInserted = false;
 class Main {
     constructor() {
         this.overlayOpen = false;
-        this.activeTool = {
-            id: 'paint-brush'
-        };
         this.toolInfo = {
             paintBrush: {
                 color: '#FFFF00',
                 defaultColor: '#FFFF00',
-                size: 5,
-                opacity: 1
+                size: 5
             },
             eraser: {
                 size: 5
             }
+        };
+        this.activeTool = {
+            id: 'paint-brush',
+            options: this.toolInfo.paintBrush
         };
     }
 
@@ -33,46 +33,43 @@ class Main {
     }
 
     reload(attributes) {
-        this.activeTool = null;
-        this.toolInfo = null;
         for(var key in attributes) {
+            this[key] = null;
             this[key] = attributes[key];
         }
-        console.log(this);
         this.attachHandlers();
         this.reloadValues();
     }
 
+    restoreSwitcher() {
+        var switcher = document.getElementById('switcher');
+        if(switcher.classList.contains('on')) {
+            switcher.classList.remove('on');
+            switcher.classList.add('off');
+        }
+    }
+
     attachHandlers() {
-        var switcher = document.querySelector('#switcher');
+        var switcher = document.getElementById('switcher');
         switcher.addEventListener('click', function() {
             if(switcher.classList.contains('off')) {
                 switcher.classList.remove('off');
                 switcher.classList.add('on');
                 background.popupObjects[tabInfo.id] = this;
-                if(!codeInserted) {
-                    chrome.tabs.insertCSS({
-                        file: chrome.extension.getURL('/content-scripts/css/canvas-draw.min.css')
-                    });
-                    chrome.tabs.executeScript({
-                        file: chrome.extension.getURL('/content-scripts/js/canvas-draw.min.js')
-                    });
-                    codeInserted = true;
-                } else {
-                    chrome.tabs.executeScript(tabInfo.id,
-                    {
-                        code: 'insertCanvasDrawContent()'
-                    });
-                }
+                chrome.tabs.sendMessage(tabInfo.id,
+                {
+                    message: 'init-canvas', 
+                    data: this.activeTool
+                });
                 this.overlayOpen = true;
             } else if(switcher.classList.contains('on')) {
                 switcher.classList.remove('on');
                 switcher.classList.add('off');
-                chrome.tabs.executeScript(tabInfo.id,
+                chrome.tabs.sendMessage(tabInfo.id,
                 {
-                    code: 'removeCanvasDrawContent()'
+                    message: 'close-canvas'
                 });
-                this.overlayOpen = true;
+                this.overlayOpen = false;
             }
         }.bind(this, switcher));
         Array.from(document.querySelectorAll('.tab-title.tool')).forEach(function(element) {
@@ -82,7 +79,7 @@ class Main {
         .forEach(function(element) {
             element.addEventListener('click', this.colorClickHandler.bind(this, element));
         }, this);
-        Array.from(document.querySelectorAll('.tab-content.active input.size-range, .tab-content.active input.opacity-range'))
+        Array.from(document.querySelectorAll('.tab-content.active input.size-range'))
         .forEach(function(element) {
             element.addEventListener('change', this.rangeHandler.bind(this, element));            
         }, this);
@@ -98,13 +95,10 @@ class Main {
         this.toolClickHandler(toolElement);
         if(this.activeTool.id === 'paint-brush') {
             var colorElement = document.querySelector(".tab-content" + dataSelector + " .color[data-color-code='" + this.toolInfo.paintBrush.color + "']"),
-                sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range"),
-                opacityElement = document.querySelector(".tab-content" + dataSelector + " .opacity-range");
+                sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range");
             sizeElement.value = this.toolInfo.paintBrush.size;
-            opacityElement.value = 100 - this.toolInfo.paintBrush.opacity * 100;
             this.colorClickHandler(colorElement);
             this.rangeHandler(sizeElement);
-            this.rangeHandler(opacityElement);
         } else if(this.activeTool.id === 'eraser') {
             // var sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range");
         }
@@ -116,8 +110,29 @@ class Main {
             this.disableAllTools();
             element.classList.add('active');
             document.querySelector(".tab-content[data-tool-id='" + id + "']").classList.add('active');
-            this.activeTool.id = id;
+            this.changeActiveTool(id);
         }
+    }
+
+    changeActiveTool(newId) {
+        this.activeTool.id = newId;
+        switch(newId) {
+            case 'paint-brush':
+                this.activeTool.options = this.toolInfo['paintBrush'];
+                break;
+            default:
+                this.activeTool.options = this.toolInfo[newId];
+                break;
+        }
+        this.updatePageToolInfo();
+    }
+
+    updatePageToolInfo() {
+        chrome.tabs.sendMessage(tabInfo.id,
+        {
+            message: 'update-info',
+            data: this.activeTool
+        });
     }
 
     colorClickHandler(element) {
@@ -132,37 +147,20 @@ class Main {
             }
             tabContent.dataset.toolColor = colorName;
             document.querySelector(".tab-title[data-tool-id='" + toolId + "']").dataset.toolColor = colorName;
+            this.changeActiveTool(toolId);
         }
     }
 
     rangeHandler(element) {
         var toolId = element.dataset.toolId,
-            value = null,
-            type = null;
-        if(element.classList.contains('size-range')) {
             value = parseFloat(element.value);
-            type = 'size';            
-            element.nextElementSibling.innerHTML = value + 'px';
-        } else if(element.classList.contains('opacity-range')) {
-            type = 'opacity';
-            value = (100 - parseFloat(element.value)) / 100;
-            if((value > 0) && (value < 1)) {
-                element.nextElementSibling.innerHTML = parseFloat(element.value) + '%';
-            } else if(value == 0) {
-                element.nextElementSibling.innerHTML = '100%';
-            } else if(value == 1) {
-                element.nextElementSibling.innerHTML = '0%';
-            }
-        }
-        if((toolId === 'paint-brush') && (value != null)) {
-            if(type === 'size') {
-                this.toolInfo.paintBrush.size = value;
-            } else if(type === 'opacity') {
-                this.toolInfo.paintBrush.opacity = value;
-            }
-        } else if((toolId === 'eraser') && (type === 'size') && (value != null)) {
+        element.nextElementSibling.innerHTML = value + 'px';
+        if(toolId === 'paint-brush') {
+            this.toolInfo.paintBrush.size = value;
+        } else if(toolId === 'eraser') {
             this.toolInfo.eraser.size = value;
         }
+        this.changeActiveTool(toolId);
     }
 
     disableAllTools() {
@@ -192,9 +190,7 @@ window.onload = function() {
         var tab = tabArray[0];
         tabInfo = tab;
         chrome.runtime.sendMessage({message: 'init-object', tabId: tab.id}, function(response) {
-            console.log(response);
             if(response.data !== 'do-it-yourself') {
-                console.log(response.data);
                 object.reload(response.data);
             } else {
                 object.init();

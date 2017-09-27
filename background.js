@@ -19,3 +19,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         }
     }
 });
+
+chrome.tabs.onUpdated.addListener(function(tabId) {
+    if((tabId != null) && (popupObjects[tabId] != null)) {
+        popupObjects[tabId].overlayOpen = false;
+    }
+});

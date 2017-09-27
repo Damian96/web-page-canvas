@@ -17,7 +17,6 @@ class CanvasDraw {
             clickTool: [],
             clickColor: [],
             clickSize: [],
-            clickOpacity: [],
             isDrawing: false,
             drawEnabled: false,
             element: null,
@@ -27,7 +26,7 @@ class CanvasDraw {
     }
 
     init() {
-        this.attachHandlers();
+        this.insertHTML();
         this.initCanvas();
     }
 
@@ -44,18 +43,19 @@ class CanvasDraw {
         code += "<br/><button id='confirm-message' class='highlighter' title='Close'>";
         code += "&#10003;&nbsp;OK</button></p></div>";
         document.body.innerHTML += code;
-        document.querySelector('#canvas.highlighter').height = this.getMaxHeight();
         Array.from(document.querySelectorAll('#close-overlay, #confirm-message')).forEach(function(element) {
             element.addEventListener('click', function() {
                 document.querySelector('#canvas-overlay.highlighter').remove();
-            });
+                this.canvas.drawEnabled = true;
+            }.bind(this));
         }, this);
+        this.htmlInserted = true;
     }
 
     getMaxHeight() {
-        return Math.max([document.body.height, document.body.offsetHeight, document.body.scrollTop]);
+        return Math.max(window.innerHeight, document.body.offsetHeight, document.body.scrollTop);
     }
-
+    
     removeHTML() {
         document.querySelector('#canvas.highlighter').remove();
         document.querySelector('#canvas-overlay.highlighter').remove();
@@ -80,23 +80,31 @@ class CanvasDraw {
         }.bind(this);
     
         this.canvas.element.onmousemove = function(e) {
-            if(this.canvas.drawEnabled && this.canvas.isDrawing && (this.activeIcon.id === 'paint-brush')) {
+            if(this.canvas.drawEnabled && this.canvas.isDrawing && (this.activeToolInfo.id === 'paint-brush')) {
                 var x = e.pageX - this.canvas.element.offsetLeft;
                 var y = e.pageY - this.canvas.element.offsetTop;
                 if(this.activeToolInfo.id === 'paint-brush') {
-                    this.addClick(x, y, true, this.activeToolInfo.size, this.activeToolInfo.color, this.activeToolInfo.opacity);
+                    this.addClick(x, y, true,
+                        this.activeToolInfo.id,
+                        this.activeToolInfo.options.size,
+                        this.activeToolInfo.options.color);
                 } else if(this.activeToolInfo.id === 'eraser') {
-                    this.addClick(x, y, true, this.activeToolInfo.size);
+                    this.addClick(x, y, true,
+                        this.activeToolInfo.id,
+                        this.activeToolInfo.options.size,
+                        false, false);
                 }
                 this.draw();
             }
         }.bind(this);
         this.canvas.element.onmousedown = function(e) {
-            if(this.activeIcon.id === 'paint-brush') {
+            if(this.activeToolInfo.id === 'paint-brush') {
                 var x = e.pageX - this.canvas.element.offsetLeft;
                 var y = e.pageY - this.canvas.element.offsetTop;
                 this.canvas.isDrawing = true;
-                this.addClick(x, y, false);            
+                this.addClick(x, y, false, this.activeToolInfo.id,
+                    this.activeToolInfo.options.size,
+                    this.activeToolInfo.options.color);            
                 this.draw();
             }
         }.bind(this);
@@ -108,25 +116,23 @@ class CanvasDraw {
         }.bind(this);
     }
 
-    addClick(x, y, dragging, size, color = false, opacity = false) {
+    addClick(x, y, dragging, tool, size, color) {
         this.canvas.clickX.push(x);
         this.canvas.clickY.push(y);
         this.canvas.clickDrag.push(dragging);
+        this.canvas.clickTool.push(tool);
         this.canvas.clickSize.push(size);
-        if(color) {
-            this.canvas.clickColor.push(this.activeToolInfo.color);
-        }
-        if(opacity) {
-            this.canvas.clickOpacity.push(this.activeToolInfo.opacity);
+        if((tool === 'paint-brush') && color) {
+            this.canvas.clickColor.push(color);
         }
     }
 
     draw() {
         this.canvas.context.lineJoin = "round";
-        this.canvas.context.lineWidth = this.canvas.clickSize[i];
-        for(var i=0; i < this.canvas.clickX.length; i++) {
+        var passed = this.canvas.clickX.length;
+        for(var i=0; i < passed; i++) {
             this.canvas.context.beginPath();
-            this.canvas.context.globalAlpha = this.canvas.clickOpacity[i];
+            this.canvas.context.lineWidth = this.canvas.clickSize[i];
             if(this.canvas.clickDrag[i] && i){
                 this.canvas.context.moveTo(this.canvas.clickX[i - 1], this.canvas.clickY[i - 1]);
             } else {
@@ -149,21 +155,13 @@ class CanvasDraw {
     }
 }
 
-function insertCanvasDrawContent() {
-    // chrome.runtime.sendMessage({message: 'get-tool-info'}, function(response) {
-    //     if((response != null) && (response.data != null)) {
-    //         object = new CanvasDraw(response.data);
-    //     }
-    // });
-}
-
-function removeCanvasDrawContent() {
-    if(object != null) {
-        object.removeHTML();
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if((request.message === 'init-canvas') && (request.data != null)) {
+        object = new CanvasDraw(request.data);
+        object.init();
+    } else if((request.message === 'update-info') && (request.data != null) && (object != null)) {
+        object.updateToolInfo(request.data);
+    } else if(request.message === 'close-canvas') {
+        object.removeHTML();   
     }
-}
-
-window.onload = function() {
-    console.log('ok');
-    insertCanvasDrawContent();
-};
+});

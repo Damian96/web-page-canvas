@@ -7,7 +7,6 @@
 #canvas.highlighter {
     position: absolute;
     z-index: 2147483646;
-    width: 100%;
 }
 
 #canvas-overlay.highlighter {
@@ -62,5 +61,6 @@
     font-size: 1.6em;
     position: relative;
     left: 50%;
+    top: 50%;
     transform: translate(-50%, -75%);
 }

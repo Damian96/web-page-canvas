@@ -2,7 +2,7 @@
 <html>
 <head>
     <link rel="stylesheet" href="../../content-scripts/css/icons.min.css" type="text/css"/>
-    <link rel="stylesheet" href="../css/highlight-popup.min.css" type="text/css"/>
+    <link rel="stylesheet" href="../css/highlight-popup.css" type="text/css"/>
 </head>
 <body>
     <div id="switcher-container" class="row">
@@ -32,7 +32,7 @@
         <div class="tab-content tool active" data-tool-id="paint-brush" data-tool-color="yellow">
             <div class="row">
                 <h3>Color</h3>
-                <span class='color' title='Red' data-color-code="#ff00000"></span>
+                <span class='color' title='Red' data-color-code="#FF0000"></span>
                 <span class='color' title='Green' data-color-code="#008000"></span>
                 <span class='color' title='Blue' data-color-code="#0000FF"></span>
                 <span class='color active default' title='Yellow' data-color-code="#FFFF00"></span>
@@ -44,19 +44,19 @@
             <hr/>
             <div class="row">
                 <h3>Size</h3>
-                <input type='range' min='0' max='20' step='1' value='5' class='size-range' data-tool-id='paint-brush'/>
+                <input type='range' min='1' max='30' step='1' value='5' class='size-range' data-tool-id='paint-brush'/>
                 <span class='range-value'>5px</span>
             </div>
-            <div class="row">
+            <!-- <div class="row">
                 <h3>Transparency</h3>
                 <input type='range' min='0' max='100' step='10' value="0" class='opacity-range' data-tool-id='paint-brush'/>
                 <span class='range-value'>0%</span>
-            </div>
+            </div> -->
         </div>
         <div class="tab-content tool" data-tool-id="eraser">
             <i class="icon-close"></i>
         </div>
     </div>
-    <script src="../js/highlight-popup.min.js" type="text/javascript"></script>
+    <script src="../js/highlight-popup.js" type="text/javascript"></script>
 </body>
 </html>

@@ -7,13 +7,10 @@
   },
   "main": "index.js",
   "scripts": {
-    "debug-content": "jshint ./content-scripts/js/beautified/canvas-draw.js",
+    "debug-content": "jshint ./content-scripts/js/canvas-draw.js",
     "debug-bg": "jshint background.js",
-    "debug-popup": "jshint ./popup/js/beautified/highlight-popup.js",
-    "debug": "jshint ./content-scripts/js/beautified/highlight.js && jshint background.js && jshint ./popup/js/beautified/highlight-popup.js",
-    "minify-content": "node ./node_scripts/minify-content.js",
-    "minify-popup": "node ./node_scripts/minify-popup.js",
-    "minify": "node ./node_scripts/minify-content.js && node ./node_scripts/minify-popup.js"
+    "debug-popup": "jshint ./popup/js/highlight-popup.js",
+    "debug": "jshint ./content-scripts/js/canvas-draw.js && jshint background.js && jshint ./popup/js/highlight-popup.js"
   },
   "author": "Damianos Giankakis",
   "license": "UNLICENSED",
