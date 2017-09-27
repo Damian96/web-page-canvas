@@ -2,6 +2,7 @@
 
 var tabInfo = null;
 var background = chrome.extension.getBackgroundPage();
+var codeInserted = false;
 
 /**
  * The main frontend plugin class.
@@ -10,6 +11,7 @@ var background = chrome.extension.getBackgroundPage();
  */
 class Main {
     constructor() {
+        this.overlayOpen = false;
         this.activeTool = {
             id: 'paint-brush'
         };
@@ -31,10 +33,9 @@ class Main {
     }
 
     reload(attributes) {
-        console.log(attributes);
         this.activeTool = null;
         this.toolInfo = null;
-        for(key in attributes) {
+        for(var key in attributes) {
             this[key] = attributes[key];
         }
         console.log(this);
@@ -43,6 +44,37 @@ class Main {
     }
 
     attachHandlers() {
+        var switcher = document.querySelector('#switcher');
+        switcher.addEventListener('click', function() {
+            if(switcher.classList.contains('off')) {
+                switcher.classList.remove('off');
+                switcher.classList.add('on');
+                background.popupObjects[tabInfo.id] = this;
+                if(!codeInserted) {
+                    chrome.tabs.insertCSS({
+                        file: chrome.extension.getURL('/content-scripts/css/canvas-draw.min.css')
+                    });
+                    chrome.tabs.executeScript({
+                        file: chrome.extension.getURL('/content-scripts/js/canvas-draw.min.js')
+                    });
+                    codeInserted = true;
+                } else {
+                    chrome.tabs.executeScript(tabInfo.id,
+                    {
+                        code: 'insertCanvasDrawContent()'
+                    });
+                }
+                this.overlayOpen = true;
+            } else if(switcher.classList.contains('on')) {
+                switcher.classList.remove('on');
+                switcher.classList.add('off');
+                chrome.tabs.executeScript(tabInfo.id,
+                {
+                    code: 'removeCanvasDrawContent()'
+                });
+                this.overlayOpen = true;
+            }
+        }.bind(this, switcher));
         Array.from(document.querySelectorAll('.tab-title.tool')).forEach(function(element) {
             element.addEventListener('click', this.toolClickHandler.bind(this, element));
         }, this);
@@ -57,6 +89,10 @@ class Main {
     }
 
     reloadValues() {
+        if(this.overlayOpen) {
+            document.querySelector('#switcher').classList.remove('off');
+            document.querySelector('#switcher').classList.add('on');
+        }
         var dataSelector = "[data-tool-id='" + this.activeTool.id + "']";
         var toolElement = document.querySelector(".tab-title" + dataSelector);
         this.toolClickHandler(toolElement);
@@ -64,7 +100,7 @@ class Main {
             var colorElement = document.querySelector(".tab-content" + dataSelector + " .color[data-color-code='" + this.toolInfo.paintBrush.color + "']"),
                 sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range"),
                 opacityElement = document.querySelector(".tab-content" + dataSelector + " .opacity-range");
-            sizeElement.value = this.toolInfo.paintBrush.size
+            sizeElement.value = this.toolInfo.paintBrush.size;
             opacityElement.value = 100 - this.toolInfo.paintBrush.opacity * 100;
             this.colorClickHandler(colorElement);
             this.rangeHandler(sizeElement);
@@ -147,7 +183,7 @@ class Main {
 
 var object = new Main();
 
-window.onunload = function(event) {
+window.onunload = function() {
     background.popupObjects[tabInfo.id] = object;
 };
 

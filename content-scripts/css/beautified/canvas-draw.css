@@ -1,0 +1,66 @@
+.higlighter-download {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+#canvas.highlighter {
+    position: absolute;
+    z-index: 2147483646;
+    width: 100%;
+}
+
+#canvas-overlay.highlighter {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 2147483648;
+    background-color: #B3B3B3;
+    opacity: 0.7;
+    text-align: center;
+}
+
+#canvas.highlighter,
+#canvas-overlay.highlighter {
+    top: 0;
+    left: 0;
+}
+
+#close-overlay.highlighter {
+    display: inline-block;
+    position: relative;
+    top: -7px;
+    left: 49.8%;
+    transform: translate(-50%, 0%);
+    font-size: 28px;
+    color: #000000;
+    cursor: pointer;
+}
+
+#close-overlay.highlighter:hover {
+    color: #FF0000;
+}
+
+#confirm-message.highlighter {
+    margin-top: 15px;
+    width: 75px;
+    height: 30px;
+    border-radius: 5px;
+    padding: 0 8px;
+    background-color: rgb(30, 255, 0);
+    color: #000000;
+    font-size: 16.5px;
+    border: none;
+}
+
+#confirm-message.highlighter:focus {
+    box-shadow: inset 0px 0px 2px 2px #818181;
+}
+
+#overlay-message.highlighter {
+    width: 30%;
+    font-size: 1.6em;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, -75%);
+}

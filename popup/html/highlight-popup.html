@@ -5,13 +5,19 @@
     <link rel="stylesheet" href="../css/highlight-popup.min.css" type="text/css"/>
 </head>
 <body>
+    <div id="switcher-container" class="row">
+        <span id="switcher" class="off">
+            <button class="off"><i class="icon-cross"></i>&nbsp;Close</button>
+            <button class="on"><i class="icon-checkmark"></i>&nbsp;Open</button>
+        </span>
+    </div>
     <div id="titles">
         <div class="tab-title tool active" data-tool-id="paint-brush" data-tool-color="yellow">
-            <i id="paint-brush" class="icon-paint-brush_highlighter"></i>
+            <i class="icon-paint-brush"></i>
             <span class="tab-title-text">Paint-Brush</span>
         </div>
         <div class="tab-title tool" data-tool-id="eraser">
-            <i id="eraser" class="icon-eraser_highlighter"></i>
+            <i class="icon-eraser"></i>
             <span class="tab-title-text">Eraser</span>
         </div>
         <!-- Download new font and insert icons
@@ -48,7 +54,7 @@
             </div>
         </div>
         <div class="tab-content tool" data-tool-id="eraser">
-            <i id="clear" class="icon-close_highlighter"></i>
+            <i class="icon-close"></i>
         </div>
     </div>
     <script src="../js/highlight-popup.min.js" type="text/javascript"></script>

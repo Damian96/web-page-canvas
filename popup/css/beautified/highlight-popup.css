@@ -13,6 +13,42 @@ body {
     display: block;
 }
 
+#switcher-container,
+#switcher {
+    height: 35px;
+}
+
+#switcher {
+    position: relative;
+    right: -415px;
+    top: 5px;
+    text-align: center;
+    border: 1px solid #dddddd;
+}
+
+#switcher.on > .on {
+    display: none;
+}
+
+#switcher.off > .off {
+    display: none;
+}
+
+#switcher > button {
+    font-size: 18px;
+    padding: 5px;
+    border: 1px solid #dddddd;
+    background-color: #fff;
+}
+
+#switcher .icon-checkmark {
+    color: green;
+}
+
+#switcher .icon-cross {
+    color: red;
+}
+
 #titles,
 #contents {
     width: 100%;
