@@ -1,15 +1,14 @@
-body.canvas-draw {
-    position: relative;
-    z-index: -1;
+body.canvas-draw > *:not(.canvas-drawer-created) {
+    position: relative !important;
+    z-index: -1 !important;
 }
 
 img.canvas-drawer-created {
-    display: block;
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 2147483651;
+    display: block !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 2147483647 !important;
 }
 
 .canvas-drawer-download {

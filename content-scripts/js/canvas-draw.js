@@ -53,6 +53,10 @@ class CanvasDraw {
     getMaxHeight() {
         return Math.max(window.innerHeight, document.body.offsetHeight, document.body.scrollTop);
     }
+
+    getMaxWidth() {
+        return Math.max(window.innerWidth, document.body.offsetWidth, document.body.scrollLeft);
+    }
     
     removeHTML() {
         for(let element of document.querySelectorAll('#canvas.canvas-drawer, #canvas-overlay.canvas-drawer, img.canvas-drawer-created')) {
@@ -61,6 +65,12 @@ class CanvasDraw {
             }
         }
         this.htmlInserted = false;
+    }
+
+    removeGenImages() {
+        for(let element of document.querySelectorAll('img.canvas-drawer-created')) {
+            element.remove();
+        }
     }
 
     initCanvas() {
@@ -156,13 +166,16 @@ class CanvasDraw {
             let url = this.canvas.element.toDataURL(),
                 canvasImg = document.createElement('img');
             canvasImg.src = url;
+            canvasImg.width = this.getMaxWidth();
             canvasImg.height = this.getMaxHeight();
             canvasImg.classList.add('canvas-drawer-created');
             document.body.appendChild(canvasImg);
+            document.body.classList.add('canvas-draw');
             this.canvas.element.remove();
-            html2canvas(document.body, {
+            html2canvas(document.documentElement, {
                 onrendered: function(canvas) {
-                    console.log('canvas rendered');
+                    this.removeGenImages();
+                    document.body.classList.remove('.canvas-draw');
                     this.insertDownload(canvas.toDataURL());
                     resolve('successfuly saved');
                 }.bind(this)
@@ -190,7 +203,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         object.updateToolInfo(request.data);
     } else if((request.message === 'save-canvas') && (object != null) && object.htmlInserted) {
         object.saveCanvas().then((successMessage) => {
-            console.log(successMessage);
             if(successMessage === 'successfuly saved') {
                 sendResponse({message: 'saved'});
             }
