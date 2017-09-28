@@ -64,7 +64,9 @@ class Main {
     }
 
     attachHandlers() {
-        let switcher = document.getElementById('switcher');
+        let save = document.getElementById('save'),
+            switcher = document.getElementById('switcher');
+        save.addEventListener('click', this.saveClickHandler.bind(this, save));
         switcher.addEventListener('click', this.switcherClickHandler.bind(this, switcher));
         for(let element of document.querySelectorAll('.tab-title.tool')) {
             element.addEventListener('click', this.toolClickHandler.bind(this, element));
@@ -97,6 +99,14 @@ class Main {
             });
             this.overlayOpen = false;
         }
+    }
+
+    saveClickHandler(element) {
+        chrome.tabs.sendMessage(tabInfo.id, {message: 'save-canvas'}, function(response) {
+            if(response.message === 'saved') {
+                this.switcherClickHandler.call(this, document.getElementById('switcher'));
+            }
+        }.bind(this));
     }
 
     toolClickHandler(element) {

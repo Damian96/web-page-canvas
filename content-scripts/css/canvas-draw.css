@@ -1,3 +1,17 @@
+body.canvas-draw {
+    position: relative;
+    z-index: -1;
+}
+
+img.canvas-drawer-created {
+    display: block;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2147483651;
+}
+
 .canvas-drawer-download {
     display: none;
     width: 0;

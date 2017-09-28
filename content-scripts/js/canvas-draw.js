@@ -1,4 +1,4 @@
-/* globals chrome */
+/* globals chrome, html2canvas */
 
 var object;
 
@@ -55,8 +55,12 @@ class CanvasDraw {
     }
     
     removeHTML() {
-        document.querySelector('#canvas.canvas-drawer').remove();
-        document.querySelector('#canvas-overlay.canvas-drawer').remove();
+        for(let element of document.querySelectorAll('#canvas.canvas-drawer, #canvas-overlay.canvas-drawer, img.canvas-drawer-created')) {
+            if(element != null) {
+                element.remove();
+            }
+        }
+        this.htmlInserted = false;
     }
 
     initCanvas() {
@@ -78,9 +82,9 @@ class CanvasDraw {
         }.bind(this);
     
         this.canvas.element.onmousemove = function(e) {
+            let x = e.pageX - this.canvas.element.offsetLeft,
+                y = e.pageY - this.canvas.element.offsetTop;
             if(this.canvas.isDrawing && (this.activeToolInfo.id === 'paintBrush')) {
-                let x = e.pageX - this.canvas.element.offsetLeft,
-                    y = e.pageY - this.canvas.element.offsetTop;
                 this.addClick(x, y, true,
                     this.activeToolInfo.id,
                     this.activeToolInfo.options.size,
@@ -146,14 +150,51 @@ class CanvasDraw {
         this.canvas.clickDrag = [];
         this.canvas.context.clearRect(0, 0, this.canvas.element.width, this.canvas.element.height);
     }
+
+    saveCanvas() {
+        return new Promise((resolve, reject) => {
+            let url = this.canvas.element.toDataURL(),
+                canvasImg = document.createElement('img');
+            canvasImg.src = url;
+            canvasImg.height = this.getMaxHeight();
+            canvasImg.classList.add('canvas-drawer-created');
+            document.body.appendChild(canvasImg);
+            this.canvas.element.remove();
+            html2canvas(document.body, {
+                onrendered: function(canvas) {
+                    console.log('canvas rendered');
+                    this.insertDownload(canvas.toDataURL());
+                    resolve('successfuly saved');
+                }.bind(this)
+            });
+        });
+    }
+
+    insertDownload(url) {
+        let a = document.createElement('a'),
+            date = new Date();
+        a.href = url;
+        a.download = window.location.hostname + '_Canvas-Drawing_' + date.getTime() + '.png';
+        a.classList.add('canvas-drawer-download');
+        document.body.appendChild(a);
+        a.click();
+    }
 }
 
-chrome.runtime.onMessage.addListener(function(request) {
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    console.log(request);
     if((request.message === 'init-canvas') && (request.data != null)) {
         object = new CanvasDraw(request.data);
         object.init();
     } else if((request.message === 'update-info') && (request.data != null) && (object != null)) {
         object.updateToolInfo(request.data);
+    } else if((request.message === 'save-canvas') && (object != null) && object.htmlInserted) {
+        object.saveCanvas().then((successMessage) => {
+            console.log(successMessage);
+            if(successMessage === 'successfuly saved') {
+                sendResponse({message: 'saved'});
+            }
+        });
     } else if(request.message === 'close-canvas') {
         object.removeHTML();   
     }
