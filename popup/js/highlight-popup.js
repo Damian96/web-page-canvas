@@ -1,13 +1,14 @@
 /* globals chrome */
 
 var tabInfo,
-    background = chrome.extension.getBackgroundPage(),
-    basePath = chrome.extension.getURL('');
+    background = chrome.extension.getBackgroundPage();
 
 /**
- * The main frontend plugin class.
- * Used for creating the Highlighting Mode layout.
- * Implements the drawing function code. 
+ * The main popup plugin class.
+ * @prop {boolean} overlayOpen A flag of whether the webpage canvas is open.
+ * @prop {Object.<string, number>} toolInfo The object with all the information of all available tools.
+ * @prop {Object.<string, number>} activeTool The object with all the information about the currently active tool.
+ * @prop {?Element} switcher The HTML element of the open/close switcher of the extension.
  */
 class Main {
     constructor() {
@@ -23,7 +24,8 @@ class Main {
             }
         };
         this.activeTool = {
-            id: 'paint-brush',
+            id: 'paintBrush',
+            htmlId: 'paint-brush',
             options: this.toolInfo.paintBrush
         };
     }
@@ -33,7 +35,7 @@ class Main {
     }
 
     reload(attributes) {
-        for(var key in attributes) {
+        for(let key in attributes) {
             this[key] = null;
             this[key] = attributes[key];
         }
@@ -41,72 +43,65 @@ class Main {
         this.reloadValues();
     }
 
-    restoreSwitcher() {
-        var switcher = document.getElementById('switcher');
-        if(switcher.classList.contains('on')) {
-            switcher.classList.remove('on');
-            switcher.classList.add('off');
-        }
-    }
-
-    attachHandlers() {
-        var switcher = document.getElementById('switcher');
-        switcher.addEventListener('click', function() {
-            if(switcher.classList.contains('off')) {
-                switcher.classList.remove('off');
-                switcher.classList.add('on');
-                background.popupObjects[tabInfo.id] = this;
-                chrome.tabs.sendMessage(tabInfo.id,
-                {
-                    message: 'init-canvas', 
-                    data: this.activeTool
-                });
-                this.overlayOpen = true;
-            } else if(switcher.classList.contains('on')) {
-                switcher.classList.remove('on');
-                switcher.classList.add('off');
-                chrome.tabs.sendMessage(tabInfo.id,
-                {
-                    message: 'close-canvas'
-                });
-                this.overlayOpen = false;
-            }
-        }.bind(this, switcher));
-        Array.from(document.querySelectorAll('.tab-title.tool')).forEach(function(element) {
-            element.addEventListener('click', this.toolClickHandler.bind(this, element));
-        }, this);
-        Array.from(document.querySelectorAll('.tab-content.active .color'))
-        .forEach(function(element) {
-            element.addEventListener('click', this.colorClickHandler.bind(this, element));
-        }, this);
-        Array.from(document.querySelectorAll('.tab-content.active input.size-range'))
-        .forEach(function(element) {
-            element.addEventListener('change', this.rangeHandler.bind(this, element));            
-        }, this);
-    }
-
     reloadValues() {
         if(this.overlayOpen) {
-            document.querySelector('#switcher').classList.remove('off');
-            document.querySelector('#switcher').classList.add('on');
+            let switcher = document.getElementById('switcher');
+            switcher.classList.remove('off');
+            switcher.classList.add('on');
         }
-        var dataSelector = "[data-tool-id='" + this.activeTool.id + "']";
-        var toolElement = document.querySelector(".tab-title" + dataSelector);
+        let dataSelector = "[data-tool-id='" + this.activeTool.htmlId + "']";
+        let toolElement = document.querySelector(".tab-title" + dataSelector);
         this.toolClickHandler(toolElement);
-        if(this.activeTool.id === 'paint-brush') {
-            var colorElement = document.querySelector(".tab-content" + dataSelector + " .color[data-color-code='" + this.toolInfo.paintBrush.color + "']"),
+        if(this.activeTool.id === 'paintBrush') {
+            let colorElement = document.querySelector(".tab-content" + dataSelector + " .color[data-color-code='" + this.toolInfo.paintBrush.color + "']"),
                 sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range");
             sizeElement.value = this.toolInfo.paintBrush.size;
             this.colorClickHandler(colorElement);
-            this.rangeHandler(sizeElement);
+            this.sizeHandler(sizeElement);
         } else if(this.activeTool.id === 'eraser') {
             // var sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range");
         }
     }
 
+    attachHandlers() {
+        let switcher = document.getElementById('switcher');
+        switcher.addEventListener('click', this.switcherClickHandler.bind(this, switcher));
+        for(let element of document.querySelectorAll('.tab-title.tool')) {
+            element.addEventListener('click', this.toolClickHandler.bind(this, element));
+        }
+        for(let element of document.querySelectorAll('.tab-content.active .color')) {
+            element.addEventListener('click', this.colorClickHandler.bind(this, element));
+        }
+        for(let element of document.querySelectorAll('.tab-content.active input.size-range')) {
+            element.addEventListener('change', this.sizeHandler.bind(this, element));            
+        }
+    }
+    
+    switcherClickHandler(element) {
+        if(element.classList.contains('off')) {
+            element.classList.remove('off');
+            element.classList.add('on');
+            background.popupObjects[tabInfo.id] = this;
+            chrome.tabs.sendMessage(tabInfo.id,
+            {
+                message: 'init-canvas', 
+                data: this.activeTool
+            });
+            this.overlayOpen = true;
+        } else if(element.classList.contains('on')) {
+            element.classList.remove('on');
+            element.classList.add('off');
+            chrome.tabs.sendMessage(tabInfo.id,
+            {
+                message: 'close-canvas'
+            });
+            this.overlayOpen = false;
+        }
+    }
+
     toolClickHandler(element) {
         if(!element.classList.contains('active')) {
-            var id = element.dataset.toolId;
+            let id = element.dataset.toolId;
             this.disableAllTools();
             element.classList.add('active');
             document.querySelector(".tab-content[data-tool-id='" + id + "']").classList.add('active');
@@ -115,15 +110,12 @@ class Main {
     }
 
     changeActiveTool(newId) {
-        this.activeTool.id = newId;
-        switch(newId) {
-            case 'paint-brush':
-                this.activeTool.options = this.toolInfo['paintBrush'];
-                break;
-            default:
-                this.activeTool.options = this.toolInfo[newId];
-                break;
-        }
+        let id = this.changeToCamelCase(newId);
+        this.activeTool = {
+            id: id,
+            htmlId: (id === 'paintBrush') ? 'paint-brush' : id,
+            options: this.toolInfo[id]
+        };
         this.updatePageToolInfo();
     }
 
@@ -137,7 +129,7 @@ class Main {
 
     colorClickHandler(element) {
         if(!element.classList.contains('active')) {
-            var tabContent = element.parentElement.parentElement,
+            let tabContent = element.parentElement.parentElement,
                 toolId = tabContent.dataset.toolId,
                 colorName = element.title.toLowerCase();
             this.disableAllColors(toolId);
@@ -151,8 +143,8 @@ class Main {
         }
     }
 
-    rangeHandler(element) {
-        var toolId = element.dataset.toolId,
+    sizeHandler(element) {
+        let toolId = element.dataset.toolId,
             value = parseFloat(element.value);
         element.nextElementSibling.innerHTML = value + 'px';
         if(toolId === 'paint-brush') {
@@ -164,18 +156,29 @@ class Main {
     }
 
     disableAllTools() {
-        Array.from(document.querySelectorAll('.tab-title.active, .tab-content.active'))
-        .forEach(function(element) {
+        for(let element of document.querySelectorAll('.tab-title.active, .tab-content.active')) {
             element.classList.remove('active');
-        });
+        }
     }
 
     disableAllColors(toolId) {
-        var contentSelector = ".tab-content[data-tool-id='" + toolId + "']";
-        Array.from(document.querySelectorAll(contentSelector + " .color.active"))
-        .forEach(function(element) {
+        let contentSelector = ".tab-content[data-tool-id='" + toolId + "']";
+        for(let element of document.querySelectorAll(contentSelector + " .color.active")) {
             element.classList.remove('active');
-        }, this);
+        }
+    }
+
+    /**
+     * Changes the given string to a camel case string by removing the hyphens between.
+     * @param {string} string 
+     */
+    changeToCamelCase(string) {
+        let hyphenIndex = string.includes('-');
+        if(hyphenIndex) {
+            let strParts = string.split('-');
+            return strParts[0] + strParts[1].charAt(0).toUpperCase() + strParts[1].substr(1, strParts[1].length);
+        }
+        return string;
     }
 }
 
@@ -187,7 +190,7 @@ window.onunload = function() {
 
 window.onload = function() {
     chrome.tabs.query({active: true}, function(tabArray) {
-        var tab = tabArray[0];
+        let tab = tabArray[0];
         tabInfo = tab;
         chrome.runtime.sendMessage({message: 'init-object', tabId: tab.id}, function(response) {
             if(response.data !== 'do-it-yourself') {

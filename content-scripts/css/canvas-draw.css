@@ -1,15 +1,15 @@
-.higlighter-download {
+.canvas-drawer-download {
     display: none;
     width: 0;
     height: 0;
 }
 
-#canvas.highlighter {
+#canvas.canvas-drawer {
     position: absolute;
     z-index: 2147483646;
 }
 
-#canvas-overlay.highlighter {
+#canvas-overlay.canvas-drawer {
     position: fixed;
     width: 100%;
     height: 100%;
@@ -19,13 +19,13 @@
     text-align: center;
 }
 
-#canvas.highlighter,
-#canvas-overlay.highlighter {
+#canvas.canvas-drawer,
+#canvas-overlay.canvas-drawer {
     top: 0;
     left: 0;
 }
 
-#close-overlay.highlighter {
+#close-overlay.canvas-drawer {
     display: inline-block;
     position: relative;
     top: -7px;
@@ -36,11 +36,11 @@
     cursor: pointer;
 }
 
-#close-overlay.highlighter:hover {
+#close-overlay.canvas-drawer:hover {
     color: #FF0000;
 }
 
-#confirm-message.highlighter {
+#confirm-message.canvas-drawer {
     margin-top: 15px;
     width: 75px;
     height: 30px;
@@ -52,11 +52,11 @@
     border: none;
 }
 
-#confirm-message.highlighter:focus {
+#confirm-message.canvas-drawer:focus {
     box-shadow: inset 0px 0px 2px 2px #818181;
 }
 
-#overlay-message.highlighter {
+#overlay-message.canvas-drawer {
     width: 30%;
     font-size: 1.6em;
     position: relative;

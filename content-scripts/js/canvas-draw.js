@@ -4,7 +4,7 @@ var object;
 
 /**
  * The main frontend plugin class.
- * Used for creating the Highlighting Mode layout.
+ * Used for creating the Drawing Mode layout.
  * Implements the drawing function code. 
  */
 class CanvasDraw {
@@ -18,7 +18,6 @@ class CanvasDraw {
             clickColor: [],
             clickSize: [],
             isDrawing: false,
-            drawEnabled: false,
             element: null,
             context: null
         };
@@ -35,21 +34,20 @@ class CanvasDraw {
     }
 
     insertHTML() {
-        var code = "<canvas id='canvas' class='highlighter'></canvas>";
-        code += "<div id='canvas-overlay' class='highlighter'>";
-        code += "<span id='close-overlay' class='highlighter' title='Close'>&#10006;</span>";
-        code += "<p id='overlay-message' class='highlighter'>";
+        let code = "<canvas id='canvas' class='canvas-drawer'></canvas>";
+        code += "<div id='canvas-overlay' class='canvas-drawer'>";
+        code += "<span id='close-overlay' class='canvas-drawer' title='Close'>&#10006;</span>";
+        code += "<p id='overlay-message' class='canvas-drawer'>";
         code += "Use the tools to your top to begin annotating the page.";
-        code += "<br/><button id='confirm-message' class='highlighter' title='Close'>";
+        code += "<br/><button id='confirm-message' class='canvas-drawer' title='Close'>";
         code += "&#10003;&nbsp;OK</button></p></div>";
         document.body.innerHTML += code;
-        Array.from(document.querySelectorAll('#close-overlay, #confirm-message')).forEach(function(element) {
-            element.addEventListener('click', function() {
-                document.querySelector('#canvas-overlay.highlighter').remove();
-                this.canvas.drawEnabled = true;
-            }.bind(this));
-        }, this);
         this.htmlInserted = true;
+        for(let element of document.querySelectorAll('#close-overlay, #confirm-message')) {
+            element.addEventListener('click', function() {
+                document.querySelector('#canvas-overlay.canvas-drawer').remove();
+            });
+        }
     }
 
     getMaxHeight() {
@@ -57,13 +55,13 @@ class CanvasDraw {
     }
     
     removeHTML() {
-        document.querySelector('#canvas.highlighter').remove();
-        document.querySelector('#canvas-overlay.highlighter').remove();
+        document.querySelector('#canvas.canvas-drawer').remove();
+        document.querySelector('#canvas-overlay.canvas-drawer').remove();
     }
 
     initCanvas() {
         // assign proper variables
-        this.canvas.element = document.querySelector('#canvas.highlighter');
+        this.canvas.element = document.querySelector('#canvas.canvas-drawer');
         this.canvas.element.width = window.innerWidth;
         this.canvas.element.height = this.getMaxHeight();
         this.canvas.context = this.canvas.element.getContext('2d');
@@ -80,28 +78,24 @@ class CanvasDraw {
         }.bind(this);
     
         this.canvas.element.onmousemove = function(e) {
-            if(this.canvas.drawEnabled && this.canvas.isDrawing && (this.activeToolInfo.id === 'paint-brush')) {
-                var x = e.pageX - this.canvas.element.offsetLeft;
-                var y = e.pageY - this.canvas.element.offsetTop;
-                if(this.activeToolInfo.id === 'paint-brush') {
-                    this.addClick(x, y, true,
-                        this.activeToolInfo.id,
-                        this.activeToolInfo.options.size,
-                        this.activeToolInfo.options.color);
-                } else if(this.activeToolInfo.id === 'eraser') {
-                    this.addClick(x, y, true,
-                        this.activeToolInfo.id,
-                        this.activeToolInfo.options.size,
-                        false, false);
-                }
+            if(this.canvas.isDrawing && (this.activeToolInfo.id === 'paintBrush')) {
+                let x = e.pageX - this.canvas.element.offsetLeft,
+                    y = e.pageY - this.canvas.element.offsetTop;
+                this.addClick(x, y, true,
+                    this.activeToolInfo.id,
+                    this.activeToolInfo.options.size,
+                    this.activeToolInfo.options.color);
                 this.draw();
+            } else if(this.activeToolInfo.id === 'eraser') {
+                this.addClick(x, y, true,
+                    this.activeToolInfo.id, this.activeToolInfo.options.size, false, false);
             }
         }.bind(this);
         this.canvas.element.onmousedown = function(e) {
-            if(this.activeToolInfo.id === 'paint-brush') {
-                var x = e.pageX - this.canvas.element.offsetLeft;
-                var y = e.pageY - this.canvas.element.offsetTop;
+            if(this.activeToolInfo.id === 'paintBrush') {
                 this.canvas.isDrawing = true;
+                let x = e.pageX - this.canvas.element.offsetLeft,
+                    y = e.pageY - this.canvas.element.offsetTop;
                 this.addClick(x, y, false, this.activeToolInfo.id,
                     this.activeToolInfo.options.size,
                     this.activeToolInfo.options.color);            
@@ -116,22 +110,21 @@ class CanvasDraw {
         }.bind(this);
     }
 
-    addClick(x, y, dragging, tool, size, color) {
+    addClick(x, y, dragging, toolId, size, color) {
         this.canvas.clickX.push(x);
         this.canvas.clickY.push(y);
         this.canvas.clickDrag.push(dragging);
-        this.canvas.clickTool.push(tool);
+        this.canvas.clickTool.push(toolId);
         this.canvas.clickSize.push(size);
-        if((tool === 'paint-brush') && color) {
+        if((toolId === 'paintBrush') && color) {
             this.canvas.clickColor.push(color);
         }
     }
 
     draw() {
-        this.canvas.context.lineJoin = "round";
-        var passed = this.canvas.clickX.length;
-        for(var i=0; i < passed; i++) {
+        for(let i = 0; i < this.canvas.clickX.length; i++) {
             this.canvas.context.beginPath();
+            this.canvas.context.lineJoin = "round";
             this.canvas.context.lineWidth = this.canvas.clickSize[i];
             if(this.canvas.clickDrag[i] && i){
                 this.canvas.context.moveTo(this.canvas.clickX[i - 1], this.canvas.clickY[i - 1]);
@@ -140,7 +133,7 @@ class CanvasDraw {
             }
             this.canvas.context.lineTo(this.canvas.clickX[i], this.canvas.clickY[i]);
             this.canvas.context.closePath();
-            if(this.canvas.clickTool[i] === 'paint-brush') {
+            if(this.canvas.clickTool[i] === 'paintBrush') {
                 this.canvas.context.strokeStyle = this.canvas.clickColor[i];
                 this.canvas.context.stroke();
             }
@@ -155,7 +148,7 @@ class CanvasDraw {
     }
 }
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function(request) {
     if((request.message === 'init-canvas') && (request.data != null)) {
         object = new CanvasDraw(request.data);
         object.init();

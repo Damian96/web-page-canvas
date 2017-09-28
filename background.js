@@ -1,7 +1,7 @@
 /* globals chrome */
 
-var canvasOpen = [];
-var popupObjects = [];
+var canvasOpen = [],
+    popupObjects = [];
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if((sender != null) && (sender.tab != null)) {

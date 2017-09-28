@@ -13,32 +13,35 @@ body {
     display: block;
 }
 
-#switcher-container,
+#actions-container {
+    width: 100%;
+}
+
+#save,
 #switcher {
-    height: 35px;
+    width: 33.3333333%;
+    display: inline-block;
+    box-sizing: border-box;
+    margin-right: -3px;
 }
 
-#switcher {
-    position: relative;
-    right: -415px;
-    top: 5px;
-    text-align: center;
-    border: 1px solid #dddddd;
-}
-
-#switcher.on > .on {
-    display: none;
-}
-
-#switcher.off > .off {
-    display: none;
-}
-
-#switcher > button {
+#switcher > button,
+#save {
+    cursor: pointer;
     font-size: 18px;
     padding: 5px;
     border: 1px solid #dddddd;
     background-color: #fff;
+}
+
+#switcher.off button.on,
+#switcher.on button.off {
+    width: 100%;
+}
+
+#switcher.on > .on,
+#switcher.off > .off {
+    display: none;
 }
 
 #switcher .icon-checkmark {
@@ -47,6 +50,14 @@ body {
 
 #switcher .icon-cross {
     color: red;
+}
+
+#save {
+    
+}
+
+#save > .icon-floppy-disk {
+    color: #0000FF;
 }
 
 #titles,

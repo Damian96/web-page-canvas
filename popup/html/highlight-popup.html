@@ -5,11 +5,12 @@
     <link rel="stylesheet" href="../css/highlight-popup.css" type="text/css"/>
 </head>
 <body>
-    <div id="switcher-container" class="row">
-        <span id="switcher" class="off">
-            <button class="off"><i class="icon-cross"></i>&nbsp;Close</button>
-            <button class="on"><i class="icon-checkmark"></i>&nbsp;Open</button>
-        </span>
+    <div id="actions-container" class="row">
+        <div id="switcher" class="off">
+            <button class="off" title='Disable Drawing Mode'><i class="icon-cross"></i>&nbsp;Close</button>
+            <button class="on" title='Enable Drawing Mode'><i class="icon-checkmark"></i>&nbsp;Open</button>
+        </div>
+        <button id="save" title='Save'><i class="icon-floppy-disk"></i>&nbsp;Save</button>
     </div>
     <div id="titles">
         <div class="tab-title tool active" data-tool-id="paint-brush" data-tool-color="yellow">

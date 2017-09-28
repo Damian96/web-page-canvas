@@ -24,6 +24,7 @@
     "unused": true,
     "esversion": 6,
     "browser": true,
-    "devel": true
+    "devel": true,
+    "sub": true
   }
 }
