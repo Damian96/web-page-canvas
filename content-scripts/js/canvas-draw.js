@@ -1,4 +1,4 @@
-/* globals chrome, html2canvas */
+/* globals chrome */
 
 var object;
 
@@ -8,8 +8,9 @@ var object;
  * Implements the drawing function code. 
  */
 class CanvasDraw {
-    constructor(toolData) {
-        this.activeToolInfo = toolData;
+    constructor(data) {
+        this.activeToolInfo = data.tool;
+        this.tabId = data.tabId;
         this.canvas = {
             clickX: [],
             clickY: [],
@@ -29,8 +30,9 @@ class CanvasDraw {
         this.initCanvas();
     }
 
-    updateToolInfo(toolInfo) {
-        this.activeToolInfo = toolInfo;
+    updateToolInfo(data) {
+        this.activeToolInfo = data.tool;
+        this.tabId = data.tabId;
     }
 
     insertHTML() {
@@ -162,23 +164,18 @@ class CanvasDraw {
     }
 
     saveCanvas() {
-        return new Promise((resolve, reject) => {
-            let url = this.canvas.element.toDataURL(),
-                canvasImg = document.createElement('img');
-            canvasImg.src = url;
-            canvasImg.width = this.getMaxWidth();
-            canvasImg.height = this.getMaxHeight();
-            canvasImg.classList.add('canvas-drawer-created');
-            document.body.appendChild(canvasImg);
-            document.body.classList.add('canvas-draw');
-            this.canvas.element.remove();
-            html2canvas(document.documentElement, {
-                onrendered: function(canvas) {
-                    this.removeGenImages();
-                    document.body.classList.remove('.canvas-draw');
-                    this.insertDownload(canvas.toDataURL());
-                    resolve('successfuly saved');
-                }.bind(this)
+        return new Promise((resolve) => {
+            chrome.runtime.sendMessage({
+                message: 'take-snapshot',
+                data: {
+                    tabId: this.tabId,
+                    windowHeight: window.innerHeight,
+                    pageHeight: this.getMaxHeight()
+                }
+            }, function(response) {
+                console.log(response);
+                return;
+                resolve(response.data);
             });
         });
     }
@@ -202,10 +199,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     } else if((request.message === 'update-info') && (request.data != null) && (object != null)) {
         object.updateToolInfo(request.data);
     } else if((request.message === 'save-canvas') && (object != null) && object.htmlInserted) {
-        object.saveCanvas().then((successMessage) => {
-            if(successMessage === 'successfuly saved') {
-                sendResponse({message: 'saved'});
-            }
+        object.saveCanvas().then(function(snapshots) {
+            console.log(snapshots);
         });
     } else if(request.message === 'close-canvas') {
         object.removeHTML();   

@@ -1,7 +1,6 @@
 /* globals chrome */
 
-var canvasOpen = [],
-    popupObjects = [];
+var popupObjects = [];
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if((sender != null) && (sender.tab != null)) {
@@ -20,8 +19,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     }
 });
 
-chrome.tabs.onUpdated.addListener(function(tabId) {
+function removePopupObject(tabId) {
     if((tabId != null) && (popupObjects[tabId] != null)) {
         popupObjects[tabId].overlayOpen = false;
     }
+}
+
+chrome.tabs.onUpdated.addListener(function(tabId) {
+    removePopupObject(tabId);
+});
+
+chrome.tabs.onRemoved.addListener(function(tabId) {
+    removePopupObject(tabId);
 });

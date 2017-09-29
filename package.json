@@ -15,9 +15,7 @@
   "author": "Damianos Giankakis",
   "license": "UNLICENSED",
   "dependencies": {
-    "jshint": "^2.9.5",
-    "node-minify": "^2.3.0",
-    "rasterizehtml": "^1.2.4"
+    "jshint": "^2.9.5"
   },
   "jshintConfig": {
     "undef": true,

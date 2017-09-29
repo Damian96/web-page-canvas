@@ -1,7 +1,6 @@
 /* globals chrome */
 
-var tabInfo,
-    background = chrome.extension.getBackgroundPage();
+var background = chrome.extension.getBackgroundPage();
 
 /**
  * The main popup plugin class.
@@ -28,6 +27,7 @@ class Main {
             htmlId: 'paint-brush',
             options: this.toolInfo.paintBrush
         };
+        this.tabId = null;
     }
 
     init() {
@@ -83,17 +83,20 @@ class Main {
         if(element.classList.contains('off')) {
             element.classList.remove('off');
             element.classList.add('on');
-            background.popupObjects[tabInfo.id] = this;
-            chrome.tabs.sendMessage(tabInfo.id,
+            background.popupObjects[this.tabId] = this;
+            chrome.tabs.sendMessage(this.tabId,
             {
                 message: 'init-canvas', 
-                data: this.activeTool
+                data: {
+                    tool: this.activeTool,
+                    tabId: this.tabId
+                }
             });
             this.overlayOpen = true;
         } else if(element.classList.contains('on')) {
             element.classList.remove('on');
             element.classList.add('off');
-            chrome.tabs.sendMessage(tabInfo.id,
+            chrome.tabs.sendMessage(this.tabId,
             {
                 message: 'close-canvas'
             });
@@ -102,7 +105,7 @@ class Main {
     }
 
     saveClickHandler(element) {
-        chrome.tabs.sendMessage(tabInfo.id, {message: 'save-canvas'}, function(response) {
+        chrome.tabs.sendMessage(this.tabId, {message: 'save-canvas'}, function(response) {
             if(response.message === 'saved') {
                 this.switcherClickHandler.call(this, document.getElementById('switcher'));
             }
@@ -130,10 +133,13 @@ class Main {
     }
 
     updatePageToolInfo() {
-        chrome.tabs.sendMessage(tabInfo.id,
+        chrome.tabs.sendMessage(this.tabId,
         {
             message: 'update-info',
-            data: this.activeTool
+            data: {
+                tool: this.activeTool,
+                tabId: this.tabId
+            }
         });
     }
 
@@ -195,14 +201,13 @@ class Main {
 var object = new Main();
 
 window.onunload = function() {
-    background.popupObjects[tabInfo.id] = object;
+    background.popupObjects[object.tabId] = object;
 };
 
 window.onload = function() {
     chrome.tabs.query({active: true}, function(tabArray) {
-        let tab = tabArray[0];
-        tabInfo = tab;
-        chrome.runtime.sendMessage({message: 'init-object', tabId: tab.id}, function(response) {
+        object.tabId = tabArray[0].id;
+        chrome.runtime.sendMessage({message: 'init-object', tabId: object.tabId}, function(response) {
             if(response.data !== 'do-it-yourself') {
                 object.reload(response.data);
             } else {

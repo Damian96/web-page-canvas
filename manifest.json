@@ -13,7 +13,8 @@
   },
   "background": {
     "scripts": [
-      "background.js"
+      "background.js",
+      "captureAPI.js"
     ]
   },
   "content_scripts": [
@@ -23,13 +24,14 @@
         "content-scripts/css/canvas-draw.css"
       ],
       "js": [
-        "content-scripts/js/canvas-draw.js",
-        "content-scripts/js/html2canvas.min.js"
+        "content-scripts/js/canvas-draw.js"
       ]
     }
   ],
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "pageCapture",
+    "<all_urls>"
   ],
   "web_accessible_resources": [
     "images/*.png",
