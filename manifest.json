@@ -24,6 +24,7 @@
         "content-scripts/css/canvas-draw.css"
       ],
       "js": [
+        "/node_modules/merge-images/dist/index.umd.js",
         "content-scripts/js/canvas-draw.js"
       ]
     }

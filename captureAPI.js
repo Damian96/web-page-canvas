@@ -27,19 +27,29 @@ class CaptureAPI {
     
     /**
      * Takes the full page snapshot.
-     * @param {Function} onSuccess
+     * @param {Function} onSuccess The callback to execute when async job is done.
      */
-    takeSnapshot() {
-        console.log('taking snapshot');
-        return new Promise((resolve) => {
-            if((this.maxSnapshots - this.snapshots.length) > 0) {
-                chrome.tabs.captureVisibleTab({format: 'jpeg'}, function(dataUrl) {
-                    this.snapshots.push(dataUrl);
-                    this.takeSnapshot.call(this);
-                }.bind(this));
+    takeSnapshot(onSuccess, thisArg, param1) {
+        return new Promise((resolve, reject) => {
+            let remaining = this.maxSnapshots - this.snapshots.length;
+            console.log(remaining);
+            if(typeof onSuccess !== 'function') {
+                reject('invalid takeSnapshot parameters given!');
+            }
+            if(remaining > 0) {
+                chrome.tabs.captureVisibleTab({format: 'jpeg'},
+                    function(onSuccess, thisArg, param1, dataUrl) {
+                        this.snapshots.push(dataUrl);
+                        chrome.tabs.sendMessage(this.tabId, {message: 'scrollTop'},
+                            function(onSuccess, thisArg, param1, response) {
+                                console.log(response);
+                                if(response === 'scrolled Top') {
+                                    this.takeSnapshot.call(this, onSuccess, thisArg, param1);
+                                }
+                            }.bind(this, onSuccess, thisArg, param1));
+                    }.bind(this, onSuccess, thisArg, param1));
             } else {
-                console.log(this.maxSnapshots, this.snapshots);
-                resolve(this.snapshots);
+                resolve(onSuccess.call(thisArg, param1, this.snapshots));
             }
         });
     }
@@ -52,9 +62,42 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 request.data.windowHeight,
                 request.data.pageHeight);
             captureObjects[request.data.tabId].init();
-            captureObjects[request.data.tabId].takeSnapshot().then((snapshots) => {
-                sendResponse({data: snapshots});
+            captureObjects[request.data.tabId].takeSnapshot(function(sendResponse, snapshots) {
+                console.log(this, 'sending response', snapshots);
+                let result = [];
+                for(let i=0;i < snapshots.length;i++) {
+                    let pageY = captureObjects[request.data.tabId].pageHeight;
+                    let windowY = captureObjects[request.data.tabId].windowHeight;
+                    let y;
+                    if((i > 0) && (i < (snapshots.length - 1))) {
+                        y = (i + 1) * captureObjects[request.data.tabId].windowHeight;
+                        y -= windowY *  (captureObjects[request.data.tabId].maxSnapshots % 1);
+                    } else if(i == (snapshots.length - 1)) {
+                        if((captureObjects[request.data.tabId].maxSnapshots % 1) > 0) {
+                            y = i + captureObjects[request.data.tabId].windowHeight * (captureObjects[request.data.tabId].maxSnapshots % 1);
+                        } else {
+                            y = (i + 1) * captureObjects[request.data.tabId].windowHeight;
+                        }
+                    } else {
+                        y = 0;
+                    }
+                    result.push({
+                        src: snapshots[i],
+                        x: 0,
+                        y: y
+                    });
+                }
+                sendResponse({data: result});
+                return true;
+            }, null, sendResponse)
+            .then(function(functionRes) {
+                console.log('sendResponse returns: ' + functionRes);
+            })
+            .catch(function(error) {
+                console.log('takeSnapshot error: ' + error);
+                sendResponse({data: null, error: error});
             });
+            return true;
         }
     }
 });

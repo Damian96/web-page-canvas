@@ -53,7 +53,10 @@ class CanvasDraw {
     }
 
     getMaxHeight() {
-        return Math.max(window.innerHeight, document.body.offsetHeight, document.body.scrollTop);
+        return Math.max(window.innerHeight, document.body.offsetHeight,
+            document.body.scrollHeight, document.body.clientHeight,
+            document.documentElement.offsetHeight, document.documentElement.clientHeight,
+            document.documentElement.scrollHeight);
     }
 
     getMaxWidth() {
@@ -164,6 +167,7 @@ class CanvasDraw {
     }
 
     saveCanvas() {
+        window.scrollTo(0, 0);
         return new Promise((resolve) => {
             chrome.runtime.sendMessage({
                 message: 'take-snapshot',
@@ -173,11 +177,19 @@ class CanvasDraw {
                     pageHeight: this.getMaxHeight()
                 }
             }, function(response) {
-                console.log(response);
-                return;
-                resolve(response.data);
+                if((response != null) && (response.data == null) && (response.error != null)) {
+                    reject(response.error);
+                } else if(response.data != null) {
+                    resolve(response.data);
+                } else {
+                    reject('something went wrong while saving the canvas');
+                }
             });
         });
+    }
+
+    mergeSnapshots() {
+
     }
 
     insertDownload(url) {
@@ -199,10 +211,33 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     } else if((request.message === 'update-info') && (request.data != null) && (object != null)) {
         object.updateToolInfo(request.data);
     } else if((request.message === 'save-canvas') && (object != null) && object.htmlInserted) {
-        object.saveCanvas().then(function(snapshots) {
-            console.log(snapshots);
+        document.body.classList.add('canvas-draw');
+        window.scrollTo(0, 0);
+        object.saveCanvas()
+        .then(function(snapshots) {
+            console.log(object, snapshots);
+            for(let snap of snapshots) {
+                object.insertDownload(snap.src);
+            }
+            mergeImages(snapshots,
+            {
+                width: object.getMaxWidth(),
+                height: object.getMaxHeight()
+            })
+            .then(b64 => {
+                document.body.innerHTML += b64;
+            });
+            document.body.classList.remove('canvas-draw');    
+        }.bind(object))
+        .catch(function(error) {
+            console.log('Error while saving canvas(CanvasDraw.saveCanvas): ' + error);  
+            document.body.classList.remove('canvas-draw');
         });
     } else if(request.message === 'close-canvas') {
         object.removeHTML();   
+    } else if(request.message === 'scrollTop') {
+        window.scrollTo(0, window.innerHeight);
+        console.log(window.scrollX);
+        sendResponse('scrolled Top');
     }
 });

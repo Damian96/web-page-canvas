@@ -7,7 +7,6 @@ var background = chrome.extension.getBackgroundPage();
  * @prop {boolean} overlayOpen A flag of whether the webpage canvas is open.
  * @prop {Object.<string, number>} toolInfo The object with all the information of all available tools.
  * @prop {Object.<string, number>} activeTool The object with all the information about the currently active tool.
- * @prop {?Element} switcher The HTML element of the open/close switcher of the extension.
  */
 class Main {
     constructor() {
@@ -80,7 +79,9 @@ class Main {
     }
     
     switcherClickHandler(element) {
+        console.log(this.tabId);
         if(element.classList.contains('off')) {
+            console.log('sending message');
             element.classList.remove('off');
             element.classList.add('on');
             background.popupObjects[this.tabId] = this;

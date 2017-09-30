@@ -1,6 +1,5 @@
-body.canvas-draw > *:not(.canvas-drawer-created) {
-    position: relative !important;
-    z-index: -1 !important;
+body.canvas-draw {
+    overflow-x: hidden !important;
 }
 
 img.canvas-drawer-created {

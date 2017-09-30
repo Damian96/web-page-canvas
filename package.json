@@ -15,7 +15,8 @@
   "author": "Damianos Giankakis",
   "license": "UNLICENSED",
   "dependencies": {
-    "jshint": "^2.9.5"
+    "jshint": "^2.9.5",
+    "merge-images": "^1.0.5"
   },
   "jshintConfig": {
     "undef": true,
