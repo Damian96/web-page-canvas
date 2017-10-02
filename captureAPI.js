@@ -43,12 +43,13 @@ class CaptureAPI {
                         chrome.tabs.sendMessage(this.tabId, {message: 'scrollTop'},
                             function(onSuccess, thisArg, param1, response) {
                                 console.log(response);
-                                if(response === 'scrolled Top') {
+                                if((response != null) && (response.message === 'Scrolled') && (response.data != null)) {
                                     this.takeSnapshot.call(this, onSuccess, thisArg, param1);
                                 }
                             }.bind(this, onSuccess, thisArg, param1));
                     }.bind(this, onSuccess, thisArg, param1));
             } else {
+                console.log(this);
                 resolve(onSuccess.call(thisArg, param1, this.snapshots));
             }
         });
@@ -63,20 +64,17 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 request.data.pageHeight);
             captureObjects[request.data.tabId].init();
             captureObjects[request.data.tabId].takeSnapshot(function(sendResponse, snapshots) {
-                console.log(this, 'sending response', snapshots);
-                let result = [];
+                let result = [],
+                    captureObject = captureObjects[request.data.tabId];
                 for(let i=0;i < snapshots.length;i++) {
-                    let pageY = captureObjects[request.data.tabId].pageHeight;
-                    let windowY = captureObjects[request.data.tabId].windowHeight;
-                    let y;
+                    let y = 0;
                     if((i > 0) && (i < (snapshots.length - 1))) {
-                        y = (i + 1) * captureObjects[request.data.tabId].windowHeight;
-                        y -= windowY *  (captureObjects[request.data.tabId].maxSnapshots % 1);
-                    } else if(i == (snapshots.length - 1)) {
-                        if((captureObjects[request.data.tabId].maxSnapshots % 1) > 0) {
-                            y = i + captureObjects[request.data.tabId].windowHeight * (captureObjects[request.data.tabId].maxSnapshots % 1);
+                        y = i * captureObject.windowHeight;
+                    } else if((i > 0) && (i == (snapshots.length - 1))) {
+                        if(((captureObject.maxSnapshots % 1) > 0) && ((captureObject.maxSnapshots % 1) < captureObject.maxSnapshots)) {
+                            y = i * captureObject.windowHeight + captureObject.pageHeight % captureObject.windowHeight + (captureObject.pageHeight % captureObject.windowHeight) % 1;
                         } else {
-                            y = (i + 1) * captureObjects[request.data.tabId].windowHeight;
+                            y = i * captureObject.windowHeight;
                         }
                     } else {
                         y = 0;

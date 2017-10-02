@@ -197,6 +197,24 @@ class Main {
         }
         return string;
     }
+
+    animateLoader(targetW) {
+        let loader = document.getElementById('passed-bar'),
+            animation;
+        function animateLoadTo(tarWidth, loader) {
+            let curWidth = parseFloat(loader.style.width);
+            if(isNaN(curWidth)) {
+                curWidth = 0;
+            }
+            console.log('ok animation', loader, curWidth);
+            if((curWidth + 5) >= tarWidth) {
+                clearInterval(animation);
+            } else {
+                loader.style.width = (curWidth + 5) + '%';
+            }
+        }
+        animation = setInterval(animateLoadTo.bind(this, targetW, loader), 250);
+    }
 }
 
 var object = new Main();

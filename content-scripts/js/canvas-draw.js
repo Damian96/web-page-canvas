@@ -177,7 +177,10 @@ class CanvasDraw {
                     pageHeight: this.getMaxHeight()
                 }
             }, function(response) {
-                if((response != null) && (response.data == null) && (response.error != null)) {
+                if(response == null) { 
+                    return;
+                }
+                if((response.data == null) && (response.error != null)) {
                     reject(response.error);
                 } else if(response.data != null) {
                     resolve(response.data);
@@ -205,6 +208,9 @@ class CanvasDraw {
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     console.log(request);
+    if(request == null) {
+        return false;
+    }
     if((request.message === 'init-canvas') && (request.data != null)) {
         object = new CanvasDraw(request.data);
         object.init();
@@ -215,19 +221,27 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         window.scrollTo(0, 0);
         object.saveCanvas()
         .then(function(snapshots) {
-            console.log(object, snapshots);
-            for(let snap of snapshots) {
-                object.insertDownload(snap.src);
+            console.log(snapshots);
+            if(typeof snapshots === 'object') {
+                if(snapshots.length > 0) {
+                    // for(let snap of snapshots) {
+                    //     object.insertDownload(snap.src);
+                    // }
+                    // mergeImages(snapshots,
+                    // {
+                    //     width: object.getMaxWidth(),
+                    //     height: object.getMaxHeight()
+                    // })
+                    // .then(b64 => {
+                    //     document.body.innerHTML += '<br>' + b64 + '<br/>';
+                    //     object.insertDownload(b64);
+                    // }).bind(object);
+                } else if(snapshots.length == 0) {
+                    object.insertDownload(snapshots[0]);
+                }
             }
-            mergeImages(snapshots,
-            {
-                width: object.getMaxWidth(),
-                height: object.getMaxHeight()
-            })
-            .then(b64 => {
-                document.body.innerHTML += b64;
-            });
-            document.body.classList.remove('canvas-draw');    
+            document.body.classList.remove('canvas-draw');
+            object.removeHTML();
         }.bind(object))
         .catch(function(error) {
             console.log('Error while saving canvas(CanvasDraw.saveCanvas): ' + error);  
@@ -236,8 +250,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     } else if(request.message === 'close-canvas') {
         object.removeHTML();   
     } else if(request.message === 'scrollTop') {
-        window.scrollTo(0, window.innerHeight);
-        console.log(window.scrollX);
-        sendResponse('scrolled Top');
+        window.scrollTo(0, window.scrollY + window.innerHeight);
+        setTimeout(function(sendResponse) {
+            sendResponse({message: 'Scrolled', data: window.scrollY});
+        }.bind(null, sendResponse),
+        1000);
     }
+    return true;
 });

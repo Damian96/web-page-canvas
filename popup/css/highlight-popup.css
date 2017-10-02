@@ -1,5 +1,6 @@
 html,
-body {
+body,
+#loading-image-container:not(.hidden) {
     width: 500px;
     height: 100%;
     margin: 0;
@@ -205,4 +206,39 @@ body {
     font-size: 17px;
     position: relative;
     top: -5px;
+}
+
+/* Loader CSS */
+
+#loading-image-container:not(.hidden) {
+    text-align: center;
+}
+
+#loading-image-container:not(.hidden) > #loader-caption,
+#loading-image-container:not(.hidden) > #loader-bar {
+    display: block;    
+}
+
+#loading-image-container:not(.hidden) #loader-bar,
+#loading-image-container:not(.hidden) #passed-bar {
+    height: 15px;
+    display: block;
+    border-radius: 15px;
+}
+
+#loading-image-container:not(.hidden) #loader-bar {
+    width: 80%;
+    margin: auto;
+    background: repeating-linear-gradient(45deg,
+        rgba(133, 75, 75, 0.2),
+        rgba(0, 0, 204, 0.2) 5px,
+        rgba(0, 0, 204, 0.5) 5px, 
+        rgba(0, 0, 204, 0.3) 10px);
+}
+
+#loading-image-container:not(.hidden) #passed-bar {
+    width: 0%;
+    height: 100%;
+    display: block;
+    background-color: #0000FF;
 }
