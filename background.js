@@ -25,10 +25,16 @@ function removePopupObject(tabId) {
     }
 }
 
-chrome.tabs.onUpdated.addListener(function(tabId) {
-    removePopupObject(tabId);
-});
+function sendResizeMessage(tabId) {
+    if((tabId != null) && (popupObjects[tabId] != null)) {
+        chrome.tabs.sendMessage(tabId, {
+            message: 'resize-canvas'
+        });
+    }
+}
 
-chrome.tabs.onRemoved.addListener(function(tabId) {
-    removePopupObject(tabId);
-});
+chrome.tabs.onZoomChanged.addListener(sendResizeMessage);
+
+chrome.tabs.onUpdated.addListener(removePopupObject);
+
+chrome.tabs.onRemoved.addListener(removePopupObject);
