@@ -1,6 +1,5 @@
 html,
-body,
-#loading-image-container:not(.hidden) {
+body {
     width: 500px;
     height: 100%;
     margin: 0;
@@ -141,6 +140,12 @@ body,
     color: #fff;
 }
 
+.tab-title.active[data-tool-id="eraser"],
+.tab-content.active[data-tool-id="eraser"] {
+    background-color: #A52A2A;
+    color: #fff;
+}
+
 .tab-title > i {
     position: relative;
     padding: 2px 6px;
@@ -179,6 +184,7 @@ body,
 .tab-content.active {
     display: block;
     padding: 0 5px;
+    min-height: 200px;
 }
 
 .tab-content.active h3 {
@@ -199,7 +205,8 @@ body,
 }
 
 .tab-content.active .color.active {
-    background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2) 5px, rgba(0, 0, 0, 0.5) 5px, rgba(0, 0, 0, 0.3) 10px);
+    background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.2),
+        rgba(0, 0, 0, 0.2) 5px, rgba(0, 0, 0, 0.5) 5px, rgba(0, 0, 0, 0.3) 10px);
 }
 
 .tab-content.active .range-value {
@@ -208,25 +215,127 @@ body,
     top: -5px;
 }
 
-/* Loader CSS */
-
-#loading-image-container:not(.hidden) {
-    text-align: center;
+#slideshow {
+    width: 250px;
+    height: 200px;
+    margin: auto;
+    border: 1px solid #000;
+    margin-top: 10px;
 }
 
-#loading-image-container:not(.hidden) > #loader-caption,
-#loading-image-container:not(.hidden) > #loader-bar {
+#slideshow:not(.empty) > .screenshot-navigation {
+    position: relative;
+    top: 48%;
+    color: #7e7e7e;
+    font-size: 18px;
+}
+
+#slideshow:not(.empty) > .screenshot-navigation > i {
+    cursor: pointer;
+}
+
+#slideshow:not(.empty) > .screenshot-navigation > i.icon-arrow-right {
+    position: relative;
+    left: 84%;
+}
+
+#slideshow:not(.empty) > .screenshot-actions {
+    display: block;
+    margin: 0 10%;
+    position: relative;
+    top: 120px;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div:last-child {
+    float: right;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div {
+    width: 77px;
+    text-align: center;
+    display: inline-block;
+    border: 1px solid #000;
+    border-radius: 5px;
+    padding: 2px 5px;
+    cursor: pointer;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div:hover {
+    background-color: #797979;
+    color: #ffffff;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div > i {
+    font-size: 17px;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div > span {
+    font-size: 15px;
+    position: relative;
+    top: -1px;
+}
+
+#slideshow:not(.empty) > .screenshot-actions i.icon-floppy-disk {
+    color: #0000FF;
+}
+
+#slideshow:not(.empty) > .screenshot-actions i.icon-bin {
+    color: #ff0000;
+}
+
+#slideshow.empty > .save-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    font-size: 18px;
+    color: #fff;
+    font-weight: bold;
+}
+
+#slideshow.empty {
+    background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.2),
+        rgba(0, 0, 0, 0.2) 5px, rgba(0, 0, 0, 0.5) 5px, rgba(0, 0, 0, 0.5) 10px);
+}
+
+#slideshow.empty > .screenshot-navigation,
+#slideshow.empty > .screenshot-actions,
+#slideshow:not(.empty) > .save-message,
+#slideshow:not(.loading) > .image-loader,
+#slideshow.loading > .screenshot-navigation,
+#slideshow.loading > .screenshot-actions {
+    display: none;
+}
+
+#slideshow:not(.empty) > .icon-arrow-left {
+    left: 0;
+}
+
+#slideshow:not(.empty) > .icon-arrow-right {
+    left: 85%;
+}
+
+/* Loader CSS */
+
+#slideshow.loading > .image-loader {
+    text-align: center;
+    position: relative;
+    top: 35%;
+}
+
+#slideshow.loading > .image-loader > #loader-caption,
+#slideshow.loading > .image-loader > #loader-bar {
     display: block;    
 }
 
-#loading-image-container:not(.hidden) #loader-bar,
-#loading-image-container:not(.hidden) #passed-bar {
+#slideshow.loading > .image-loader #loader-bar,
+#slideshow.loading > .image-loader #passed-bar {
     height: 15px;
     display: block;
     border-radius: 15px;
 }
 
-#loading-image-container:not(.hidden) #loader-bar {
+#slideshow.loading > .image-loader #loader-bar {
     width: 80%;
     margin: auto;
     background: repeating-linear-gradient(45deg,
@@ -236,9 +345,22 @@ body,
         rgba(0, 0, 204, 0.3) 10px);
 }
 
-#loading-image-container:not(.hidden) #passed-bar {
+#slideshow.loading > .image-loader #passed-bar {
     width: 0%;
     height: 100%;
     display: block;
     background-color: #0000FF;
+}
+
+#slideshow > div,
+#slideshow > span {
+    position: relative;
+    z-index: 2;
+}
+
+#slide-image {
+    position: absolute;
+    z-index: 2;
+    width: 250px;
+    height: 200px;
 }

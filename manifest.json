@@ -32,7 +32,8 @@
   "permissions": [
     "activeTab",
     "pageCapture",
-    "<all_urls>"
+    "<all_urls>",
+    "storage"
   ],
   "web_accessible_resources": [
     "images/*.png",

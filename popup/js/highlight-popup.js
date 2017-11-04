@@ -50,7 +50,7 @@ class Main {
         }
         let dataSelector = "[data-tool-id='" + this.activeTool.htmlId + "']";
         let toolElement = document.querySelector(".tab-title" + dataSelector);
-        this.toolClickHandler(toolElement);
+        this.tabClickHanndler(toolElement);
         if(this.activeTool.id === 'paintBrush') {
             let colorElement = document.querySelector(".tab-content" + dataSelector + " .color[data-color-code='" + this.toolInfo.paintBrush.color + "']"),
                 sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range");
@@ -67,14 +67,18 @@ class Main {
             switcher = document.getElementById('switcher');
         save.addEventListener('click', this.saveClickHandler.bind(this, save));
         switcher.addEventListener('click', this.switcherClickHandler.bind(this, switcher));
-        for(let element of document.querySelectorAll('.tab-title.tool')) {
-            element.addEventListener('click', this.toolClickHandler.bind(this, element));
+        for(let element of document.querySelectorAll('.tab-title')) {
+            element.addEventListener('click', this.tabClickHanndler.bind(this, element));
         }
-        for(let element of document.querySelectorAll('.tab-content.active .color')) {
+        for(let element of document.querySelectorAll('.tab-content .color')) {
             element.addEventListener('click', this.colorClickHandler.bind(this, element));
         }
-        for(let element of document.querySelectorAll('.tab-content.active input.size-range')) {
+        for(let element of document.querySelectorAll('.tab-content input.size-range')) {
             element.addEventListener('change', this.sizeHandler.bind(this, element));            
+        }
+        // document.querySelector('#slideshow > .screenshot-navigation > i').addEventListener('click', )
+        for(let element of document.querySelectorAll('#slideshow > .screenshot-actions > div')) {
+            element.addEventListener('click', this.screenshotActionClickHandler.bind(this, element));            
         }
     }
     
@@ -105,7 +109,16 @@ class Main {
         }
     }
 
+    screenshotActionClickHandler(element) {
+        if(element.classList.contains('save-screenshot')) {
+
+        } else if(element.classList.contains('delete-screenshot')) {
+
+        }
+    }
+
     saveClickHandler(element) {
+        this.tabClickHanndler.call(this, document.querySelector(".tab-title[data-panel-id='library'"));
         chrome.tabs.sendMessage(this.tabId, {message: 'save-canvas'}, function(response) {
             if(response.message === 'saved') {
                 this.switcherClickHandler.call(this, document.getElementById('switcher'));
@@ -113,13 +126,18 @@ class Main {
         }.bind(this));
     }
 
-    toolClickHandler(element) {
+    tabClickHanndler(element) {
         if(!element.classList.contains('active')) {
-            let id = element.dataset.toolId;
-            this.disableAllTools();
+            this.disableAllTabs();
             element.classList.add('active');
-            document.querySelector(".tab-content[data-tool-id='" + id + "']").classList.add('active');
-            this.changeActiveTool(id);
+            if(element.dataset.toolId) {
+                let id = element.dataset.toolId;
+                document.querySelector(".tab-content[data-tool-id='" + id + "']").classList.add('active');
+                this.changeActiveTool(id);
+            } else {
+                let id = element.dataset.panelId;
+                document.querySelector(".tab-content[data-panel-id='" + id + "']").classList.add('active');                
+            }
         }
     }
 
@@ -161,6 +179,7 @@ class Main {
     }
 
     sizeHandler(element) {
+        console.log
         let toolId = element.dataset.toolId,
             value = parseFloat(element.value);
         element.nextElementSibling.innerHTML = value + 'px';
@@ -172,7 +191,7 @@ class Main {
         this.changeActiveTool(toolId);
     }
 
-    disableAllTools() {
+    disableAllTabs() {
         for(let element of document.querySelectorAll('.tab-title.active, .tab-content.active')) {
             element.classList.remove('active');
         }
@@ -200,6 +219,7 @@ class Main {
 
     animateLoader(targetW) {
         let loader = document.getElementById('passed-bar'),
+            percent = document.getElementById('loader-percent'),
             animation;
         function animateLoadTo(tarWidth, loader) {
             let curWidth = parseFloat(loader.style.width);
@@ -213,7 +233,21 @@ class Main {
                 loader.style.width = (curWidth + 5) + '%';
             }
         }
-        animation = setInterval(animateLoadTo.bind(this, targetW, loader), 250);
+        if(targetW >= 100) {
+            animateLoadTo(100, loader);
+            percent.innerHTML = '100';
+        } else {
+            animation = setInterval(animateLoadTo.bind(this, targetW, loader), 250);
+            percent.innerHTML = parseInt(targetW);
+        }
+    }
+
+    insertImage(src) {
+        let slideshow = document.getElementById('slideshow'),
+            slideImage = document.getElementById('slide-image');
+        slideshow.className = '';
+        slideImage.src = src;
+        
     }
 }
 
@@ -235,3 +269,9 @@ window.onload = function() {
         });
     });
 };
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if(request.message === 'savedIsReady' && request.data != null) {
+        object.insertImage(request.data);
+    }
+});

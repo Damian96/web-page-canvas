@@ -44,6 +44,7 @@ class CaptureAPI {
                         chrome.tabs.sendMessage(this.tabId, {message: 'scrollTop'},
                             function(onSuccess, thisArg, param1, response) {
                                 if((response != null) && (response.message === 'Scrolled') && (response.data != null)) {
+                                    chrome.runtime.sendMessage({savingProgress: (this.snapshots.length / this.maxSnapshots) * 100});
                                     this.takeSnapshot.call(this, onSuccess, thisArg, param1);
                                 }
                             }.bind(this, onSuccess, thisArg, param1));

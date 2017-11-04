@@ -38,6 +38,12 @@ class CanvasDraw {
     updateToolInfo(data) {
         this.activeToolInfo = data.tool;
         this.tabId = data.tabId;
+        this.canvas.clickColor = [];
+        this.canvas.clickDrag = [];
+        this.canvas.clickSize = [];
+        this.canvas.clickTool = [];
+        this.canvas.clickX = [];
+        this.canvas.clickY = [];
     }
 
     insertHTML() {
@@ -107,26 +113,31 @@ class CanvasDraw {
         this.canvas.element.onmousemove = function(e) {
             let x = e.pageX - this.canvas.element.offsetLeft,
                 y = e.pageY - this.canvas.element.offsetTop;
-            if(this.canvas.isDrawing && (this.activeToolInfo.id === 'paintBrush')) {
-                this.addClick(x, y, true,
-                    this.activeToolInfo.id,
-                    this.activeToolInfo.options.size,
-                    this.activeToolInfo.options.color);
-                this.draw();
-            } else if(this.activeToolInfo.id === 'eraser') {
-                this.addClick(x, y, true,
-                    this.activeToolInfo.id, this.activeToolInfo.options.size, false, false);
+            if(this.canvas.isDrawing) {
+                if(this.activeToolInfo.id === 'paintBrush') {
+                    this.addClick(x, y, true,
+                        this.activeToolInfo.id,
+                        this.activeToolInfo.options.size,
+                        this.activeToolInfo.options.color);
+                    this.draw();
+                } else if(this.activeToolInfo.id === 'eraser') {
+                    this.addClick(x, y, true,
+                        this.activeToolInfo.id, this.activeToolInfo.options.size, false, false);
+                    this.erase();
+                }
             }
         }.bind(this);
         this.canvas.element.onmousedown = function(e) {
+            this.canvas.isDrawing = true;
             if(this.activeToolInfo.id === 'paintBrush') {
-                this.canvas.isDrawing = true;
                 let x = e.pageX - this.canvas.element.offsetLeft,
                     y = e.pageY - this.canvas.element.offsetTop;
                 this.addClick(x, y, false, this.activeToolInfo.id,
                     this.activeToolInfo.options.size,
-                    this.activeToolInfo.options.color);            
+                    this.activeToolInfo.options.color);
                 this.draw();
+            } else if(this.activeToolInfo.id === 'eraser') {
+                this.erase();
             }
         }.bind(this);
         this.canvas.element.onmouseup = function() {
@@ -150,8 +161,9 @@ class CanvasDraw {
 
     draw() {
         for(let i = 0; i < this.canvas.clickX.length; i++) {
+            this.canvas.context.globalCompositeOperation = 'source-over';
             this.canvas.context.beginPath();
-            this.canvas.context.lineJoin = "round";
+            this.canvas.context.lineJoin = 'round';
             this.canvas.context.lineWidth = this.canvas.clickSize[i];
             if(this.canvas.clickDrag[i] && i){
                 this.canvas.context.moveTo(this.canvas.clickX[i - 1], this.canvas.clickY[i - 1]);
@@ -167,6 +179,23 @@ class CanvasDraw {
         }
     }
     
+    erase() {
+        for(let i = 0; i < this.canvas.clickX.length; i++) {
+            this.canvas.context.globalCompositeOperation = 'destination-out';
+            this.canvas.context.beginPath();
+            this.canvas.context.lineJoin = 'round';
+            this.canvas.context.lineWidth = this.canvas.clickSize[i];
+            if(this.canvas.clickDrag[i] && i){
+                this.canvas.context.moveTo(this.canvas.clickX[i - 1], this.canvas.clickY[i - 1]);
+            } else {
+                this.canvas.context.moveTo(this.canvas.clickX[i] - 1, this.canvas.clickY[i]);
+            }
+            this.canvas.context.lineTo(this.canvas.clickX[i], this.canvas.clickY[i]);
+            this.canvas.context.closePath();
+            this.canvas.context.stroke();
+        }
+    }
+
     clearCanvas() {
         this.canvas.clickX = [];
         this.canvas.clickY = [];
@@ -289,7 +318,7 @@ class CanvasDraw {
     }
 
     /**
-     * Removes / adds all fixed elements of document for better page capturing.
+     * Adds / removes all fixed elements of document for better page capturing.
      * @param {boolean} handler 
      */
     handleFixedElements(handler) {
@@ -299,54 +328,58 @@ class CanvasDraw {
             }
             this.fixedElems = [];
         } else {
-            for(let element of document.querySelectorAll('div, section')) {
-                let check = (element != null) && (element.style.position === 'fixed') || (window.getComputedStyle(element, null).getPropertyValue('position') === 'fixed');
+            for(let element of document.querySelectorAll('div, nav, section, header')) {
+                let check = element.style.position === 'fixed' || window.getComputedStyle(element, null).getPropertyValue('position') === 'fixed';
                 if(!element.classList.contains('canvas-drawer') && check) {
                     element.style.position = 'absolute';
                     this.fixedElems.push(element);
                 }
             }
-            console.log(this.fixedElems);
         }
     }
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log(request);
     if(request == null) {
         return false;
     }
     if((request.message === 'init-canvas') && (request.data != null)) {
         object = new CanvasDraw(request.data);
         object.init();
+        object.handleFixedElements(false);
     } else if((request.message === 'update-info') && (request.data != null) && (object != null)) {
         object.updateToolInfo(request.data);
     } else if((request.message === 'save-canvas') && (object != null) && object.htmlInserted) {
         document.body.classList.add('canvas-draw');
         window.scrollTo(0, 0);
         object.saveCanvas()
-        .then(function(snapshots) {
-            console.log(snapshots);
-            if(typeof snapshots === 'object') {
-                object.loadImages(snapshots)
-                    .then(function(finalImage) {
-                        finalImage = object.b64ToBlobURL(finalImage, 'image/png', false);
-                        this.insertDownload(finalImage);
-                    }.bind(object));
-            }
-            document.body.classList.remove('canvas-draw');
-            object.removeHTML();
-            window.scrollTo(0, 0)
-            this.handleFixedElements(true);
-        }.bind(object))
-        .catch(function(error) {
-            console.log('Error while saving canvas(CanvasDraw.saveCanvas): ' + error);  
-            object.removeHTML();
-            window.scrollTo(0, 0)
-            this.handleFixedElements(true);
-        });
+            .then(function(sendResponse, snapshots) {
+                console.log(snapshots);
+                if(typeof snapshots === 'object') {
+                    object.loadImages(snapshots)
+                        .then(function(finalImage) {
+                            finalImage = object.b64ToBlobURL(finalImage, 'image/png', false);
+                            chrome.runtime.sendMessage({message: 'savedIsReady', data: finalImage});
+                            // this.insertDownload(finalImage);
+                        }.bind(object));
+                }
+                document.body.classList.remove('canvas-draw');
+                object.removeHTML();
+                window.scrollTo(0, 0)
+                this.handleFixedElements(true);
+                this.removeHTML();
+                sendResponse({message: 'saved'});
+            }.bind(object, sendResponse))
+            .catch(function(error) {
+                console.log('Error while saving canvas(CanvasDraw.saveCanvas): ' + error);  
+                object.removeHTML();
+                window.scrollTo(0, 0)
+                this.handleFixedElements(true);
+                this.removeHTML();
+            });
     } else if(request.message === 'close-canvas') {
-        object.removeHTML();   
+        object.removeHTML();
+        object.handleFixedElements(true);
     } else if(request.message === 'scrollTop') {
         window.scrollTo(0, window.scrollY + window.innerHeight);
         sendResponse({message: 'Scrolled', data: window.scrollY});
