@@ -58,13 +58,17 @@ class CaptureAPI {
      */
     takeSnapshot(onSuccess, thisArg, param1) {
         return new Promise((resolve, reject) => {
-            let remaining = this.maxSnapshots - this.snapshots.length;
+            let remaining = this.maxSnapshots - this.snapshots.length,
+                percentage = this.maxSnapshots * 100 / this.snapshots.length;
+            
             if(typeof onSuccess !== 'function') {
                 reject('invalid takeSnapshot parameters given!');
             }
+
             if(this.maxSnapshots > 20 || this.pageHeight > 4000) {
                 reject('too tall page to take snapshot');
             }
+
             if(remaining > 0) {
                 setTimeout(function() {
                     chrome.tabs.captureVisibleTab({format: 'jpeg'},
@@ -73,7 +77,10 @@ class CaptureAPI {
                             chrome.tabs.sendMessage(this.tabID, {message: 'scrollTop'},
                                 function(onSuccess, thisArg, param1, response) {
                                     if(response.message === 'Scrolled' && response.hasOwnProperty('data')) {
-                                        chrome.runtime.sendMessage({savingProgress: (this.snapshots.length / this.maxSnapshots) * 100});
+                                        chrome.runtime.sendMessage({
+                                            message: 'update-snapshot-process',
+                                            data: this.snapshots.length * 100 / this.maxSnapshots
+                                        });
                                         this.takeSnapshot.call(this, onSuccess, thisArg, param1);
                                     }
                                 }.bind(this, onSuccess, thisArg, param1));

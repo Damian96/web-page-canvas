@@ -372,6 +372,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 webPageAnnotator = new WebPageAnotator(request.data);
                 webPageAnnotator.init();
                 webPageAnnotator.handleFixedElements(false);
+            } else if(request.message == 'insert-snapshot-download') {
+                webPageAnnotator.insertDownload(request.data);
             }
             if(webPageAnnotator != null && request.message == 'update-info') {
                 webPageAnnotator.updateToolInfo(request.data);
@@ -397,7 +399,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                             webPageAnnotator.loadImages(snapshots)
                                 .then(function(finalImage) {
                                     finalImage = webPageAnnotator.b64ToBlobURL(finalImage, 'image/png', false);
-                                    chrome.runtime.sendMessage({message: 'savedIsReady', data: finalImage});
+                                    chrome.runtime.sendMessage({message: 'snapshot-is-ready', data: finalImage});
                                     // this.insertDownload(finalImage);
                                 }.bind(webPageAnnotator));
                         }

@@ -33,6 +33,11 @@ class WebPageAnotatorPopup {
             htmlId: 'paint-brush',
             options: this.toolsOptions.paintBrush
         };
+        this.activePanel = {
+            id: 'none',
+            htmlId: 'none'
+        };
+        this.localSnapshots = [];
         this.STORAGEAREAKEY = 'canvasdrawer_screenshots_array';
     }
 
@@ -62,14 +67,27 @@ class WebPageAnotatorPopup {
             document.getElementById('save').disabled = true;
         }
         this.tabClickHanndler(toolElement);
-        if(this.activeTool.id === 'paintBrush') {
+        if(this.activeTool.id == 'paintBrush' && this.activePanel.id == 'none') {
             let colorElement = document.querySelector(".tab-content" + dataSelector + " .color[data-color-code='" + this.toolsOptions.paintBrush.color + "']"),
                 sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range");
+
             sizeElement.value = this.toolsOptions.paintBrush.size;
             this.colorClickHandler(colorElement);
             this.sizeHandler(sizeElement);
-        } else if(this.activeTool.id === 'eraser') {
-            // var sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range");
+        } else if(this.activeTool.id == 'eraser') {
+            let sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range");
+
+            sizeElement.value = this.toolsOptions.eraser.size;
+        }
+        if(this.activePanel.id == 'library') {
+            this.tabClickHanndler.call(this, document.querySelector(".tab-title.panel[data-panel-id='library']"));
+
+            if(this.localSnapshots.length > 0) {
+                let slideshow = document.getElementById('slideshow'),
+                    slideImage = document.getElementById('slide-image');
+                slideshow.className = '';
+                slideImage.src = this.localSnapshots[this.localSnapshots.length - 1];
+            }
         }
     }
 
@@ -116,10 +134,17 @@ class WebPageAnotatorPopup {
     }
 
     screenshotActionClickHandler(element) {
-        if(element.classList.contains('save-screenshot')) {
-
-        } else if(element.classList.contains('delete-screenshot')) {
-
+        let slideshow = document.getElementById('slideshow'),
+            slideImage = document.getElementById('slide-image');
+        if(slideshow.className == '' && slideImage.src != null) {
+            if(element.classList.contains('save-screenshot')) {
+                chrome.tabs.sendMessage(this.tabID, {
+                    message: 'insert-snapshot-download',
+                    data: slideImage.src
+                });
+            } else if(element.classList.contains('delete-screenshot')) {
+                
+            }
         }
     }
 
@@ -138,11 +163,27 @@ class WebPageAnotatorPopup {
             element.classList.add('active');
             if(element.dataset.toolId) {
                 let id = element.dataset.toolId;
+
                 document.querySelector(".tab-content[data-tool-id='" + id + "']").classList.add('active');
+                this.activePanel.id = 'none';
+                this.activePanel.htmlId = 'none';
                 this.changeActiveTool(id);
             } else {
                 let id = element.dataset.panelId;
-                document.querySelector(".tab-content[data-panel-id='" + id + "']").classList.add('active');                
+
+                document.querySelector(".tab-content[data-panel-id='" + id + "']").classList.add('active');
+
+                if(id == 'library' && this.localSnapshots.length > 0) {
+                    let slideshow = document.getElementById('slideshow'),
+                        slideImage = document.getElementById('slide-image');
+                    
+                    slideshow.className = '';
+                    slideImage.src = this.localSnapshots[this.localSnapshots.length - 1];
+                }
+                this.activePanel.id = id;
+                this.activePanel.htmlId = id;
+                this.activeTool.id = 'paintBrush';
+                this.activeTool.htmlId = 'paint-brush';
             }
         }
     }
@@ -223,11 +264,16 @@ class WebPageAnotatorPopup {
 
     /**
      * TODO: Review function below and decide to remove or keep it.
+     * @param {number} targetW The target width percentage at which to animate the loader.
      */
     animateLoader(targetW) {
-        let loader = document.getElementById('passed-bar'),
+        let slideshow = document.getElementById('slideshow'),
+            loader = document.getElementById('passed-bar'),
             percent = document.getElementById('loader-percent'),
             animation;
+        if(!slideshow.classList.contains('loading')) {
+            slideshow.className = 'loading';
+        }
         function animateLoadTo(tarWidth, loader) {
             let curWidth = parseFloat(loader.style.width);
             if(isNaN(curWidth)) {
@@ -249,11 +295,21 @@ class WebPageAnotatorPopup {
         }
     }
 
-    insertImage(src) {
-        let slideshow = document.getElementById('slideshow'),
-            slideImage = document.getElementById('slide-image');
-        slideshow.className = '';
-        slideImage.src = src;
+    insertImage(newImageSrc) {
+        chrome.storage.local.get(this.STORAGEAREAKEY, function(newImageSrc, items) {
+            if(typeof items[this.STORAGEAREAKEY] == 'object') {
+                items[this.STORAGEAREAKEY].push(newImageSrc);
+            } else {
+                items[this.STORAGEAREAKEY] = new Array(newImageSrc);
+            }
+            this.localSnapshots = items[this.STORAGEAREAKEY];
+            chrome.storage.local.set({ [this.STORAGEAREAKEY]:  items[this.STORAGEAREAKEY] }, function(newImageSrc) {
+                let slideshow = document.getElementById('slideshow'),
+                    slideImage = document.getElementById('slide-image');
+                slideshow.className = '';
+                slideImage.src = newImageSrc;
+            }.bind(this, newImageSrc));
+        }.bind(this, newImageSrc));
     }
 }
 
@@ -279,7 +335,10 @@ window.onload = function() {
 };
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message === 'savedIsReady')) {
+    if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'snapshot-is-ready')) {
+        webPageAnnotator.animateLoader(100);
         webPageAnnotator.insertImage(request.data);
+    } else if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'update-snapshot-process')) {
+        webPageAnnotator.animateLoader(request.data);       
     }
 });
