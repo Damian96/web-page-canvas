@@ -15,6 +15,7 @@ body {
 
 #actions-container {
     width: 100%;
+    margin-bottom: 10px;
 }
 
 #save,
@@ -52,12 +53,12 @@ body {
     color: red;
 }
 
-#save {
-    
+#save:not(:disabled) > .icon-floppy-disk {
+    color: #0000FF;
 }
 
-#save > .icon-floppy-disk {
-    color: #0000FF;
+#save:disabled  > .icon-floppy-disk {
+    color: graytext;    
 }
 
 #titles,
@@ -82,6 +83,10 @@ body {
     border-radius: 5px 5px 0px 0px;
     padding: 3px 7px 0 4px;
     cursor: pointer;
+}
+
+.tab-title:not(.active):hover {
+    background-color: rgba(206, 206, 206, 0.7)
 }
 
 .tab-title:not(.active) {
@@ -140,10 +145,12 @@ body {
     color: #fff;
 }
 
-.tab-title.active[data-tool-id="eraser"],
-.tab-content.active[data-tool-id="eraser"] {
-    background-color: #A52A2A;
-    color: #fff;
+.tab-title.active[data-tool-id="eraser"] {
+    color: #A52A2A;
+}
+
+.tab-title.active[data-panel-id="library"] {
+    color: #0000FF;
 }
 
 .tab-title > i {
@@ -168,13 +175,6 @@ body {
     font-size: 16px;
 }
 
-
-/* .tab-title #clear {
-    top: 1.5px;
-    padding: 2px 1px;
-    font-size: 18px;
-} */
-
 /* Contents CSS */
 
 .tab-content:not(.active) {
@@ -183,8 +183,8 @@ body {
 
 .tab-content.active {
     display: block;
-    padding: 0 5px;
-    min-height: 200px;
+    padding: 10px 5px 0 5px;
+    min-height: 230px;
 }
 
 .tab-content.active h3 {
@@ -261,25 +261,37 @@ body {
 }
 
 #slideshow:not(.empty) > .screenshot-actions > div:hover {
-    background-color: #797979;
-    color: #ffffff;
+    background-color: rgba(206, 206, 206, 0.6);
 }
 
 #slideshow:not(.empty) > .screenshot-actions > div > i {
     font-size: 17px;
 }
 
+#slideshow:not(.empty) > .screenshot-actions > div:not(:hover) > i {
+   color: graytext;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div:not(:hover) > span {
+    color: graytext;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div:hover > span {
+    color: #000000;
+}
+
 #slideshow:not(.empty) > .screenshot-actions > div > span {
     font-size: 15px;
     position: relative;
     top: -1px;
+    color: graytext;
 }
 
-#slideshow:not(.empty) > .screenshot-actions i.icon-floppy-disk {
+#slideshow:not(.empty) > .screenshot-actions > .save-screenshot:hover > .icon-floppy-disk {
     color: #0000FF;
 }
 
-#slideshow:not(.empty) > .screenshot-actions i.icon-bin {
+#slideshow:not(.empty) > .screenshot-actions > .delete-screenshot:hover > .icon-bin {
     color: #ff0000;
 }
 

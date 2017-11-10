@@ -1,8 +1,8 @@
-body.canvas-draw {
+body.web-page-annotator {
     overflow-x: hidden !important;
 }
 
-img.canvas-drawer-created {
+img.web-page-annotator-created {
     display: block !important;
     position: absolute !important;
     top: 0 !important;
@@ -10,18 +10,18 @@ img.canvas-drawer-created {
     z-index: 2147483647 !important;
 }
 
-.canvas-drawer-download {
+.web-page-annotator-download {
     display: none;
     width: 0;
     height: 0;
 }
 
-#canvas.canvas-drawer {
+#canvas.web-page-annotator {
     position: absolute;
     z-index: 2147483646;
 }
 
-#canvas-overlay.canvas-drawer {
+#canvas-overlay.web-page-annotator {
     position: fixed;
     width: 100%;
     height: 100%;
@@ -31,13 +31,33 @@ img.canvas-drawer-created {
     text-align: center;
 }
 
-#canvas.canvas-drawer,
-#canvas-overlay.canvas-drawer {
+#canvas-close-message.web-page-annotator {
+    position: fixed;
+    width: fit-content;
+    display: inline-block;
+    z-index: 2147483647;
+    top: 0;
+    left: 100%;
+    transform: translate(-100%, 0%);
+    cursor: pointer;
+    font-size: 20px;
+}
+
+#canvas-close-message.web-page-annotator:not(:hover) {
+    color: rgba(185, 185, 185, 0.4);
+}
+
+#canvas-close-message.web-page-annotator:hover {
+    color: rgb(95, 95, 95);
+}
+
+#canvas.web-page-annotator,
+#canvas-overlay.web-page-annotator {
     top: 0;
     left: 0;
 }
 
-#close-overlay.canvas-drawer {
+#close-overlay.web-page-annotator {
     display: inline-block;
     position: relative;
     top: -7px;
@@ -48,11 +68,11 @@ img.canvas-drawer-created {
     cursor: pointer;
 }
 
-#close-overlay.canvas-drawer:hover {
+#close-overlay.web-page-annotator:hover {
     color: #FF0000;
 }
 
-#confirm-message.canvas-drawer {
+#confirm-message.web-page-annotator {
     margin-top: 15px;
     width: 75px;
     height: 30px;
@@ -64,11 +84,11 @@ img.canvas-drawer-created {
     border: none;
 }
 
-#confirm-message.canvas-drawer:focus {
+#confirm-message.web-page-annotator:focus {
     box-shadow: inset 0px 0px 2px 2px #818181;
 }
 
-#overlay-message.canvas-drawer {
+#overlay-message.web-page-annotator {
     width: 30%;
     font-size: 1.6em;
     position: relative;

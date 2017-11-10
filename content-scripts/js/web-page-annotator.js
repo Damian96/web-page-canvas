@@ -1,16 +1,28 @@
 /* globals chrome */
 
-var object;
+var webPageAnnotator;
 
 /**
- * The main frontend plugin class.
- * Used for creating the Drawing Mode layout.
- * Implements the drawing function code. 
+ * @class
+ * @classdesc The main frontend plugin class. Used for creating the Drawing Mode layout. Implements the drawing function code. 
+ * @prop {Object} activeToolInfo The object with all the information about the currently active tool.
+ * @prop {Object} tabID The chrome ID of the current tab.
+ * @prop {boolean} htmlInserted Whether the HTML of the plugin has been inserted.
+ * @prop {Object.<string, number>} snapshots Contains the generated snapshots and their position on the final image.
+ * @prop {HTMLElement[]} fixedElems Contains the fixed elements fo the current page in order to supress / reset them.
+ * @prop {string} CAPTURED_IMAGE_EXTENSION Contains the final image's extension.
+ * @prop {number} imagesLoaded The number of the images loaded on the virtually generated canvas each moment. 
+ * @prop {string[]} canvasImgs The Image elements that are going to be loaded to the virtual canvas. 
  */
-class CanvasDraw {
+class WebPageAnotator {
+
+    /**
+     * @constructor 
+     * @param {Object} data The popup data which are loaded into the constructed object.
+     */
     constructor(data) {
         this.activeToolInfo = data.tool;
-        this.tabId = data.tabId;
+        this.tabID = data.tabID;
         this.canvas = {
             clickX: [],
             clickY: [],
@@ -22,22 +34,21 @@ class CanvasDraw {
             element: null,
             context: null
         };
-        this.htmlInserted = false;
         this.snapshots = {};
         this.imagesLoaded = 0;
         this.canvasImgs = [];
         this.fixedElems = [];
+        this.CAPTURED_IMAGE_EXTENSION = 'png'
     }
 
     init() {
         this.insertHTML();
         this.initCanvas();
-        this.handleFixedElements(false);
     }
 
     updateToolInfo(data) {
         this.activeToolInfo = data.tool;
-        this.tabId = data.tabId;
+        this.tabID = data.tabID;
         this.canvas.clickColor = [];
         this.canvas.clickDrag = [];
         this.canvas.clickSize = [];
@@ -47,22 +58,32 @@ class CanvasDraw {
     }
 
     insertHTML() {
-        let code = "<canvas id='canvas' class='canvas-drawer'></canvas>";
-        code += "<div id='canvas-overlay' class='canvas-drawer'>";
-        code += "<span id='close-overlay' class='canvas-drawer' title='Close'>&#10006;</span>";
-        code += "<p id='overlay-message' class='canvas-drawer'>";
-        code += "Use the tools to your top to begin annotating the page.";
-        code += "<br/><button id='confirm-message' class='canvas-drawer' title='Close'>";
-        code += "&#10003;&nbsp;OK</button></p></div>";
+        let code = "<canvas id='canvas' class='web-page-annotator'></canvas>" +
+            "<div id='canvas-close-message' class='web-page-annotator' " +
+            "style='display: none;'>Press <u>ESC</u> to close.</div>" +
+            "<div id='canvas-overlay' class='web-page-annotator'>" +
+            "<span id='close-overlay' class='web-page-annotator' title='Close'>&#10006;</span>" +
+            "<p id='overlay-message' class='web-page-annotator'>" +
+            "Use the tools on the plugin popup window to annotate the page. Have fun!" +
+            "<br/><button id='confirm-message' class='web-page-annotator' title='Close'>" +
+            "&#10003;&nbsp;OK</button></p></div>";
         document.body.innerHTML += code;
-        this.htmlInserted = true;
         for(let element of document.querySelectorAll('#close-overlay, #confirm-message')) {
             element.addEventListener('click', function() {
-                document.querySelector('#canvas-overlay.canvas-drawer').remove();
-            });
+                document.querySelector('#canvas-overlay.web-page-annotator').remove();
+                document.querySelector("#canvas-close-message.web-page-annotator").style.display = 'inline-block';
+                window.onkeydown = function(event) {
+                    if(event.keyCode == 27) { // if event keycode is the Escape keycode
+                        this.removeHTML();
+                        chrome.runtime.sendMessage({message: 'manually-disabled-canvas'});
+                    }
+                }.bind(this);
+            }.bind(this));
         }
+        this.handleFixedElements(false);
         window.onresize = this.adjustCanvas.bind(this);
         document.body.style.userSelect = 'none';
+        this.htmlInserted = true;
     }
 
     getMaxHeight() {
@@ -77,24 +98,26 @@ class CanvasDraw {
     }
     
     removeHTML() {
-        for(let element of document.querySelectorAll('#canvas.canvas-drawer, #canvas-overlay.canvas-drawer, img.canvas-drawer-created')) {
-            if(element != null) {
+        for(let element of document.querySelectorAll('#canvas.web-page-annotator,' +
+            '#canvas-overlay.web-page-annotator, ' +
+            '#canvas-close-message.web-page-annotator, ' +
+            'a.web-page-annotator-download')) {
                 element.remove();
-            }
         }
         document.body.style.userSelect = 'initial';
+        this.handleFixedElements(true);
         this.htmlInserted = false;
     }
 
     removeGenImages() {
-        for(let element of document.querySelectorAll('img.canvas-drawer-created')) {
+        for(let element of document.querySelectorAll('img.web-page-annotator-created')) {
             element.remove();
         }
     }
 
     initCanvas() {
         // assign proper variables
-        this.canvas.element = document.querySelector('#canvas.canvas-drawer');
+        this.canvas.element = document.querySelector('#canvas.web-page-annotator');
         this.canvas.element.width = window.innerWidth;
         this.canvas.element.height = this.getMaxHeight();
         this.canvas.context = this.canvas.element.getContext('2d');
@@ -209,18 +232,17 @@ class CanvasDraw {
             chrome.runtime.sendMessage({
                 message: 'take-snapshot',
                 data: {
-                    tabId: this.tabId,
+                    tabID: this.tabID,
                     windowHeight: window.innerHeight,
                     pageHeight: this.getMaxHeight()
                 }
             }, function(response) {
-                if(response == null) { 
-                    return;
-                }
-                if((response.data == null) && (response.error != null)) {
-                    reject(response.error);
-                } else if(response.data != null) {
-                    resolve(response.data);
+                if(response != null && response.hasOwnProperty('data')) {
+                    if(response.hasOwnProperty('error')) {
+                        reject(response.error);
+                    } else {
+                        resolve(response.data);
+                    }
                 } else {
                     reject('something went wrong while saving the canvas');
                 }
@@ -233,7 +255,7 @@ class CanvasDraw {
             date = new Date();
         a.href = url;
         a.download = window.location.hostname + '_Canvas-Drawing_' + date.getTime() + '.png';
-        a.classList.add('canvas-drawer-download');
+        a.classList.add('web-page-annotator-download');
         document.body.appendChild(a);
         a.click();
     }
@@ -274,7 +296,7 @@ class CanvasDraw {
     }
 
     adjustCanvas() {
-        if(this.canvas.element != null) {
+        if(this.canvas.hasOwnProperty('element')) {
             this.canvas.element.width = this.getMaxWidth();
             this.canvas.element.height = this.getMaxHeight();
         }
@@ -318,7 +340,7 @@ class CanvasDraw {
     }
 
     /**
-     * Adds / removes all fixed elements of document for better page capturing.
+     * Unsets / sets all fixed elements of document for better page capturing.
      * @param {boolean} handler 
      */
     handleFixedElements(handler) {
@@ -326,11 +348,13 @@ class CanvasDraw {
             for(let element of this.fixedElems) {
                 element.style.position = 'fixed';
             }
+            
             this.fixedElems = [];
         } else {
             for(let element of document.querySelectorAll('div, nav, section, header')) {
-                let check = element.style.position === 'fixed' || window.getComputedStyle(element, null).getPropertyValue('position') === 'fixed';
-                if(!element.classList.contains('canvas-drawer') && check) {
+                let computedStyle = window.getComputedStyle(element, null).getPropertyValue('position');
+                
+                if(!element.classList.contains('web-page-annotator') && (element.style.position == 'fixed' || computedStyle == 'fixed')) {
                     element.style.position = 'absolute';
                     this.fixedElems.push(element);
                 }
@@ -340,52 +364,58 @@ class CanvasDraw {
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if(request == null) {
-        return false;
-    }
-    if((request.message === 'init-canvas') && (request.data != null)) {
-        object = new CanvasDraw(request.data);
-        object.init();
-        object.handleFixedElements(false);
-    } else if((request.message === 'update-info') && (request.data != null) && (object != null)) {
-        object.updateToolInfo(request.data);
-    } else if((request.message === 'save-canvas') && (object != null) && object.htmlInserted) {
-        document.body.classList.add('canvas-draw');
-        window.scrollTo(0, 0);
-        object.saveCanvas()
-            .then(function(sendResponse, snapshots) {
-                console.log(snapshots);
-                if(typeof snapshots === 'object') {
-                    object.loadImages(snapshots)
-                        .then(function(finalImage) {
-                            finalImage = object.b64ToBlobURL(finalImage, 'image/png', false);
-                            chrome.runtime.sendMessage({message: 'savedIsReady', data: finalImage});
-                            // this.insertDownload(finalImage);
-                        }.bind(object));
-                }
-                document.body.classList.remove('canvas-draw');
-                object.removeHTML();
-                window.scrollTo(0, 0)
-                this.handleFixedElements(true);
-                this.removeHTML();
-                sendResponse({message: 'saved'});
-            }.bind(object, sendResponse))
-            .catch(function(error) {
-                console.log('Error while saving canvas(CanvasDraw.saveCanvas): ' + error);  
-                object.removeHTML();
-                window.scrollTo(0, 0)
-                this.handleFixedElements(true);
-                this.removeHTML();
-            });
-    } else if(request.message === 'close-canvas') {
-        object.removeHTML();
-        object.handleFixedElements(true);
-    } else if(request.message === 'scrollTop') {
-        window.scrollTo(0, window.scrollY + window.innerHeight);
-        sendResponse({message: 'Scrolled', data: window.scrollY});
-    } else if(request.message === 'resize-canvas') {
-        if((object != null) && object.htmlInserted) {
-            object.adjustCanvas.call(object);
+    console.log(request, sender, typeof webPageAnnotator);
+
+    if(request.hasOwnProperty('message')) {
+        if(request.hasOwnProperty('data')) {
+            if(request.message == 'init-canvas') {
+                webPageAnnotator = new WebPageAnotator(request.data);
+                webPageAnnotator.init();
+                webPageAnnotator.handleFixedElements(false);
+            }
+            if(webPageAnnotator != null && request.message == 'update-info') {
+                webPageAnnotator.updateToolInfo(request.data);
+            }
+        }
+        if(request.message == 'close-canvas') {
+            webPageAnnotator.removeHTML();
+            webPageAnnotator.handleFixedElements(true);
+        } else if(request.message == 'scrollTop') {
+            window.scrollTo(0, window.scrollY + window.innerHeight);
+            sendResponse({message: 'Scrolled', data: window.scrollY});
+        }
+        if(webPageAnnotator != null && webPageAnnotator.htmlInserted) {
+            if(request.message == 'resize-canvas') {
+                webPageAnnotator.adjustCanvas.call(webPageAnnotator);
+            } else if(request.message == 'save-canvas') {
+                document.body.classList.add('web-page-annotator');
+                window.scrollTo(0, 0);
+                webPageAnnotator.saveCanvas()
+                    .then(function(sendResponse, snapshots) {
+                        console.log(snapshots);
+                        if(typeof snapshots == 'object') {
+                            webPageAnnotator.loadImages(snapshots)
+                                .then(function(finalImage) {
+                                    finalImage = webPageAnnotator.b64ToBlobURL(finalImage, 'image/png', false);
+                                    chrome.runtime.sendMessage({message: 'savedIsReady', data: finalImage});
+                                    // this.insertDownload(finalImage);
+                                }.bind(webPageAnnotator));
+                        }
+                        document.body.classList.remove('web-page-annotator');
+                        webPageAnnotator.removeHTML();
+                        window.scrollTo(0, 0);
+                        this.handleFixedElements(true);
+                        this.removeHTML();
+                        sendResponse({message: 'saved'});
+                    }.bind(webPageAnnotator, sendResponse))
+                    .catch(function(error) {
+                        console.log(error);
+                        webPageAnnotator.removeHTML();
+                        window.scrollTo(0, 0);
+                        this.handleFixedElements(true);
+                        this.removeHTML();
+                    });
+            }
         }
     }
     return true;

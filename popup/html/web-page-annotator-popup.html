@@ -2,7 +2,7 @@
 <html>
 <head>
     <link rel="stylesheet" href="../css/icons.min.css" type="text/css"/>
-    <link rel="stylesheet" href="../css/highlight-popup.css" type="text/css"/>
+    <link rel="stylesheet" href="../css/web-page-annotator-popup.css" type="text/css"/>
 </head>
 <body>
     <div id="actions-container" class="row">
@@ -10,7 +10,7 @@
             <button class="off" title='Disable Drawing Mode'><i class="icon-cross"></i>&nbsp;Close</button>
             <button class="on" title='Enable Drawing Mode'><i class="icon-checkmark"></i>&nbsp;Open</button>
         </div>
-        <button id="save" title='Save'><i class="icon-floppy-disk"></i>&nbsp;Save</button>
+        <button id="save" title='Save' disabled><i class="icon-floppy-disk"></i>&nbsp;Save</button>
     </div>
     <div id="titles">
         <div class="tab-title tool active" data-tool-id="paint-brush" data-tool-color="yellow">
@@ -36,7 +36,7 @@
     <div id="contents">
         <div class="tab-content tool active" data-tool-id="paint-brush" data-tool-color="yellow">
             <div class="row">
-                <h3>Color</h3>
+                <h3><i class="icon-bucket"></i> Color</h3>
                 <span class='color' title='Red' data-color-code="#FF0000"></span>
                 <span class='color' title='Green' data-color-code="#008000"></span>
                 <span class='color' title='Blue' data-color-code="#0000FF"></span>
@@ -48,7 +48,7 @@
             </div>
             <hr/>
             <div class="row">
-                <h3>Size</h3>
+                <h3><i class="icon-enlarge2"></i> Size</h3>
                 <input type='range' min='1' max='30' step='1' value='5' class='size-range' data-tool-id='paint-brush'/>
                 <span class='range-value'>5px</span>
             </div>
@@ -60,7 +60,7 @@
         </div>
         <div class="tab-content tool" data-tool-id="eraser">
             <div class="row">
-                <h3>Size</h3>
+                <h3><i class="icon-enlarge2"></i> Size</h3>
                 <input type='range' min='1' max='30' step='1' value='5' class='size-range' data-tool-id='eraser'/>
                 <span class='range-value'>5px</span>
             </div>
@@ -88,6 +88,6 @@
             </div>
         </div>
     </div>
-    <script src="../js/highlight-popup.js" type="text/javascript"></script>
+    <script src="../js/web-page-annotator-popup.js" type="text/javascript"></script>
 </body>
 </html>

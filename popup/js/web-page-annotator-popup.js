@@ -1,17 +1,24 @@
 /* globals chrome */
 
-var background = chrome.extension.getBackgroundPage();
+var background = chrome.extension.getBackgroundPage(),
+    webPageAnnotator;
 
 /**
- * The main popup plugin class.
+ * @class
+ * @classdesc The main popup plugin class.
  * @prop {boolean} overlayOpen A flag of whether the webpage canvas is open.
- * @prop {Object.<string, number>} toolInfo The object with all the information of all available tools.
+ * @prop {Object.<string, number>} toolsOptions The object with all the information of all available tools.
  * @prop {Object.<string, number>} activeTool The object with all the information about the currently active tool.
+ * @prop {number} tabID The chrome ID of the current tab.
  */
-class Main {
+class WebPageAnotatorPopup {
+
+    /**
+     * @constructor
+     */
     constructor() {
         this.overlayOpen = false;
-        this.toolInfo = {
+        this.toolsOptions = {
             paintBrush: {
                 color: '#FFFF00',
                 defaultColor: '#FFFF00',
@@ -24,9 +31,9 @@ class Main {
         this.activeTool = {
             id: 'paintBrush',
             htmlId: 'paint-brush',
-            options: this.toolInfo.paintBrush
+            options: this.toolsOptions.paintBrush
         };
-        this.tabId = null;
+        this.STORAGEAREAKEY = 'canvasdrawer_screenshots_array';
     }
 
     init() {
@@ -35,7 +42,6 @@ class Main {
 
     reload(attributes) {
         for(let key in attributes) {
-            this[key] = null;
             this[key] = attributes[key];
         }
         this.attachHandlers();
@@ -43,18 +49,23 @@ class Main {
     }
 
     reloadValues() {
+        let switcher = document.getElementById('switcher'),
+            dataSelector = "[data-tool-id='" + this.activeTool.htmlId + "']",
+            toolElement = document.querySelector(".tab-title" + dataSelector);
         if(this.overlayOpen) {
-            let switcher = document.getElementById('switcher');
             switcher.classList.remove('off');
             switcher.classList.add('on');
+            document.getElementById('save').disabled = false;
+        } else {
+            switcher.classList.remove('on');
+            switcher.classList.add('off');
+            document.getElementById('save').disabled = true;
         }
-        let dataSelector = "[data-tool-id='" + this.activeTool.htmlId + "']";
-        let toolElement = document.querySelector(".tab-title" + dataSelector);
         this.tabClickHanndler(toolElement);
         if(this.activeTool.id === 'paintBrush') {
-            let colorElement = document.querySelector(".tab-content" + dataSelector + " .color[data-color-code='" + this.toolInfo.paintBrush.color + "']"),
+            let colorElement = document.querySelector(".tab-content" + dataSelector + " .color[data-color-code='" + this.toolsOptions.paintBrush.color + "']"),
                 sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range");
-            sizeElement.value = this.toolInfo.paintBrush.size;
+            sizeElement.value = this.toolsOptions.paintBrush.size;
             this.colorClickHandler(colorElement);
             this.sizeHandler(sizeElement);
         } else if(this.activeTool.id === 'eraser') {
@@ -83,29 +94,24 @@ class Main {
     }
     
     switcherClickHandler(element) {
-        console.log(this.tabId);
         if(element.classList.contains('off')) {
-            console.log('sending message');
-            element.classList.remove('off');
-            element.classList.add('on');
-            background.popupObjects[this.tabId] = this;
-            chrome.tabs.sendMessage(this.tabId,
-            {
+            this.overlayOpen = true;
+            chrome.tabs.sendMessage(this.tabID, {
                 message: 'init-canvas', 
                 data: {
                     tool: this.activeTool,
-                    tabId: this.tabId
+                    tabID: this.tabID
                 }
             });
-            this.overlayOpen = true;
+            element.classList.remove('off');
+            element.classList.add('on');
+            document.getElementById('save').disabled = false;
         } else if(element.classList.contains('on')) {
+            this.overlayOpen = false;
+            chrome.tabs.sendMessage(this.tabID, { message: 'close-canvas' });
             element.classList.remove('on');
             element.classList.add('off');
-            chrome.tabs.sendMessage(this.tabId,
-            {
-                message: 'close-canvas'
-            });
-            this.overlayOpen = false;
+            document.getElementById('save').disabled = true;
         }
     }
 
@@ -119,8 +125,8 @@ class Main {
 
     saveClickHandler(element) {
         this.tabClickHanndler.call(this, document.querySelector(".tab-title[data-panel-id='library'"));
-        chrome.tabs.sendMessage(this.tabId, {message: 'save-canvas'}, function(response) {
-            if(response.message === 'saved') {
+        chrome.tabs.sendMessage(this.tabID, {message: 'save-canvas'}, function(response) {
+            if(response.hasOwnProperty('message') && response.message == 'saved') {
                 this.switcherClickHandler.call(this, document.getElementById('switcher'));
             }
         }.bind(this));
@@ -146,18 +152,17 @@ class Main {
         this.activeTool = {
             id: id,
             htmlId: (id === 'paintBrush') ? 'paint-brush' : id,
-            options: this.toolInfo[id]
+            options: this.toolsOptions[id]
         };
-        this.updatePageToolInfo();
+        this.updatePageActiveTool();
     }
 
-    updatePageToolInfo() {
-        chrome.tabs.sendMessage(this.tabId,
-        {
+    updatePageActiveTool() {
+        chrome.tabs.sendMessage(this.tabID, {
             message: 'update-info',
             data: {
                 tool: this.activeTool,
-                tabId: this.tabId
+                tabID: this.tabID
             }
         });
     }
@@ -170,7 +175,7 @@ class Main {
             this.disableAllColors(toolId);
             element.classList.add('active');
             if(toolId === 'paint-brush') {
-                this.toolInfo.paintBrush.color = element.dataset.colorCode;
+                this.toolsOptions.paintBrush.color = element.dataset.colorCode;
             }
             tabContent.dataset.toolColor = colorName;
             document.querySelector(".tab-title[data-tool-id='" + toolId + "']").dataset.toolColor = colorName;
@@ -179,14 +184,13 @@ class Main {
     }
 
     sizeHandler(element) {
-        console.log
         let toolId = element.dataset.toolId,
             value = parseFloat(element.value);
         element.nextElementSibling.innerHTML = value + 'px';
         if(toolId === 'paint-brush') {
-            this.toolInfo.paintBrush.size = value;
+            this.toolsOptions.paintBrush.size = value;
         } else if(toolId === 'eraser') {
-            this.toolInfo.eraser.size = value;
+            this.toolsOptions.eraser.size = value;
         }
         this.changeActiveTool(toolId);
     }
@@ -205,8 +209,8 @@ class Main {
     }
 
     /**
-     * Changes the given string to a camel case string by removing the hyphens between.
      * @param {string} string 
+     * @description Changes the given string to a camel case string by removing the hyphens between.
      */
     changeToCamelCase(string) {
         let hyphenIndex = string.includes('-');
@@ -217,6 +221,9 @@ class Main {
         return string;
     }
 
+    /**
+     * TODO: Review function below and decide to remove or keep it.
+     */
     animateLoader(targetW) {
         let loader = document.getElementById('passed-bar'),
             percent = document.getElementById('loader-percent'),
@@ -247,31 +254,32 @@ class Main {
             slideImage = document.getElementById('slide-image');
         slideshow.className = '';
         slideImage.src = src;
-        
     }
 }
 
-var object = new Main();
+webPageAnnotator = new WebPageAnotatorPopup();
 
 window.onunload = function() {
-    background.popupObjects[object.tabId] = object;
+    background.popupObjects[webPageAnnotator.tabID] = webPageAnnotator;    
 };
 
 window.onload = function() {
     chrome.tabs.query({active: true}, function(tabArray) {
-        object.tabId = tabArray[0].id;
-        chrome.runtime.sendMessage({message: 'init-object', tabId: object.tabId}, function(response) {
-            if(response.data !== 'do-it-yourself') {
-                object.reload(response.data);
-            } else {
-                object.init();
+        webPageAnnotator.tabID = tabArray[0].id;
+        chrome.runtime.sendMessage({message: 'init-object', tabID: webPageAnnotator.tabID}, function(response) {
+            if(response.hasOwnProperty('message')) {
+                if(response.message == 'do-it-yourself') {
+                    webPageAnnotator.init();
+                } else if(response.message == 'sending-popup-object-data' && response.hasOwnProperty('data')) {
+                    webPageAnnotator.reload(response.data);
+                }
             }
         });
     });
 };
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if(request.message === 'savedIsReady' && request.data != null) {
-        object.insertImage(request.data);
+    if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message === 'savedIsReady')) {
+        webPageAnnotator.insertImage(request.data);
     }
 });
