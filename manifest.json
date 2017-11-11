@@ -32,7 +32,8 @@
     "pageCapture",
     "tabs",
     "activeTab",
-    "storage"
+    "storage",
+    "unlimitedStorage"
   ],
   "web_accessible_resources": [
     "images/*.png",

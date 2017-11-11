@@ -312,10 +312,12 @@ body {
 
 #slideshow.empty > .screenshot-navigation,
 #slideshow.empty > .screenshot-actions,
+#slideshow.empty > img,
 #slideshow:not(.empty) > .save-message,
 #slideshow:not(.loading) > .image-loader,
 #slideshow.loading > .screenshot-navigation,
-#slideshow.loading > .screenshot-actions {
+#slideshow.loading > .screenshot-actions,
+#slideshow.loading > img {
     display: none;
 }
 

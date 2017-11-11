@@ -81,13 +81,26 @@ class WebPageAnotatorPopup {
         }
         if(this.activePanel.id == 'library') {
             this.tabClickHanndler.call(this, document.querySelector(".tab-title.panel[data-panel-id='library']"));
+        }
+    }
 
-            if(this.localSnapshots.length > 0) {
-                let slideshow = document.getElementById('slideshow'),
-                    slideImage = document.getElementById('slide-image');
-                slideshow.className = '';
-                slideImage.src = this.localSnapshots[this.localSnapshots.length - 1];
-            }
+    reloadSlideshow() {
+        let slideshow = document.getElementById('slideshow'),
+            slideImage = document.getElementById('slide-image');
+
+        if(this.localSnapshots.length > 0) {
+            slideshow.className = '';
+            slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1],
+                'image/png', false);
+        } else {
+            chrome.storage.local.get(webPageAnnotator.STORAGEAREAKEY, function(items) {
+                if(typeof items[this.STORAGEAREAKEY] == 'object' && items[this.STORAGEAREAKEY].length > 0) {
+                    this.localSnapshots =  items[this.STORAGEAREAKEY];
+                    slideshow.className = '';
+                    slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1],
+                        'image/png', false);
+                }
+            }.bind(this));
         }
     }
 
@@ -143,7 +156,21 @@ class WebPageAnotatorPopup {
                     data: slideImage.src
                 });
             } else if(element.classList.contains('delete-screenshot')) {
-                
+                chrome.storage.local.get(this.STORAGEAREAKEY, function(slideImage, slideshow, items) {
+                    let data = items[this.STORAGEAREAKEY];
+                    if(typeof data == 'object' && data.length > 0) {
+                        data.splice(slideImage.dataset.storageIndex, 1);
+                        if(data.length > 0) {
+                            slideImage.src = this.b64ToBlobURL(data[data.length - 1], 'image/png', false);
+                            slideImage.dataset.storageIndex = data.length - 1;
+                        } else {
+                            slideshow.className = 'empty';
+                            slideImage.src = '';
+                            slideImage.dataset.storageIndex = '-1';
+                        }
+                        chrome.storage.local.set({ [this.STORAGEAREAKEY]: data });
+                    }
+                }.bind(this, slideImage, slideshow))
             }
         }
     }
@@ -263,7 +290,6 @@ class WebPageAnotatorPopup {
     }
 
     /**
-     * TODO: Review function below and decide to remove or keep it.
      * @param {number} targetW The target width percentage at which to animate the loader.
      */
     animateLoader(targetW) {
@@ -298,18 +324,60 @@ class WebPageAnotatorPopup {
     insertImage(newImageSrc) {
         chrome.storage.local.get(this.STORAGEAREAKEY, function(newImageSrc, items) {
             if(typeof items[this.STORAGEAREAKEY] == 'object') {
-                items[this.STORAGEAREAKEY].push(newImageSrc);
+                this.localSnapshots = items[this.STORAGEAREAKEY].concat([newImageSrc]);
             } else {
-                items[this.STORAGEAREAKEY] = new Array(newImageSrc);
+                this.localSnapshots = new Array(newImageSrc);
             }
-            this.localSnapshots = items[this.STORAGEAREAKEY];
-            chrome.storage.local.set({ [this.STORAGEAREAKEY]:  items[this.STORAGEAREAKEY] }, function(newImageSrc) {
-                let slideshow = document.getElementById('slideshow'),
-                    slideImage = document.getElementById('slide-image');
-                slideshow.className = '';
-                slideImage.src = newImageSrc;
-            }.bind(this, newImageSrc));
+
+            if(this.localSnapshots.length > 0) {
+                let imageBlobURL = this.b64ToBlobURL(newImageSrc, 'image/png', false);
+
+                chrome.storage.local.set({ [this.STORAGEAREAKEY]:  this.localSnapshots }, function(imageBlobURL) {
+                    let slideshow = document.getElementById('slideshow'),
+                        slideImage = document.getElementById('slide-image');
+                    slideshow.className = '';
+                    slideImage.src = imageBlobURL;
+                    slideImage.dataset.storageIndex = this.localSnapshots.length - 1;
+                }.bind(this, imageBlobURL));
+            }
         }.bind(this, newImageSrc));
+    }
+
+    /**
+     * Converts an b64 uri to blob 
+     * @param {string} b64Data The original string.
+     * @param {string} contentType The content type, e.g: 'image/png'.
+     * @param {number} sliceSize 
+     */
+    b64ToBlobURL(b64Data, contentType, sliceSize) {
+        let prefix = 'data:' + contentType + ';base64,';
+        if(!b64Data.includes(prefix)) {
+            return;
+        } else {
+            b64Data = b64Data.substr(prefix.length, b64Data.length - prefix.length);
+        }
+        contentType = contentType || '';
+        sliceSize = sliceSize || 512;
+        
+        let byteCharacters = atob(b64Data),
+            byteArrays = [];
+        
+        for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            let slice = byteCharacters.slice(offset, offset + sliceSize);
+        
+            let byteNumbers = new Array(slice.length);
+            for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+            }
+        
+            let byteArray = new Uint8Array(byteNumbers);
+        
+            byteArrays.push(byteArray);
+        }
+
+        let blob = new Blob(byteArrays, {type: contentType});
+        
+        return URL.createObjectURL(blob);
     }
 }
 
@@ -322,7 +390,11 @@ window.onunload = function() {
 window.onload = function() {
     chrome.tabs.query({active: true}, function(tabArray) {
         webPageAnnotator.tabID = tabArray[0].id;
-        chrome.runtime.sendMessage({message: 'init-object', tabID: webPageAnnotator.tabID}, function(response) {
+
+        chrome.runtime.sendMessage({
+            message: 'init-object',
+            tabID: webPageAnnotator.tabID
+        }, function(response) {
             if(response.hasOwnProperty('message')) {
                 if(response.message == 'do-it-yourself') {
                     webPageAnnotator.init();
@@ -331,6 +403,8 @@ window.onload = function() {
                 }
             }
         });
+
+        webPageAnnotator.reloadSlideshow();
     });
 };
 

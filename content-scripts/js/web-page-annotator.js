@@ -303,43 +303,6 @@ class WebPageAnotator {
     }
 
     /**
-     * Converts an b64 uri to blob 
-     * @param {string} b64Data The original string.
-     * @param {string} contentType The content type, e.g: 'image/png'.
-     * @param {number} sliceSize 
-     */
-    b64ToBlobURL(b64Data, contentType, sliceSize) {
-        let prefix = 'data:' + contentType + ';base64,';
-        if(!b64Data.includes(prefix)) {
-            return;
-        } else {
-            b64Data = b64Data.substr(prefix.length, b64Data.length - prefix.length);
-        }
-        contentType = contentType || '';
-        sliceSize = sliceSize || 512;
-        
-        let byteCharacters = atob(b64Data),
-            byteArrays = [];
-        
-        for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-            let slice = byteCharacters.slice(offset, offset + sliceSize);
-        
-            let byteNumbers = new Array(slice.length);
-            for (let i = 0; i < slice.length; i++) {
-            byteNumbers[i] = slice.charCodeAt(i);
-            }
-        
-            let byteArray = new Uint8Array(byteNumbers);
-        
-            byteArrays.push(byteArray);
-        }
-
-        let blob = new Blob(byteArrays, {type: contentType});
-        
-        return URL.createObjectURL(blob);
-    }
-
-    /**
      * Unsets / sets all fixed elements of document for better page capturing.
      * @param {boolean} handler 
      */
@@ -398,7 +361,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                         if(typeof snapshots == 'object') {
                             webPageAnnotator.loadImages(snapshots)
                                 .then(function(finalImage) {
-                                    finalImage = webPageAnnotator.b64ToBlobURL(finalImage, 'image/png', false);
+                                    // finalImage = webPageAnnotator.b64ToBlobURL(finalImage, 'image/png', false);
                                     chrome.runtime.sendMessage({message: 'snapshot-is-ready', data: finalImage});
                                     // this.insertDownload(finalImage);
                                 }.bind(webPageAnnotator));
