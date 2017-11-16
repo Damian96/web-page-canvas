@@ -1,7 +1,6 @@
 html,
 body {
     width: 500px;
-    height: 100%;
     margin: 0;
 }
 
@@ -184,7 +183,7 @@ body {
 .tab-content.active {
     display: block;
     padding: 10px 5px 0 5px;
-    min-height: 230px;
+    /* min-height: 270px; */
 }
 
 .tab-content.active h3 {

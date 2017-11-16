@@ -43,6 +43,7 @@ class WebPageAnnotatorPopup {
 
     init() {
         this.attachHandlers();
+        this.tabClickHandler.call(this, document.querySelector(".tab-title[data-tool-id='paint-brush']"));
     }
 
     reload(attributes) {
@@ -54,34 +55,51 @@ class WebPageAnnotatorPopup {
     }
 
     reloadValues() {
+
         let switcher = document.getElementById('switcher'),
-            dataSelector = "[data-tool-id='" + this.activeTool.htmlId + "']",
-            toolElement = document.querySelector(".tab-title" + dataSelector);
+            dataSelector = "[data-tool-id='" + this.activeTool.htmlId + "']";
+
+        if(this.activePanel.id == 'library') {
+
+            this.tabClickHandler.call(this, document.querySelector(".tab-title.panel[data-panel-id='library']"));
+
+        } else {
+
+            this.tabClickHandler.call(this, document.querySelector(".tab-title" + dataSelector));
+
+        }
+
         if(this.overlayOpen) {
+
             switcher.classList.remove('off');
             switcher.classList.add('on');
             document.getElementById('save').disabled = false;
+
         } else {
+
             switcher.classList.remove('on');
             switcher.classList.add('off');
             document.getElementById('save').disabled = true;
+
         }
-        this.tabClickHandler(toolElement);
+
         if(this.activeTool.id == 'paintBrush' && this.activePanel.id == 'none') {
+
             let colorElement = document.querySelector(".tab-content" + dataSelector + " .color[data-color-code='" + this.toolsOptions.paintBrush.color + "']"),
                 sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range");
 
             sizeElement.value = this.toolsOptions.paintBrush.size;
             this.colorClickHandler(colorElement);
             this.sizeHandler(sizeElement);
+
         } else if(this.activeTool.id == 'eraser') {
+
             let sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range");
 
             sizeElement.value = this.toolsOptions.eraser.size;
+
         }
-        if(this.activePanel.id == 'library') {
-            this.tabClickHandler.call(this, document.querySelector(".tab-title.panel[data-panel-id='library']"));
-        }
+
     }
 
     reloadSlideshow() {
@@ -239,30 +257,41 @@ class WebPageAnnotatorPopup {
     }
 
     tabClickHandler(element) {
+
         if(!element.classList.contains('active')) {
+
             this.disableAllTabs();
             element.classList.add('active');
+
             if(element.dataset.toolId) {
+
                 let id = element.dataset.toolId;
 
                 document.querySelector(".tab-content[data-tool-id='" + id + "']").classList.add('active');
                 this.activePanel.id = 'none';
                 this.activePanel.htmlId = 'none';
                 this.changeActiveTool(id);
+
             } else {
+
                 let id = element.dataset.panelId;
 
                 document.querySelector(".tab-content[data-panel-id='" + id + "']").classList.add('active');
 
                 if(id == 'library') {
+
                     this.reloadSlideshow();
+
                 }
+
                 this.activePanel.id = id;
                 this.activePanel.htmlId = id;
                 this.activeTool.id = 'paintBrush';
                 this.activeTool.htmlId = 'paint-brush';
+
             }
         }
+
     }
 
     changeActiveTool(newId) {
@@ -423,13 +452,20 @@ window.onload = function() {
             message: 'init-object',
             tabID: webPageAnnotator.tabID
         }, function(response) {
+
             if(response.hasOwnProperty('message')) {
+
                 if(response.message == 'do-it-yourself') {
+
                     webPageAnnotator.init();
+
                 } else if(response.message == 'sending-popup-object-data' && response.hasOwnProperty('data')) {
+
                     webPageAnnotator.reload(response.data);
+
                 }
             }
+
         });
     });
 
