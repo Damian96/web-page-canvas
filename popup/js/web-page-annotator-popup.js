@@ -103,6 +103,7 @@ class WebPageAnnotatorPopup {
     }
 
     reloadSlideshow() {
+
         let slideshow = document.getElementById('slideshow'),
             slideImage = document.getElementById('slide-image'),
             currentScreenshotNumber = document.getElementById('current-screenshot-number'),
@@ -132,26 +133,33 @@ class WebPageAnnotatorPopup {
             }.bind(this));
 
         }
+
     }
 
     attachHandlers() {
-        let save = document.getElementById('save'),
-            switcher = document.getElementById('switcher');
-        save.addEventListener('click', this.saveClickHandler.bind(this, save));
+
+        let switcher = document.getElementById('switcher');
+
+        document.getElementById('save').addEventListener('click', this.saveClickHandler.bind(this));
         switcher.addEventListener('click', this.switcherClickHandler.bind(this, switcher));
+
         for(let element of document.querySelectorAll('.tab-title')) {
             element.addEventListener('click', this.tabClickHandler.bind(this, element));
         }
+
         for(let element of document.querySelectorAll('.tab-content .color')) {
             element.addEventListener('click', this.colorClickHandler.bind(this, element));
         }
+
         for(let element of document.querySelectorAll('.tab-content input.size-range')) {
             element.addEventListener('change', this.sizeHandler.bind(this, element));
         }
+
         // document.querySelector('#slideshow > .screenshot-navigation > i').addEventListener('click', )
         for(let element of document.querySelectorAll('#slideshow > .screenshot-actions > div')) {
             element.addEventListener('click', this.screenshotActionClickHandler.bind(this, element));
         }
+
     }
 
     switcherClickHandler(element, sendMessageToTab = true) {
@@ -235,25 +243,35 @@ class WebPageAnnotatorPopup {
 
                     }
 
-                }.bind(this, slideImage, slideshow))
+                }.bind(this, slideImage, slideshow));
             }
         }
 
     }
 
-    saveClickHandler(element) {
+    saveClickHandler() {
+
         this.tabClickHandler.call(this, document.querySelector(".tab-title[data-panel-id='library'"));
         this.switcherClickHandler.call(this, document.getElementById('switcher'), false);
         document.getElementById('slideshow').className = 'loading';
+
         chrome.tabs.sendMessage(this.tabID, { message: 'take-page-screenshot' }, function(response) {
+
             this.animateLoader(50);
+
             if((typeof response == 'object') && response.hasOwnProperty('data')) {
-                this.insertImage(response.data).then(function(success) {
+
+                this.insertImage(response.data).then(function() {
+
                     this.animateLoader(100);
                     document.getElementById('slideshow').className = '';
+
                 }.bind(this));
+
             }
+
         }.bind(this));
+
     }
 
     tabClickHandler(element) {
@@ -315,19 +333,28 @@ class WebPageAnnotatorPopup {
     }
 
     colorClickHandler(element) {
+
         if(!element.classList.contains('active')) {
+
             let tabContent = element.parentElement.parentElement,
                 toolId = tabContent.dataset.toolId,
                 colorName = element.title.toLowerCase();
+
             this.disableAllColors(toolId);
             element.classList.add('active');
+
             if(toolId === 'paint-brush') {
+
                 this.toolsOptions.paintBrush.color = element.dataset.colorCode;
+
             }
+
             tabContent.dataset.toolColor = colorName;
             document.querySelector(".tab-title[data-tool-id='" + toolId + "']").dataset.toolColor = colorName;
             this.changeActiveTool(toolId);
+
         }
+
     }
 
     sizeHandler(element) {
@@ -372,24 +399,32 @@ class WebPageAnnotatorPopup {
      * @param {number} targetW The target width percentage at which to animate the loader.
      */
     animateLoader(targetW) {
+
         let slideshow = document.getElementById('slideshow'),
             loader = document.getElementById('passed-bar'),
-            percent = document.getElementById('loader-percent'),
-            animation;
+            percent = document.getElementById('loader-percent');
+
         if(!slideshow.classList.contains('loading')) {
+
             slideshow.className = 'loading';
+
         }
         if(targetW >= 100) {
+
             loader.style.width = '100%';
             percent.innerHTML = '100';
+
         } else {
+
             loader.style.width = targetW + '%';
             percent.innerHTML = parseInt(targetW);
+
         }
+
     }
 
     insertImage(newImageSrc) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             chrome.storage.local.get(this.STORAGEAREAKEY, function(newImageSrc, items) {
 
                 if(typeof items[this.STORAGEAREAKEY] == 'object') {
@@ -473,7 +508,7 @@ window.onload = function() {
 
 };
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function(request) {
 
     if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'update-snapshot-process')) {
         webPageAnnotator.animateLoader(request.data);

@@ -228,7 +228,7 @@ body {
 
 #slideshow:not(.empty) > .screenshot-navigation {
     position: relative;
-    top: -48%;
+    top: -50%;
     color: #000000;
     font-size: 18px;
 }

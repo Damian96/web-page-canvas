@@ -1,4 +1,4 @@
-/* globals chrome */
+/* globals chrome, html2canvas */
 
 var webPageAnnotator,
     insertDownload = function(url) {
@@ -48,7 +48,7 @@ class WebPageAnotator {
         this.imagesLoaded = 0;
         this.canvasImages = [];
         this.fixedElems = [];
-        this.CAPTURED_IMAGE_EXTENSION = 'png'
+        this.CAPTURED_IMAGE_EXTENSION = 'png';
     }
 
     init() {
@@ -79,21 +79,23 @@ class WebPageAnotator {
             "&#10003;&nbsp;OK</button></p></div>";
         document.body.innerHTML += code;
         for(let element of document.querySelectorAll('#close-overlay, #confirm-message')) {
-            element.addEventListener('click', function() {
-                document.querySelector('#canvas-overlay.web-page-annotator').remove();
-                document.querySelector("#canvas-close-message.web-page-annotator").style.display = 'inline-block';
-                window.onkeydown = function(event) {
-                    if(event.keyCode == 27) { // if event keycode is the Escape keycode
-                        this.removeHTML();
-                        chrome.runtime.sendMessage({message: 'manually-disabled-canvas'});
-                    }
-                }.bind(this);
-            }.bind(this));
+            element.addEventListener('click', this.closeIntroMessage.bind(this));
         }
         this.handleFixedElements(false);
         window.onresize = this.adjustCanvas.bind(this);
         document.body.style.userSelect = 'none';
         this.htmlInserted = true;
+    }
+
+    closeIntroMessage() {
+        document.querySelector('#canvas-overlay.web-page-annotator').remove();
+        document.querySelector("#canvas-close-message.web-page-annotator").style.display = 'inline-block';
+        window.onkeydown = function(event) {
+            if(event.keyCode == 27) { // if event keycode is the Escape keycode
+                this.removeHTML();
+                chrome.runtime.sendMessage({message: 'manually-disabled-canvas'});
+            }
+        }.bind(this);
     }
 
     getMaxHeight() {
@@ -236,30 +238,6 @@ class WebPageAnotator {
         this.canvas.context.clearRect(0, 0, this.canvas.element.width, this.canvas.element.height);
     }
 
-    saveCanvas() {
-        window.scrollTo(0, 0);
-        return new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({
-                message: 'take-snapshot',
-                data: {
-                    tabID: this.tabID,
-                    windowHeight: window.innerHeight,
-                    pageHeight: this.getMaxHeight()
-                }
-            }, function(response) {
-                if(response != null && response.hasOwnProperty('data')) {
-                    if(response.hasOwnProperty('error')) {
-                        reject(response.error);
-                    } else {
-                        resolve(response.data);
-                    }
-                } else {
-                    reject('something went wrong while saving the canvas');
-                }
-            });
-        });
-    }
-
     adjustCanvas() {
         if(this.canvas.hasOwnProperty('element')) {
             this.canvas.element.width = this.getMaxWidth();
@@ -292,37 +270,56 @@ class WebPageAnotator {
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log(request, sender, typeof webPageAnnotator);
 
     if(request.hasOwnProperty('message')) {
+
         if(request.hasOwnProperty('data')) {
+
             if(request.message == 'init-canvas') {
+
                 webPageAnnotator = new WebPageAnotator(request.data);
                 webPageAnnotator.init();
                 webPageAnnotator.handleFixedElements(false);
+
             } else if(request.message == 'insert-snapshot-download') {
+
                 insertDownload(request.data);
+
             }
+
             if(webPageAnnotator != null && request.message == 'update-info') {
+
                 webPageAnnotator.updateToolInfo(request.data);
+
             }
+
         }
+
         if(request.message == 'close-canvas') {
+
             webPageAnnotator.removeHTML();
             webPageAnnotator.handleFixedElements(true);
+
         } else if(request.message == 'take-page-screenshot') {
+
             document.getElementById('canvas-close-message').remove();
             html2canvas(document.body, {
                 onrendered: function(canvas) {
                     webPageAnnotator.removeHTML();
                     sendResponse({ data: canvas.toDataURL() });
                 }
-            })
+            });
+
         }
+
         if(webPageAnnotator != null && webPageAnnotator.htmlInserted) {
+
             if(request.message == 'resize-canvas') {
+
                 webPageAnnotator.adjustCanvas.call(webPageAnnotator);
+
             }
+
         }
     }
     return true;
