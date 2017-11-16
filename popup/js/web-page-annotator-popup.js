@@ -90,15 +90,13 @@ class WebPageAnotatorPopup {
 
         if(this.localSnapshots.length > 0) {
             slideshow.className = '';
-            slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1],
-                'image/png', false);
+            slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1]);
         } else {
-            chrome.storage.local.get(webPageAnnotator.STORAGEAREAKEY, function(items) {
+            chrome.storage.local.get(this.STORAGEAREAKEY, function(items) {
                 if(typeof items[this.STORAGEAREAKEY] == 'object' && items[this.STORAGEAREAKEY].length > 0) {
                     this.localSnapshots =  items[this.STORAGEAREAKEY];
                     slideshow.className = '';
-                    slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1],
-                        'image/png', false);
+                    slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1]);
                 }
             }.bind(this));
         }
@@ -116,19 +114,19 @@ class WebPageAnotatorPopup {
             element.addEventListener('click', this.colorClickHandler.bind(this, element));
         }
         for(let element of document.querySelectorAll('.tab-content input.size-range')) {
-            element.addEventListener('change', this.sizeHandler.bind(this, element));            
+            element.addEventListener('change', this.sizeHandler.bind(this, element));
         }
         // document.querySelector('#slideshow > .screenshot-navigation > i').addEventListener('click', )
         for(let element of document.querySelectorAll('#slideshow > .screenshot-actions > div')) {
-            element.addEventListener('click', this.screenshotActionClickHandler.bind(this, element));            
+            element.addEventListener('click', this.screenshotActionClickHandler.bind(this, element));
         }
     }
-    
+
     switcherClickHandler(element) {
         if(element.classList.contains('off')) {
             this.overlayOpen = true;
             chrome.tabs.sendMessage(this.tabID, {
-                message: 'init-canvas', 
+                message: 'init-canvas',
                 data: {
                     tool: this.activeTool,
                     tabID: this.tabID
@@ -161,7 +159,7 @@ class WebPageAnotatorPopup {
                     if(typeof data == 'object' && data.length > 0) {
                         data.splice(slideImage.dataset.storageIndex, 1);
                         if(data.length > 0) {
-                            slideImage.src = this.b64ToBlobURL(data[data.length - 1], 'image/png', false);
+                            slideImage.src = this.b64ToBlobURL(data[data.length - 1]);
                             slideImage.dataset.storageIndex = data.length - 1;
                         } else {
                             slideshow.className = 'empty';
@@ -178,7 +176,7 @@ class WebPageAnotatorPopup {
     saveClickHandler(element) {
         this.tabClickHanndler.call(this, document.querySelector(".tab-title[data-panel-id='library'"));
         chrome.tabs.sendMessage(this.tabID, {message: 'save-canvas'}, function(response) {
-            if(response.hasOwnProperty('message') && response.message == 'saved') {
+            if(response != null && response.hasOwnProperty('message') && (response.message == 'saved')) {
                 this.switcherClickHandler.call(this, document.getElementById('switcher'));
             }
         }.bind(this));
@@ -200,12 +198,8 @@ class WebPageAnotatorPopup {
 
                 document.querySelector(".tab-content[data-panel-id='" + id + "']").classList.add('active');
 
-                if(id == 'library' && this.localSnapshots.length > 0) {
-                    let slideshow = document.getElementById('slideshow'),
-                        slideImage = document.getElementById('slide-image');
-                    
-                    slideshow.className = '';
-                    slideImage.src = this.localSnapshots[this.localSnapshots.length - 1];
+                if(id == 'library') {
+                    this.reloadSlideshow();
                 }
                 this.activePanel.id = id;
                 this.activePanel.htmlId = id;
@@ -277,7 +271,7 @@ class WebPageAnotatorPopup {
     }
 
     /**
-     * @param {string} string 
+     * @param {string} string
      * @description Changes the given string to a camel case string by removing the hyphens between.
      */
     changeToCamelCase(string) {
@@ -300,23 +294,11 @@ class WebPageAnotatorPopup {
         if(!slideshow.classList.contains('loading')) {
             slideshow.className = 'loading';
         }
-        function animateLoadTo(tarWidth, loader) {
-            let curWidth = parseFloat(loader.style.width);
-            if(isNaN(curWidth)) {
-                curWidth = 0;
-            }
-            console.log('ok animation', loader, curWidth);
-            if((curWidth + 5) >= tarWidth) {
-                clearInterval(animation);
-            } else {
-                loader.style.width = (curWidth + 5) + '%';
-            }
-        }
         if(targetW >= 100) {
-            animateLoadTo(100, loader);
+            loader.style.width = '100%';
             percent.innerHTML = '100';
         } else {
-            animation = setInterval(animateLoadTo.bind(this, targetW, loader), 250);
+            loader.style.width = targetW + '%';
             percent.innerHTML = parseInt(targetW);
         }
     }
@@ -330,7 +312,7 @@ class WebPageAnotatorPopup {
             }
 
             if(this.localSnapshots.length > 0) {
-                let imageBlobURL = this.b64ToBlobURL(newImageSrc, 'image/png', false);
+                let imageBlobURL = this.b64ToBlobURL(newImageSrc);
 
                 chrome.storage.local.set({ [this.STORAGEAREAKEY]:  this.localSnapshots }, function(imageBlobURL) {
                     let slideshow = document.getElementById('slideshow'),
@@ -344,39 +326,20 @@ class WebPageAnotatorPopup {
     }
 
     /**
-     * Converts an b64 uri to blob 
-     * @param {string} b64Data The original string.
-     * @param {string} contentType The content type, e.g: 'image/png'.
-     * @param {number} sliceSize 
+     * Converts an b64 uri to blob
+     * @param {string} dataURL The original string.
      */
-    b64ToBlobURL(b64Data, contentType, sliceSize) {
-        let prefix = 'data:' + contentType + ';base64,';
-        if(!b64Data.includes(prefix)) {
-            return;
-        } else {
-            b64Data = b64Data.substr(prefix.length, b64Data.length - prefix.length);
+    b64ToBlobURL(dataURL) {
+        // Decode the dataURL
+        let binary = atob(dataURL.split(',')[1]);
+        // Create 8-bit unsigned array
+        let array = [];
+        for (var i = 0; i < binary.length; i++) {
+            array.push(binary.charCodeAt(i));
         }
-        contentType = contentType || '';
-        sliceSize = sliceSize || 512;
-        
-        let byteCharacters = atob(b64Data),
-            byteArrays = [];
-        
-        for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-            let slice = byteCharacters.slice(offset, offset + sliceSize);
-        
-            let byteNumbers = new Array(slice.length);
-            for (let i = 0; i < slice.length; i++) {
-            byteNumbers[i] = slice.charCodeAt(i);
-            }
-        
-            let byteArray = new Uint8Array(byteNumbers);
-        
-            byteArrays.push(byteArray);
-        }
+        // Return our Blob object
+        let blob = new Blob([new Uint8Array(array)], { type: 'image/png' });
 
-        let blob = new Blob(byteArrays, {type: contentType});
-        
         return URL.createObjectURL(blob);
     }
 }
@@ -384,7 +347,7 @@ class WebPageAnotatorPopup {
 webPageAnnotator = new WebPageAnotatorPopup();
 
 window.onunload = function() {
-    background.popupObjects[webPageAnnotator.tabID] = webPageAnnotator;    
+    background.popupObjects[webPageAnnotator.tabID] = webPageAnnotator;
 };
 
 window.onload = function() {
@@ -413,6 +376,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         webPageAnnotator.animateLoader(100);
         webPageAnnotator.insertImage(request.data);
     } else if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'update-snapshot-process')) {
-        webPageAnnotator.animateLoader(request.data);       
+        webPageAnnotator.animateLoader(request.data);
     }
 });

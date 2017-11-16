@@ -1,2 +1,2 @@
-# highlightor
-A firefox extension for highlighting web pages.
+# Web Page Annotator
+An chrome extension for annotating web pages.

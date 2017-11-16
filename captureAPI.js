@@ -2,7 +2,7 @@
 
 var captureObjects = [],
     removeCaptureObject = function(tabID) {
-        if((tabID != null) && (captureObjects[tabID] != null)) {
+        if(tabID != null && captureObjects.includes(tabID)) {
             captureObjects[tabID] = null;
         }
     };
@@ -27,7 +27,7 @@ class CaptureAPI {
     }
 
     /**
-     * Initializes the class by 
+     * Initializes the class by
      * -Calculating maximum snapshots
      * @return {void}
      */
@@ -49,7 +49,7 @@ class CaptureAPI {
         }
         return result;
     }
-    
+
     /**
      * Takes the full page snapshot.
      * @param {Function} onSuccess The callback to execute when async job is done.
@@ -60,7 +60,7 @@ class CaptureAPI {
         return new Promise((resolve, reject) => {
             let remaining = this.maxSnapshots - this.snapshots.length,
                 percentage = this.maxSnapshots * 100 / this.snapshots.length;
-            
+
             if(typeof onSuccess !== 'function') {
                 reject('invalid takeSnapshot parameters given!');
             }
@@ -104,17 +104,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 let result = [],
                     captureObject = captureObjects[request.data.tabID];
                 for(let i = 0; i < snapshots.length; i++) {
-                    let y = 0;
-                    if((i > 0) && (i < (snapshots.length - 1))) {
+                    let y = 0,
+                        lastSnapshot = snapshots.length - 1;
+                    if(i < lastSnapshot || (i == lastSnapshot && captureObject.maxSnapshots % 1 == 0)) {
                         y = i * captureObject.windowHeight;
-                    } else if((i > 0) && (i == (snapshots.length - 1))) {
-                        if(((captureObject.maxSnapshots % 1) > 0) && ((captureObject.maxSnapshots % 1) < captureObject.maxSnapshots)) {
-                            y = i * captureObject.windowHeight + captureObject.pageHeight % captureObject.windowHeight + (captureObject.pageHeight % captureObject.windowHeight) % 1;
-                        } else {
-                            y = i * captureObject.windowHeight;
-                        }
-                    } else {
-                        y = 0;
+                    } else if(i == lastSnapshot && captureObject.maxSnapshots % 1 != 0) {
+                        // make y the countered height
+                        y = i * captureObject.windowHeight;
+                        // remove the difference
+                        y -= captureObject.windowHeight - captureObject.maxSnapshots % 1 * captureObject.windowHeight;
                     }
                     result.push({
                         src: snapshots[i],
@@ -122,6 +120,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                         y: y
                     });
                 }
+                console.log(captureObjects[request.data.tabID], result);
                 sendResponse({data: result});
                 return true;
             }, null, sendResponse)

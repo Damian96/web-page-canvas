@@ -30,6 +30,7 @@
   ],
   "permissions": [
     "pageCapture",
+    "<all_urls>",
     "tabs",
     "activeTab",
     "storage",

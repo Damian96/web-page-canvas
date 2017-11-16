@@ -1,23 +1,33 @@
 /* globals chrome */
 
-var webPageAnnotator;
+var webPageAnnotator,
+    insertDownload = function(url) {
+        console.log('inserting download', url);
+        let a = document.createElement('a'),
+            date = new Date();
+        a.href = url;
+        a.download = window.location.hostname + '_Canvas-Drawing_' + date.getTime() + '.png';
+        a.classList.add('web-page-annotator-download');
+        document.body.appendChild(a);
+        a.click();
+    };
 
 /**
  * @class
- * @classdesc The main frontend plugin class. Used for creating the Drawing Mode layout. Implements the drawing function code. 
+ * @classdesc The main frontend plugin class. Used for creating the Drawing Mode layout. Implements the drawing function code.
  * @prop {Object} activeToolInfo The object with all the information about the currently active tool.
  * @prop {Object} tabID The chrome ID of the current tab.
  * @prop {boolean} htmlInserted Whether the HTML of the plugin has been inserted.
  * @prop {Object.<string, number>} snapshots Contains the generated snapshots and their position on the final image.
  * @prop {HTMLElement[]} fixedElems Contains the fixed elements fo the current page in order to supress / reset them.
  * @prop {string} CAPTURED_IMAGE_EXTENSION Contains the final image's extension.
- * @prop {number} imagesLoaded The number of the images loaded on the virtually generated canvas each moment. 
- * @prop {string[]} canvasImgs The Image elements that are going to be loaded to the virtual canvas. 
+ * @prop {number} imagesLoaded The number of the images loaded on the virtually generated canvas each moment.
+ * @prop {string[]} canvasImages The Image elements that are going to be loaded to the virtual canvas.
  */
 class WebPageAnotator {
 
     /**
-     * @constructor 
+     * @constructor
      * @param {Object} data The popup data which are loaded into the constructed object.
      */
     constructor(data) {
@@ -36,7 +46,7 @@ class WebPageAnotator {
         };
         this.snapshots = {};
         this.imagesLoaded = 0;
-        this.canvasImgs = [];
+        this.canvasImages = [];
         this.fixedElems = [];
         this.CAPTURED_IMAGE_EXTENSION = 'png'
     }
@@ -96,7 +106,7 @@ class WebPageAnotator {
     getMaxWidth() {
         return Math.max(window.innerWidth, document.body.offsetWidth, document.body.scrollLeft);
     }
-    
+
     removeHTML() {
         for(let element of document.querySelectorAll('#canvas.web-page-annotator,' +
             '#canvas-overlay.web-page-annotator, ' +
@@ -132,7 +142,7 @@ class WebPageAnotator {
         this.canvas.context.clearAll = function() {
             this.canvas.context.clearRect(0, 0, this.canvas.element.width, this.canvas.element.height);
         }.bind(this);
-    
+
         this.canvas.element.onmousemove = function(e) {
             let x = e.pageX - this.canvas.element.offsetLeft,
                 y = e.pageY - this.canvas.element.offsetTop;
@@ -201,7 +211,7 @@ class WebPageAnotator {
             }
         }
     }
-    
+
     erase() {
         for(let i = 0; i < this.canvas.clickX.length; i++) {
             this.canvas.context.globalCompositeOperation = 'destination-out';
@@ -250,16 +260,6 @@ class WebPageAnotator {
         });
     }
 
-    insertDownload(url) {
-        let a = document.createElement('a'),
-            date = new Date();
-        a.href = url;
-        a.download = window.location.hostname + '_Canvas-Drawing_' + date.getTime() + '.png';
-        a.classList.add('web-page-annotator-download');
-        document.body.appendChild(a);
-        a.click();
-    }
-
     loadImages(snapshots) {
         return new Promise((resolve) => {
             this.snapshots = snapshots;
@@ -269,27 +269,27 @@ class WebPageAnotator {
                 img.dataset.y = snapshot.y;
                 img.onload = this.onImgLoad()
                     .then(function(successMsg) {
-                        if(successMsg === 'Images loaded') {
-                            let canvas  = document.createElement('CANVAS');
+                        if(successMsg == 'Images loaded') {
+                            let canvas  = document.createElement('CANVAS'),
+                                context = canvas.getContext('2d');
                             canvas.width = this.getMaxWidth();
                             canvas.height = this.getMaxHeight();
-                            let context = canvas.getContext('2d');
-                            for(let image of this.canvasImgs) {
-                                context.drawImage(image, image.dataset.x, image.dataset.y);   
+                            for(let image of this.canvasImages) {
+                                context.drawImage(image, parseInt(image.dataset.x), parseInt(image.dataset.y));
                             }
-                            resolve(canvas.toDataURL());
+                            resolve(canvas.toDataURL('image/png'));
                         }
-                    }.bind(this));
+                    }.bind(this)
+                );
                 img.src = snapshot.src;
-                this.canvasImgs.push(img);
+                this.canvasImages.push(img);
             }
         });
     }
 
     onImgLoad() {
         return new Promise((resolve) => {
-            ++this.imagesLoaded;
-            if(this.imagesLoaded == this.snapshots.length) {
+            if(++this.imagesLoaded == this.snapshots.length) {
                 resolve('Images loaded');
             }
         });
@@ -304,25 +304,35 @@ class WebPageAnotator {
 
     /**
      * Unsets / sets all fixed elements of document for better page capturing.
-     * @param {boolean} handler 
+     * @param {boolean} handler
      */
     handleFixedElements(handler) {
         if(handler) {
             for(let element of this.fixedElems) {
                 element.style.position = 'fixed';
             }
-            
+
             this.fixedElems = [];
         } else {
             for(let element of document.querySelectorAll('div, nav, section, header')) {
                 let computedStyle = window.getComputedStyle(element, null).getPropertyValue('position');
-                
+
                 if(!element.classList.contains('web-page-annotator') && (element.style.position == 'fixed' || computedStyle == 'fixed')) {
                     element.style.position = 'absolute';
                     this.fixedElems.push(element);
                 }
             }
         }
+    }
+
+    /**
+     *
+     * @param {number} delayMiliseconds The milliseconds to wait before scrolling to the top of the page.
+     */
+    scrollToTop(delayMiliseconds) {
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, delayMiliseconds);
     }
 }
 
@@ -336,7 +346,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 webPageAnnotator.init();
                 webPageAnnotator.handleFixedElements(false);
             } else if(request.message == 'insert-snapshot-download') {
-                webPageAnnotator.insertDownload(request.data);
+                insertDownload(request.data);
             }
             if(webPageAnnotator != null && request.message == 'update-info') {
                 webPageAnnotator.updateToolInfo(request.data);
@@ -354,32 +364,34 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 webPageAnnotator.adjustCanvas.call(webPageAnnotator);
             } else if(request.message == 'save-canvas') {
                 document.body.classList.add('web-page-annotator');
-                window.scrollTo(0, 0);
+                document.getElementById('canvas-close-message').remove();
+                webPageAnnotator.scrollToTop(0);
                 webPageAnnotator.saveCanvas()
                     .then(function(sendResponse, snapshots) {
                         console.log(snapshots);
                         if(typeof snapshots == 'object') {
-                            webPageAnnotator.loadImages(snapshots)
+                            this.loadImages(snapshots)
                                 .then(function(finalImage) {
+                                    document.body.classList.remove('web-page-annotator')
                                     // finalImage = webPageAnnotator.b64ToBlobURL(finalImage, 'image/png', false);
                                     chrome.runtime.sendMessage({message: 'snapshot-is-ready', data: finalImage});
-                                    // this.insertDownload(finalImage);
-                                }.bind(webPageAnnotator));
+                                    // insertDownload(finalImage);
+                                }.bind(this));
                         }
                         document.body.classList.remove('web-page-annotator');
-                        webPageAnnotator.removeHTML();
-                        window.scrollTo(0, 0);
+                        this.removeHTML();
                         this.handleFixedElements(true);
                         this.removeHTML();
+                        this.scrollToTop(1000);
                         sendResponse({message: 'saved'});
                     }.bind(webPageAnnotator, sendResponse))
                     .catch(function(error) {
-                        console.log(error);
+                        // console.log(error);
                         webPageAnnotator.removeHTML();
-                        window.scrollTo(0, 0);
+                        this.scrollToTop(1000);
                         this.handleFixedElements(true);
                         this.removeHTML();
-                    });
+                    }.bind(webPageAnnotator));
             }
         }
     }

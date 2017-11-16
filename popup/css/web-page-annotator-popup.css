@@ -58,7 +58,7 @@ body {
 }
 
 #save:disabled  > .icon-floppy-disk {
-    color: graytext;    
+    color: graytext;
 }
 
 #titles,
@@ -223,10 +223,14 @@ body {
     margin-top: 10px;
 }
 
+#slideshow:not(.empty) {
+    background-color: darkgray;
+}
+
 #slideshow:not(.empty) > .screenshot-navigation {
     position: relative;
-    top: 48%;
-    color: #7e7e7e;
+    top: -48%;
+    color: #000000;
     font-size: 18px;
 }
 
@@ -243,7 +247,8 @@ body {
     display: block;
     margin: 0 10%;
     position: relative;
-    top: 120px;
+    top: -60px;
+    background-color: transparent;
 }
 
 #slideshow:not(.empty) > .screenshot-actions > div:last-child {
@@ -258,6 +263,7 @@ body {
     border-radius: 5px;
     padding: 2px 5px;
     cursor: pointer;
+    background-color: #ffffff;
 }
 
 #slideshow:not(.empty) > .screenshot-actions > div:hover {
@@ -339,7 +345,7 @@ body {
 
 #slideshow.loading > .image-loader > #loader-caption,
 #slideshow.loading > .image-loader > #loader-bar {
-    display: block;    
+    display: block;
 }
 
 #slideshow.loading > .image-loader #loader-bar,
@@ -355,7 +361,7 @@ body {
     background: repeating-linear-gradient(45deg,
         rgba(133, 75, 75, 0.2),
         rgba(0, 0, 204, 0.2) 5px,
-        rgba(0, 0, 204, 0.5) 5px, 
+        rgba(0, 0, 204, 0.5) 5px,
         rgba(0, 0, 204, 0.3) 10px);
 }
 
@@ -373,8 +379,9 @@ body {
 }
 
 #slide-image {
-    position: absolute;
+    position: relative;
     z-index: 2;
-    width: 250px;
-    height: 200px;
+    width: 80%;
+    height: 100%;
+    left: 10%;
 }
