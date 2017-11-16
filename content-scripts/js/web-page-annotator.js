@@ -260,41 +260,6 @@ class WebPageAnotator {
         });
     }
 
-    loadImages(snapshots) {
-        return new Promise((resolve) => {
-            this.snapshots = snapshots;
-            for(let snapshot of this.snapshots) {
-                let img = new Image();
-                img.dataset.x = snapshot.x;
-                img.dataset.y = snapshot.y;
-                img.onload = this.onImgLoad()
-                    .then(function(successMsg) {
-                        if(successMsg == 'Images loaded') {
-                            let canvas  = document.createElement('CANVAS'),
-                                context = canvas.getContext('2d');
-                            canvas.width = this.getMaxWidth();
-                            canvas.height = this.getMaxHeight();
-                            for(let image of this.canvasImages) {
-                                context.drawImage(image, parseInt(image.dataset.x), parseInt(image.dataset.y));
-                            }
-                            resolve(canvas.toDataURL('image/png'));
-                        }
-                    }.bind(this)
-                );
-                img.src = snapshot.src;
-                this.canvasImages.push(img);
-            }
-        });
-    }
-
-    onImgLoad() {
-        return new Promise((resolve) => {
-            if(++this.imagesLoaded == this.snapshots.length) {
-                resolve('Images loaded');
-            }
-        });
-    }
-
     adjustCanvas() {
         if(this.canvas.hasOwnProperty('element')) {
             this.canvas.element.width = this.getMaxWidth();
@@ -324,16 +289,6 @@ class WebPageAnotator {
             }
         }
     }
-
-    /**
-     *
-     * @param {number} delayMiliseconds The milliseconds to wait before scrolling to the top of the page.
-     */
-    scrollToTop(delayMiliseconds) {
-        setTimeout(function() {
-            window.scrollTo(0, 0);
-        }, delayMiliseconds);
-    }
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -355,43 +310,18 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if(request.message == 'close-canvas') {
             webPageAnnotator.removeHTML();
             webPageAnnotator.handleFixedElements(true);
-        } else if(request.message == 'scrollTop') {
-            window.scrollTo(0, window.scrollY + window.innerHeight);
-            sendResponse({message: 'Scrolled', data: window.scrollY});
+        } else if(request.message == 'take-page-screenshot') {
+            document.getElementById('canvas-close-message').remove();
+            html2canvas(document.body, {
+                onrendered: function(canvas) {
+                    webPageAnnotator.removeHTML();
+                    sendResponse({ data: canvas.toDataURL() });
+                }
+            })
         }
         if(webPageAnnotator != null && webPageAnnotator.htmlInserted) {
             if(request.message == 'resize-canvas') {
                 webPageAnnotator.adjustCanvas.call(webPageAnnotator);
-            } else if(request.message == 'save-canvas') {
-                document.body.classList.add('web-page-annotator');
-                document.getElementById('canvas-close-message').remove();
-                webPageAnnotator.scrollToTop(0);
-                webPageAnnotator.saveCanvas()
-                    .then(function(sendResponse, snapshots) {
-                        console.log(snapshots);
-                        if(typeof snapshots == 'object') {
-                            this.loadImages(snapshots)
-                                .then(function(finalImage) {
-                                    document.body.classList.remove('web-page-annotator')
-                                    // finalImage = webPageAnnotator.b64ToBlobURL(finalImage, 'image/png', false);
-                                    chrome.runtime.sendMessage({message: 'snapshot-is-ready', data: finalImage});
-                                    // insertDownload(finalImage);
-                                }.bind(this));
-                        }
-                        document.body.classList.remove('web-page-annotator');
-                        this.removeHTML();
-                        this.handleFixedElements(true);
-                        this.removeHTML();
-                        this.scrollToTop(1000);
-                        sendResponse({message: 'saved'});
-                    }.bind(webPageAnnotator, sendResponse))
-                    .catch(function(error) {
-                        // console.log(error);
-                        webPageAnnotator.removeHTML();
-                        this.scrollToTop(1000);
-                        this.handleFixedElements(true);
-                        this.removeHTML();
-                    }.bind(webPageAnnotator));
             }
         }
     }

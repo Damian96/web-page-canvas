@@ -18,12 +18,6 @@ var captureObjects = [],
 class CaptureAPI {
 
     constructor(tabID, windowHeight, pageHeight) {
-        this.tabID = tabID;
-        this.windowHeight = windowHeight;
-        this.pageHeight = pageHeight;
-        this.maxSnapshots = 0;
-        this.snapshots = [];
-        this.snapshotInterval = 1000;
     }
 
     /**
@@ -33,21 +27,6 @@ class CaptureAPI {
      */
     init() {
         this.maxSnapshots = this.calcMaxSnapshots();
-    }
-
-    /**
-     * Calculates the maximum snapshots (in floating precision) of the given webpage.
-     * @param {number} pageHeight The height of the whole page.
-     * @param {number} windowHeight The height of the window.
-     * @return {number}
-     */
-    calcMaxSnapshots() {
-        let result =  Math.floor(this.pageHeight / this.windowHeight),
-            rest = this.pageHeight % this.windowHeight;
-        if(this.windowHeight > rest) {
-            result += rest / this.windowHeight;
-        }
-        return result;
     }
 
     /**

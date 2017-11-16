@@ -30,6 +30,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             }
         }
     }
+    return true;
 });
 
 chrome.tabs.onZoomChange.addListener(sendResizeMessage);

@@ -11,7 +11,7 @@ var background = chrome.extension.getBackgroundPage(),
  * @prop {Object.<string, number>} activeTool The object with all the information about the currently active tool.
  * @prop {number} tabID The chrome ID of the current tab.
  */
-class WebPageAnotatorPopup {
+class WebPageAnnotatorPopup {
 
     /**
      * @constructor
@@ -66,7 +66,7 @@ class WebPageAnotatorPopup {
             switcher.classList.add('off');
             document.getElementById('save').disabled = true;
         }
-        this.tabClickHanndler(toolElement);
+        this.tabClickHandler(toolElement);
         if(this.activeTool.id == 'paintBrush' && this.activePanel.id == 'none') {
             let colorElement = document.querySelector(".tab-content" + dataSelector + " .color[data-color-code='" + this.toolsOptions.paintBrush.color + "']"),
                 sizeElement = document.querySelector(".tab-content" + dataSelector + " .size-range");
@@ -80,25 +80,39 @@ class WebPageAnotatorPopup {
             sizeElement.value = this.toolsOptions.eraser.size;
         }
         if(this.activePanel.id == 'library') {
-            this.tabClickHanndler.call(this, document.querySelector(".tab-title.panel[data-panel-id='library']"));
+            this.tabClickHandler.call(this, document.querySelector(".tab-title.panel[data-panel-id='library']"));
         }
     }
 
     reloadSlideshow() {
         let slideshow = document.getElementById('slideshow'),
-            slideImage = document.getElementById('slide-image');
+            slideImage = document.getElementById('slide-image'),
+            currentScreenshotNumber = document.getElementById('current-screenshot-number'),
+            totalScreenshotNumber = document.getElementById('total-screenshot-number');
 
         if(this.localSnapshots.length > 0) {
+
             slideshow.className = '';
             slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1]);
+            slideImage.dataset.storageIndex = this.localSnapshots.length - 1;
+            currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : (this.localSnapshots.length - 1);
+            totalScreenshotNumber.innerText = this.localSnapshots.length;
+
         } else {
+
             chrome.storage.local.get(this.STORAGEAREAKEY, function(items) {
                 if(typeof items[this.STORAGEAREAKEY] == 'object' && items[this.STORAGEAREAKEY].length > 0) {
+
                     this.localSnapshots =  items[this.STORAGEAREAKEY];
                     slideshow.className = '';
                     slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1]);
+                    slideImage.dataset.storageIndex = this.localSnapshots.length - 1;
+                    currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : (this.localSnapshots.length - 1);
+                    totalScreenshotNumber.innerText = this.localSnapshots.length;
+
                 }
             }.bind(this));
+
         }
     }
 
@@ -108,7 +122,7 @@ class WebPageAnotatorPopup {
         save.addEventListener('click', this.saveClickHandler.bind(this, save));
         switcher.addEventListener('click', this.switcherClickHandler.bind(this, switcher));
         for(let element of document.querySelectorAll('.tab-title')) {
-            element.addEventListener('click', this.tabClickHanndler.bind(this, element));
+            element.addEventListener('click', this.tabClickHandler.bind(this, element));
         }
         for(let element of document.querySelectorAll('.tab-content .color')) {
             element.addEventListener('click', this.colorClickHandler.bind(this, element));
@@ -122,9 +136,12 @@ class WebPageAnotatorPopup {
         }
     }
 
-    switcherClickHandler(element) {
+    switcherClickHandler(element, sendMessageToTab = true) {
+
         if(element.classList.contains('off')) {
+
             this.overlayOpen = true;
+
             chrome.tabs.sendMessage(this.tabID, {
                 message: 'init-canvas',
                 data: {
@@ -132,57 +149,96 @@ class WebPageAnotatorPopup {
                     tabID: this.tabID
                 }
             });
+
             element.classList.remove('off');
             element.classList.add('on');
             document.getElementById('save').disabled = false;
+
         } else if(element.classList.contains('on')) {
+
             this.overlayOpen = false;
-            chrome.tabs.sendMessage(this.tabID, { message: 'close-canvas' });
+
+            if(sendMessageToTab) {
+
+                chrome.tabs.sendMessage(this.tabID, { message: 'close-canvas' });
+
+            }
+
             element.classList.remove('on');
             element.classList.add('off');
             document.getElementById('save').disabled = true;
+
         }
+
     }
 
     screenshotActionClickHandler(element) {
+
         let slideshow = document.getElementById('slideshow'),
             slideImage = document.getElementById('slide-image');
+
         if(slideshow.className == '' && slideImage.src != null) {
             if(element.classList.contains('save-screenshot')) {
+
                 chrome.tabs.sendMessage(this.tabID, {
+
                     message: 'insert-snapshot-download',
                     data: slideImage.src
+
                 });
+
             } else if(element.classList.contains('delete-screenshot')) {
                 chrome.storage.local.get(this.STORAGEAREAKEY, function(slideImage, slideshow, items) {
-                    let data = items[this.STORAGEAREAKEY];
+
+                    let data = items[this.STORAGEAREAKEY],
+                        currentScreenshotNumber = document.getElementById('current-screenshot-number'),
+                        totalScreenshotNumber = document.getElementById('total-screenshot-number');
+
                     if(typeof data == 'object' && data.length > 0) {
+
                         data.splice(slideImage.dataset.storageIndex, 1);
+
                         if(data.length > 0) {
+
                             slideImage.src = this.b64ToBlobURL(data[data.length - 1]);
                             slideImage.dataset.storageIndex = data.length - 1;
+                            currentScreenshotNumber.innerText = (data.length - 1) == 0 ? 1 : (data.length - 1);
+                            totalScreenshotNumber.innerText = data.length;
+
                         } else {
+
                             slideshow.className = 'empty';
                             slideImage.src = '';
                             slideImage.dataset.storageIndex = '-1';
+
                         }
+
                         chrome.storage.local.set({ [this.STORAGEAREAKEY]: data });
+
                     }
+
                 }.bind(this, slideImage, slideshow))
             }
         }
+
     }
 
     saveClickHandler(element) {
-        this.tabClickHanndler.call(this, document.querySelector(".tab-title[data-panel-id='library'"));
-        chrome.tabs.sendMessage(this.tabID, {message: 'save-canvas'}, function(response) {
-            if(response != null && response.hasOwnProperty('message') && (response.message == 'saved')) {
-                this.switcherClickHandler.call(this, document.getElementById('switcher'));
+        this.tabClickHandler.call(this, document.querySelector(".tab-title[data-panel-id='library'"));
+        this.switcherClickHandler.call(this, document.getElementById('switcher'), false);
+        document.getElementById('slideshow').className = 'loading';
+        chrome.tabs.sendMessage(this.tabID, { message: 'take-page-screenshot' }, function(response) {
+            this.animateLoader(50);
+            if((typeof response == 'object') && response.hasOwnProperty('data')) {
+                this.insertImage(response.data).then(function(success) {
+                    this.animateLoader(100);
+                    document.getElementById('slideshow').className = '';
+                }.bind(this));
             }
         }.bind(this));
     }
 
-    tabClickHanndler(element) {
+    tabClickHandler(element) {
         if(!element.classList.contains('active')) {
             this.disableAllTabs();
             element.classList.add('active');
@@ -304,25 +360,33 @@ class WebPageAnotatorPopup {
     }
 
     insertImage(newImageSrc) {
-        chrome.storage.local.get(this.STORAGEAREAKEY, function(newImageSrc, items) {
-            if(typeof items[this.STORAGEAREAKEY] == 'object') {
-                this.localSnapshots = items[this.STORAGEAREAKEY].concat([newImageSrc]);
-            } else {
-                this.localSnapshots = new Array(newImageSrc);
-            }
+        return new Promise((resolve, reject) => {
+            chrome.storage.local.get(this.STORAGEAREAKEY, function(newImageSrc, items) {
 
-            if(this.localSnapshots.length > 0) {
+                if(typeof items[this.STORAGEAREAKEY] == 'object') {
+                    this.localSnapshots = items[this.STORAGEAREAKEY].concat([newImageSrc]);
+                } else {
+                    this.localSnapshots = new Array(newImageSrc);
+                }
+
                 let imageBlobURL = this.b64ToBlobURL(newImageSrc);
 
                 chrome.storage.local.set({ [this.STORAGEAREAKEY]:  this.localSnapshots }, function(imageBlobURL) {
-                    let slideshow = document.getElementById('slideshow'),
-                        slideImage = document.getElementById('slide-image');
-                    slideshow.className = '';
+
+                    let slideImage = document.getElementById('slide-image'),
+                        currentScreenshotNumber = document.getElementById('current-screenshot-number'),
+                        totalScreenshotNumber = document.getElementById('total-screenshot-number');
+
                     slideImage.src = imageBlobURL;
                     slideImage.dataset.storageIndex = this.localSnapshots.length - 1;
+                    currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : (this.localSnapshots.length - 1);
+                    totalScreenshotNumber.innerText = this.localSnapshots.length;
+
+                    resolve('success');
                 }.bind(this, imageBlobURL));
-            }
-        }.bind(this, newImageSrc));
+
+            }.bind(this, newImageSrc));
+        });
     }
 
     /**
@@ -344,13 +408,14 @@ class WebPageAnotatorPopup {
     }
 }
 
-webPageAnnotator = new WebPageAnotatorPopup();
+webPageAnnotator = new WebPageAnnotatorPopup();
 
 window.onunload = function() {
     background.popupObjects[webPageAnnotator.tabID] = webPageAnnotator;
 };
 
 window.onload = function() {
+
     chrome.tabs.query({active: true}, function(tabArray) {
         webPageAnnotator.tabID = tabArray[0].id;
 
@@ -366,16 +431,16 @@ window.onload = function() {
                 }
             }
         });
-
-        webPageAnnotator.reloadSlideshow();
     });
+
+    webPageAnnotator.reloadSlideshow();
+
 };
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'snapshot-is-ready')) {
-        webPageAnnotator.animateLoader(100);
-        webPageAnnotator.insertImage(request.data);
-    } else if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'update-snapshot-process')) {
+
+    if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'update-snapshot-process')) {
         webPageAnnotator.animateLoader(request.data);
     }
+
 });

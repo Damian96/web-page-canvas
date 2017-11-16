@@ -267,7 +267,7 @@ body {
 }
 
 #slideshow:not(.empty) > .screenshot-actions > div:hover {
-    background-color: rgba(206, 206, 206, 0.6);
+    background-color: rgba(206, 206, 206, 1);
 }
 
 #slideshow:not(.empty) > .screenshot-actions > div > i {
@@ -291,6 +291,15 @@ body {
     position: relative;
     top: -1px;
     color: graytext;
+}
+
+#slideshow:not(.empty) > .screenshot-number-notification {
+    display: block;
+    position: relative;
+    z-index: 3;
+    top: -252px;
+    font-size: 10px;
+    text-align: right;
 }
 
 #slideshow:not(.empty) > .screenshot-actions > .save-screenshot:hover > .icon-floppy-disk {
@@ -319,10 +328,12 @@ body {
 #slideshow.empty > .screenshot-navigation,
 #slideshow.empty > .screenshot-actions,
 #slideshow.empty > img,
+#slideshow.empty > .screenshot-number-notification,
 #slideshow:not(.empty) > .save-message,
 #slideshow:not(.loading) > .image-loader,
 #slideshow.loading > .screenshot-navigation,
 #slideshow.loading > .screenshot-actions,
+#slideshow.loading > .screenshot-number-notification,
 #slideshow.loading > img {
     display: none;
 }

@@ -13,18 +13,18 @@
   },
   "background": {
     "scripts": [
-      "background.js",
-      "captureAPI.js"
+      "background/background.js"
     ]
   },
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
+      "matches": ["*://*/*"],
       "css": [
         "content-scripts/css/web-page-annotator.css"
       ],
       "js": [
-        "content-scripts/js/web-page-annotator.js"
+        "content-scripts/js/web-page-annotator.js",
+        "content-scripts/js/html2canvas.min.js"
       ]
     }
   ],
