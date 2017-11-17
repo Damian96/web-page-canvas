@@ -34,6 +34,10 @@ body {
     background-color: #fff;
 }
 
+#switcher button.on:disabled > i {
+    color: graytext !important;
+}
+
 #switcher.off button.on,
 #switcher.on button.off {
     width: 100%;
@@ -219,7 +223,6 @@ body {
     height: 200px;
     margin: auto;
     border: 1px solid #000;
-    margin-top: 10px;
 }
 
 #slideshow:not(.empty) {

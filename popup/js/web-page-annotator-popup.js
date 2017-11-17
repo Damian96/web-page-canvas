@@ -10,6 +10,7 @@ var background = chrome.extension.getBackgroundPage(),
  * @prop {Object.<string, number>} toolsOptions The object with all the information of all available tools.
  * @prop {Object.<string, number>} activeTool The object with all the information about the currently active tool.
  * @prop {number} tabID The chrome ID of the current tab.
+ * @prop {boolean} isProperPage If the current webpage is proper for opening the extension.
  */
 class WebPageAnnotatorPopup {
 
@@ -38,12 +39,19 @@ class WebPageAnnotatorPopup {
             htmlId: 'none'
         };
         this.localSnapshots = [];
+        this.isProperPage = true;
         this.STORAGEAREAKEY = 'canvasdrawer_screenshots_array';
     }
 
     init() {
+
         this.attachHandlers();
         this.tabClickHandler.call(this, document.querySelector(".tab-title[data-tool-id='paint-brush']"));
+
+        if(!this.isProperPage) {
+            document.querySelector('#switcher button.on').disabled = true;
+        }
+
     }
 
     reload(attributes) {
@@ -241,6 +249,7 @@ class WebPageAnnotatorPopup {
 
                         }
 
+                        this.localSnapshots = data;
                         chrome.storage.local.set({ [this.STORAGEAREAKEY]: data });
 
                     }
@@ -275,7 +284,6 @@ class WebPageAnnotatorPopup {
 
         }
 
-        console.log(currentImageIndex, newImageIndex);
         slideImage.dataset.storageIndex = newImageIndex;
         currentScreenshotNumber.innerText = newImageIndex + 1;
         slideImage.src = this.b64ToBlobURL(this.localSnapshots[newImageIndex]);
@@ -512,8 +520,12 @@ window.onunload = function() {
 
 window.onload = function() {
 
-    chrome.tabs.query({active: true}, function(tabArray) {
-        webPageAnnotator.tabID = tabArray[0].id;
+    chrome.tabs.getSelected(null, function(tab) {
+        webPageAnnotator.tabID = tab.id;
+
+        if(tab.url.includes('chrome://') || tab.url.includes('file:///')) {
+            webPageAnnotator.isProperPage = false;
+        }
 
         chrome.runtime.sendMessage({
             message: 'init-object',
