@@ -7,7 +7,10 @@
     "debug-content": "jshint ./content-scripts/js/web-page-annotator.js",
     "debug-bg": "jshint ./background/background.js",
     "debug-popup": "jshint ./popup/js/web-page-annotator-popup.js",
-    "debug": "jshint ./content-scripts/js/web-page-annotator.js && jshint ./background/background.js && jshint ./popup/js/web-page-annotator-popup.js"
+    "debug": "jshint ./content-scripts/js/web-page-annotator.js && jshint ./background/background.js && jshint ./popup/js/web-page-annotator-popup.js",
+    "minify-popup": "uglifycss --ugly-comments --output ./popup/css/web-page-annotator-popup.min.css ./popup/css/web-page-annotator-popup.css && uglifyjs --compress --output ./popup/js/web-page-annotator-popup.min.js ./popup/js/web-page-annotator-popup.js",
+    "minify-content": "uglifycss --ugly-comments --output ./content-scripts/css/web-page-annotator.min.css ./content-scripts/css/web-page-annotator.css && uglifyjs --compress --output ./content-scripts/js/web-page-annotator.min.js ./content-scripts/js/web-page-annotator.js",
+    "minify" : "uglifycss --ugly-comments --output ./popup/css/web-page-annotator-popup.min.css ./popup/css/web-page-annotator-popup.css && uglifyjs --compress --output ./popup/js/web-page-annotator-popup.min.js ./popup/js/web-page-annotator-popup.js && uglifycss --ugly-comments --output ./content-scripts/css/web-page-annotator.min.css ./content-scripts/css/web-page-annotator.css && uglifyjs --compress --output ./content-scripts/js/web-page-annotator.min.js ./content-scripts/js/web-page-annotator.js"
   },
   "author": "Damianos Giankakis",
   "license": "UNLICENSED",
