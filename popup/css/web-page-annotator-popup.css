@@ -301,6 +301,11 @@ body {
     text-align: right;
 }
 
+#slideshow:not(.empty) > .screenshot-number-notification > span {
+    color: #ff0000;
+    font-weight: bold;
+}
+
 #slideshow:not(.empty) > .screenshot-actions > .save-screenshot:hover > .icon-floppy-disk {
     color: #0000FF;
 }

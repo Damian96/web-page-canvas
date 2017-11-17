@@ -1,10 +1,7 @@
 {
-  "name": "Highlightor",
+  "name": "Web_Page_Annotator",
   "version": "0.0.1",
-  "description": "A firefox extension for annotating the browser's current page.",
-  "repository": {
-    "url": "https://github.com/Damian96/highlightor.git"
-  },
+  "description": "A firefox extension for annotating the webpage.",
   "main": "index.js",
   "scripts": {
     "debug-content": "jshint ./content-scripts/js/web-page-annotator.js",

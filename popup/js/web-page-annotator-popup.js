@@ -114,7 +114,7 @@ class WebPageAnnotatorPopup {
             slideshow.className = '';
             slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1]);
             slideImage.dataset.storageIndex = this.localSnapshots.length - 1;
-            currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : (this.localSnapshots.length - 1);
+            currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : this.localSnapshots.length;
             totalScreenshotNumber.innerText = this.localSnapshots.length;
 
         } else {
@@ -126,7 +126,7 @@ class WebPageAnnotatorPopup {
                     slideshow.className = '';
                     slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1]);
                     slideImage.dataset.storageIndex = this.localSnapshots.length - 1;
-                    currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : (this.localSnapshots.length - 1);
+                    currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : this.localSnapshots.length;
                     totalScreenshotNumber.innerText = this.localSnapshots.length;
 
                 }
@@ -155,11 +155,13 @@ class WebPageAnnotatorPopup {
             element.addEventListener('change', this.sizeHandler.bind(this, element));
         }
 
-        // document.querySelector('#slideshow > .screenshot-navigation > i').addEventListener('click', )
         for(let element of document.querySelectorAll('#slideshow > .screenshot-actions > div')) {
             element.addEventListener('click', this.screenshotActionClickHandler.bind(this, element));
         }
 
+        for(let element of document.querySelectorAll('#slideshow > .screenshot-navigation > i')) {
+            element.addEventListener('click', this.screenshotNavigationClickHandler.bind(this, element));
+        }
     }
 
     switcherClickHandler(element, sendMessageToTab = true) {
@@ -228,7 +230,7 @@ class WebPageAnnotatorPopup {
 
                             slideImage.src = this.b64ToBlobURL(data[data.length - 1]);
                             slideImage.dataset.storageIndex = data.length - 1;
-                            currentScreenshotNumber.innerText = (data.length - 1) == 0 ? 1 : (data.length - 1);
+                            currentScreenshotNumber.innerText = (data.length - 1) == 0 ? 1 : data.length;
                             totalScreenshotNumber.innerText = data.length;
 
                         } else {
@@ -247,6 +249,36 @@ class WebPageAnnotatorPopup {
             }
         }
 
+    }
+
+    screenshotNavigationClickHandler(element) {
+
+        let currentImageIndex = parseInt(document.getElementById('slide-image').dataset.storageIndex),
+            slideImage = document.getElementById('slide-image'),
+            currentScreenshotNumber = document.getElementById('current-screenshot-number'),
+            newImageIndex;
+
+        if(element.title == 'Previous') {
+            if((currentImageIndex - 1) < 0) {
+                newImageIndex = this.localSnapshots.length - 1;
+            } else {
+                newImageIndex = currentImageIndex - 1;
+            }
+
+        } else {
+
+            if((currentImageIndex + 1) >= this.localSnapshots.length) {
+                newImageIndex = 0;
+            } else {
+                newImageIndex = currentImageIndex + 1;
+            }
+
+        }
+
+        console.log(currentImageIndex, newImageIndex);
+        slideImage.dataset.storageIndex = newImageIndex;
+        currentScreenshotNumber.innerText = newImageIndex + 1;
+        slideImage.src = this.b64ToBlobURL(this.localSnapshots[newImageIndex]);
     }
 
     saveClickHandler() {
@@ -443,7 +475,7 @@ class WebPageAnnotatorPopup {
 
                     slideImage.src = imageBlobURL;
                     slideImage.dataset.storageIndex = this.localSnapshots.length - 1;
-                    currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : (this.localSnapshots.length - 1);
+                    currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : this.localSnapshots.length;
                     totalScreenshotNumber.innerText = this.localSnapshots.length;
 
                     resolve('success');
