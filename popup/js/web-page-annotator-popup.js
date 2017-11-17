@@ -40,7 +40,7 @@ class WebPageAnnotatorPopup {
         };
         this.localSnapshots = [];
         this.isProperPage = true;
-        this.STORAGEAREAKEY = 'canvasdrawer_screenshots_array';
+        this.STORAGEAREAKEY = 'webPageAnnotator_screenshots_array';
     }
 
     init() {
