@@ -327,10 +327,20 @@ class WebPageAnotator {
             }
         }
     }
+
+    /**
+     *
+     * @param {number} delayMiliseconds The milliseconds to wait before scrolling to the top of the page.
+     */
+    scrollToTop(delayMiliseconds) {
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, delayMiliseconds);
+    }
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-
+console.log(request, sender);
     if(request.hasOwnProperty('message')) {
 
         if(request.hasOwnProperty('data')) {
@@ -369,6 +379,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                     sendResponse({ data: canvas.toDataURL() });
                 }
             });
+
+        } else if(request.message == 'scrollTop') {
+
+            window.scrollTo(0, window.scrollY + window.innerHeight);
+            sendResponse({message: 'Scrolled', data: window.scrollY});
 
         }
 

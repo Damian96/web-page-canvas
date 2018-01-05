@@ -292,25 +292,32 @@ class WebPageAnnotatorPopup {
     saveClickHandler() {
 
         this.tabClickHandler.call(this, document.querySelector(".tab-title[data-panel-id='library'"));
-        this.switcherClickHandler.call(this, document.getElementById('switcher'), false);
-        document.getElementById('slideshow').className = 'loading';
-
-        chrome.tabs.sendMessage(this.tabID, { message: 'take-page-screenshot' }, function(response) {
-
-            this.animateLoader(50);
-
-            if(typeof response == 'object' && response.hasOwnProperty('data')) {
-
-                this.insertImage(response.data).then(function() {
-
-                    this.animateLoader(100);
-                    document.getElementById('slideshow').className = '';
-
-                }.bind(this));
-
+        // this.switcherClickHandler.call(this, document.getElementById('switcher'), false);
+console.log('ok save handler', this.tabID);
+        chrome.tabs.sendMessage(this.tabID, {message: 'save-canvas'}, function(response) {
+            if(response != null && response.hasOwnProperty('message') && (response.message == 'saved')) {
+                // this.switcherClickHandler.call(this, document.getElementById('switcher'));
             }
-
         }.bind(this));
+
+        // document.getElementById('slideshow').className = 'loading';
+
+        // chrome.tabs.sendMessage(this.tabID, { message: 'take-page-screenshot' }, function(response) {
+
+        //     this.animateLoader(50);
+
+        //     if(typeof response == 'object' && response.hasOwnProperty('data')) {
+
+        //         this.insertImage(response.data).then(function() {
+
+        //             this.animateLoader(100);
+        //             document.getElementById('slideshow').className = '';
+
+        //         }.bind(this));
+
+        //     }
+
+        // }.bind(this));
 
     }
 

@@ -96,7 +96,8 @@ class CaptureAPI {
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if((request.message === 'take-snapshot') && (request.data != null)) {
+    if(request.message === 'take-snapshot' && request.data != null) {
+        console.log('taking snapshot');
         if((request.data.tabID != null) && (request.data.windowHeight != null) && (request.data.pageHeight != null)) {
             captureObjects[request.data.tabID] = new CaptureAPI(request.data.tabID,
                 request.data.windowHeight,

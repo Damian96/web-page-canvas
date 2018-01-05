@@ -227,13 +227,17 @@ body {
 
 #slideshow:not(.empty) {
     background-color: darkgray;
+    overflow: hidden;
+    position: relative;
 }
 
 #slideshow:not(.empty) > .screenshot-navigation {
-    position: relative;
-    top: -50%;
+    position: absolute;
+    top: 50%;
     color: #000000;
     font-size: 18px;
+    width: 100%;
+    height: max-content;
 }
 
 #slideshow:not(.empty) > .screenshot-navigation > i {
@@ -248,13 +252,15 @@ body {
 #slideshow:not(.empty) > .screenshot-actions {
     display: block;
     margin: 0 10%;
-    position: relative;
-    top: -60px;
+    width: 80%;
+    position: absolute;
+    top: 80%;
     background-color: transparent;
 }
 
 #slideshow:not(.empty) > .screenshot-actions > div:last-child {
-    float: right;
+    right: 0;
+    position: absolute;
 }
 
 #slideshow:not(.empty) > .screenshot-actions > div {
@@ -297,9 +303,10 @@ body {
 
 #slideshow:not(.empty) > .screenshot-number-notification {
     display: block;
-    position: relative;
+    position: absolute;
+    top: 0;
+    right: 0;
     z-index: 3;
-    top: -252px;
     font-size: 10px;
     text-align: right;
 }
@@ -400,6 +407,6 @@ body {
     position: relative;
     z-index: 2;
     width: 80%;
-    height: 100%;
+    height: auto;
     left: 10%;
 }
