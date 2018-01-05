@@ -24,8 +24,7 @@
         "content-scripts/css/web-page-annotator.min.css"
       ],
       "js": [
-        "content-scripts/js/web-page-annotator.min.js",
-        "content-scripts/js/html2canvas.min.js"
+        "content-scripts/js/web-page-annotator.min.js"
       ]
     }
   ],

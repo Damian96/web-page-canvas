@@ -292,32 +292,20 @@ class WebPageAnnotatorPopup {
     saveClickHandler() {
 
         this.tabClickHandler.call(this, document.querySelector(".tab-title[data-panel-id='library'"));
-        // this.switcherClickHandler.call(this, document.getElementById('switcher'), false);
-console.log('ok save handler', this.tabID);
+
         chrome.tabs.sendMessage(this.tabID, {message: 'save-canvas'}, function(response) {
-            if(response != null && response.hasOwnProperty('message') && (response.message == 'saved')) {
-                // this.switcherClickHandler.call(this, document.getElementById('switcher'));
+console.log(response);
+            if(response.hasOwnProperty('message') && response.hasOwnProperty('data') && (response.message == 'saved')) {
+console.log('ok response');
+                this.insertImage(response.data).then(function() {
+                    console.log('image inserted');
+                    this.reloadSlideshow();
+
+                }.bind(this));
+
             }
+
         }.bind(this));
-
-        // document.getElementById('slideshow').className = 'loading';
-
-        // chrome.tabs.sendMessage(this.tabID, { message: 'take-page-screenshot' }, function(response) {
-
-        //     this.animateLoader(50);
-
-        //     if(typeof response == 'object' && response.hasOwnProperty('data')) {
-
-        //         this.insertImage(response.data).then(function() {
-
-        //             this.animateLoader(100);
-        //             document.getElementById('slideshow').className = '';
-
-        //         }.bind(this));
-
-        //     }
-
-        // }.bind(this));
 
     }
 
@@ -471,15 +459,16 @@ console.log('ok save handler', this.tabID);
     }
 
     insertImage(newImageSrc) {
+        console.log('insering image', typeof newImageSrc);
         return new Promise((resolve) => {
             chrome.storage.local.get(this.STORAGEAREAKEY, function(newImageSrc, items) {
-
+console.log(items.STORAGEAREAKEY);
                 if(typeof items[this.STORAGEAREAKEY] == 'object') {
                     this.localSnapshots = items[this.STORAGEAREAKEY].concat([newImageSrc]);
                 } else {
                     this.localSnapshots = new Array(newImageSrc);
                 }
-
+console.log(this.localSnapshots);
                 let imageBlobURL = this.b64ToBlobURL(newImageSrc);
 
                 chrome.storage.local.set({ [this.STORAGEAREAKEY]:  this.localSnapshots }, function(imageBlobURL) {
@@ -563,9 +552,6 @@ chrome.runtime.onMessage.addListener(function(request) {
 
     if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'update-snapshot-process')) {
         webPageAnnotator.animateLoader(request.data);
-    } else if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'snapshot-is-ready')) {
-        webPageAnnotator.animateLoader(100);
-        webPageAnnotator.insertImage(request.data);
     }
 
 });

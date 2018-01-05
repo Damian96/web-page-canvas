@@ -2,7 +2,6 @@
 
 var webPageAnnotator,
     insertDownload = function(url) {
-        console.log('inserting download', url);
         let a = document.createElement('a'),
             date = new Date();
         a.href = url;
@@ -259,6 +258,7 @@ class WebPageAnotator {
                     pageHeight: this.getMaxHeight()
                 }
             }, function(response) {
+                console.log(response);
                 if(response != null && response.hasOwnProperty('data')) {
                     if(response.hasOwnProperty('error')) {
                         reject(response.error);
@@ -273,6 +273,9 @@ class WebPageAnotator {
     }
 
     loadImages(snapshots) {
+        this.canvasImages = [];
+        this.imagesLoaded = 0;
+
         return new Promise((resolve) => {
             this.snapshots = snapshots;
 
@@ -287,6 +290,7 @@ class WebPageAnotator {
 
                     this.finalCanvas.context.drawImage(img, parseInt(img.dataset.x), parseInt(img.dataset.y));
                     if(++this.imagesLoaded == this.snapshots.length) {
+                        console.log('resolving images loaded');
                         resolve(this.finalCanvas.element.toDataURL('image/png'));
                     }
 
@@ -340,7 +344,7 @@ class WebPageAnotator {
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-console.log(request, sender);
+
     if(request.hasOwnProperty('message')) {
 
         if(request.hasOwnProperty('data')) {
@@ -370,20 +374,10 @@ console.log(request, sender);
             webPageAnnotator.removeHTML();
             webPageAnnotator.handleFixedElements(true);
 
-        } else if(request.message == 'take-page-screenshot') {
-
-            document.getElementById('canvas-close-message').remove();
-            html2canvas(document.body, {
-                onrendered: function(canvas) {
-                    webPageAnnotator.removeHTML();
-                    sendResponse({ data: canvas.toDataURL() });
-                }
-            });
-
         } else if(request.message == 'scrollTop') {
 
             window.scrollTo(0, window.scrollY + window.innerHeight);
-            sendResponse({message: 'Scrolled', data: window.scrollY});
+            sendResponse({message: 'Scrolled'});
 
         }
 
@@ -395,27 +389,39 @@ console.log(request, sender);
 
             } else if(request.message == 'save-canvas') {
 
-                document.body.classList.add('web-page-annotator');
-                document.getElementById('canvas-close-message').remove();
+                if(!document.body.classList.contains('web-page-annotator')) {
+                    document.body.classList.add('web-page-annotator');
+                }
+
+                if(document.getElementById('canvas-close-message').length > 0) {
+                    document.getElementById('canvas-close-message').remove();
+                }
+
                 webPageAnnotator.scrollToTop(0);
-                webPageAnnotator.saveCanvas()
-                    .then(function(sendResponse, snapshots) {
-                        console.log(snapshots);
+                webPageAnnotator.saveCanvas().then(function(snapshots) {
+console.log(typeof snapshots);
                         if(typeof snapshots == 'object') {
+
                             this.loadImages(snapshots).then(function(finalImage) {
-                                document.body.classList.remove('web-page-annotator')
-                                chrome.runtime.sendMessage({message: 'snapshot-is-ready', data: finalImage});
-                            }.bind(this));
+
+                                document.body.classList.remove('web-page-annotator');
+                                console.log('sending response');
+                                sendResponse({message: 'saved', data: finalImage});
+
+                            });
+
                         }
+
                         document.body.classList.remove('web-page-annotator');
                         this.scrollToTop(1000);
-                        sendResponse({message: 'saved'});
-                    }.bind(webPageAnnotator, sendResponse)).catch(function(error) {
-                        // console.log(error);
+
+                    }.bind(webPageAnnotator)).catch(function(error) {
+
                         webPageAnnotator.removeHTML();
                         this.scrollToTop(1000);
                         this.handleFixedElements(true);
                         this.removeHTML();
+
                     }.bind(webPageAnnotator));
 
             }
