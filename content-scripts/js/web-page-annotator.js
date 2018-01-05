@@ -48,6 +48,10 @@ class WebPageAnotator {
         this.imagesLoaded = 0;
         this.canvasImages = [];
         this.fixedElems = [];
+        this.finalCanvas = {
+            element:  document.createElement('CANVAS')
+        };
+        this.finalCanvas.context = this.finalCanvas.element.getContext('2d');
         this.CAPTURED_IMAGE_EXTENSION = 'png'
     }
 
@@ -263,34 +267,25 @@ class WebPageAnotator {
     loadImages(snapshots) {
         return new Promise((resolve) => {
             this.snapshots = snapshots;
+
             for(let snapshot of this.snapshots) {
                 let img = new Image();
+
+                this.finalCanvas.element.width = this.getMaxWidth();
+                this.finalCanvas.element.height = this.getMaxHeight();
                 img.dataset.x = snapshot.x;
                 img.dataset.y = snapshot.y;
-                img.onload = this.onImgLoad()
-                    .then(function(successMsg) {
-                        if(successMsg == 'Images loaded') {
-                            let canvas  = document.createElement('CANVAS'),
-                                context = canvas.getContext('2d');
-                            canvas.width = this.getMaxWidth();
-                            canvas.height = this.getMaxHeight();
-                            for(let image of this.canvasImages) {
-                                context.drawImage(image, parseInt(image.dataset.x), parseInt(image.dataset.y));
-                            }
-                            resolve(canvas.toDataURL('image/png'));
-                        }
-                    }.bind(this)
-                );
+                img.onload = function(img) {
+
+                    this.finalCanvas.context.drawImage(img, parseInt(img.dataset.x), parseInt(img.dataset.y));
+                    if(++this.imagesLoaded == this.snapshots.length) {
+                        resolve(this.finalCanvas.element.toDataURL('image/png'));
+                    }
+
+                }.bind(this, img);
+
                 img.src = snapshot.src;
                 this.canvasImages.push(img);
-            }
-        });
-    }
-
-    onImgLoad() {
-        return new Promise((resolve) => {
-            if(++this.imagesLoaded == this.snapshots.length) {
-                resolve('Images loaded');
             }
         });
     }

@@ -69,6 +69,8 @@ class CaptureAPI {
                 reject('too tall page to take snapshot');
             }
 
+            console.log('remaining snapshots = : ' + remaining);
+
             if(remaining > 0) {
                 setTimeout(function() {
                     chrome.tabs.captureVisibleTab({format: 'jpeg'},
@@ -106,6 +108,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 for(let i = 0; i < snapshots.length; i++) {
                     let y = 0,
                         lastSnapshot = snapshots.length - 1;
+
                     if(i < lastSnapshot || (i == lastSnapshot && captureObject.maxSnapshots % 1 == 0)) {
                         y = i * captureObject.windowHeight;
                     } else if(i == lastSnapshot && captureObject.maxSnapshots % 1 != 0) {
@@ -114,6 +117,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                         // remove the difference
                         y -= captureObject.windowHeight - captureObject.maxSnapshots % 1 * captureObject.windowHeight;
                     }
+
                     result.push({
                         src: snapshots[i],
                         x: 0,
