@@ -556,6 +556,9 @@ chrome.runtime.onMessage.addListener(function(request) {
 
     if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'update-snapshot-process')) {
         webPageAnnotator.animateLoader(request.data);
+    } else if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'snapshot-is-ready')) {
+        webPageAnnotator.animateLoader(100);
+        webPageAnnotator.insertImage(request.data);
     }
 
 });
