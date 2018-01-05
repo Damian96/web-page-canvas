@@ -258,7 +258,6 @@ class WebPageAnotator {
                     pageHeight: this.getMaxHeight()
                 }
             }, function(response) {
-                console.log(response);
                 if(response != null && response.hasOwnProperty('data')) {
                     if(response.hasOwnProperty('error')) {
                         reject(response.error);
@@ -290,7 +289,6 @@ class WebPageAnotator {
 
                     this.finalCanvas.context.drawImage(img, parseInt(img.dataset.x), parseInt(img.dataset.y));
                     if(++this.imagesLoaded == this.snapshots.length) {
-                        console.log('resolving images loaded');
                         resolve(this.finalCanvas.element.toDataURL('image/png'));
                     }
 
@@ -399,13 +397,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
                 webPageAnnotator.scrollToTop(0);
                 webPageAnnotator.saveCanvas().then(function(snapshots) {
-console.log(typeof snapshots);
                         if(typeof snapshots == 'object') {
 
                             this.loadImages(snapshots).then(function(finalImage) {
 
                                 document.body.classList.remove('web-page-annotator');
-                                console.log('sending response');
                                 sendResponse({message: 'saved', data: finalImage});
 
                             });

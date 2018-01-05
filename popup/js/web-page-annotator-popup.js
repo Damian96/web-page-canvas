@@ -294,11 +294,11 @@ class WebPageAnnotatorPopup {
         this.tabClickHandler.call(this, document.querySelector(".tab-title[data-panel-id='library'"));
 
         chrome.tabs.sendMessage(this.tabID, {message: 'save-canvas'}, function(response) {
-console.log(response);
+
             if(response.hasOwnProperty('message') && response.hasOwnProperty('data') && (response.message == 'saved')) {
-console.log('ok response');
+
                 this.insertImage(response.data).then(function() {
-                    console.log('image inserted');
+
                     this.reloadSlideshow();
 
                 }.bind(this));
@@ -459,16 +459,13 @@ console.log('ok response');
     }
 
     insertImage(newImageSrc) {
-        console.log('insering image', typeof newImageSrc);
         return new Promise((resolve) => {
             chrome.storage.local.get(this.STORAGEAREAKEY, function(newImageSrc, items) {
-console.log(items.STORAGEAREAKEY);
                 if(typeof items[this.STORAGEAREAKEY] == 'object') {
                     this.localSnapshots = items[this.STORAGEAREAKEY].concat([newImageSrc]);
                 } else {
                     this.localSnapshots = new Array(newImageSrc);
                 }
-console.log(this.localSnapshots);
                 let imageBlobURL = this.b64ToBlobURL(newImageSrc);
 
                 chrome.storage.local.set({ [this.STORAGEAREAKEY]:  this.localSnapshots }, function(imageBlobURL) {
