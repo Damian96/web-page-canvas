@@ -299,7 +299,7 @@ class WebPageAnnotatorPopup {
 
             this.animateLoader(50);
 
-            if((typeof response == 'object') && response.hasOwnProperty('data')) {
+            if(typeof response == 'object' && response.hasOwnProperty('data')) {
 
                 this.insertImage(response.data).then(function() {
 
