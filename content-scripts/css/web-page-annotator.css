@@ -2,6 +2,10 @@ body.web-page-annotator {
     overflow-x: hidden !important;
 }
 
+body.web-page-annotator #canvas-close-message.web-page-annotator {
+    display: none !important;
+}
+
 img.web-page-annotator-created {
     display: block !important;
     position: absolute !important;

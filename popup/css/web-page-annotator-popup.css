@@ -328,7 +328,7 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, 0%);
+    transform: translate(-50%, 25%);
     font-size: 18px;
     color: #fff;
     font-weight: bold;
