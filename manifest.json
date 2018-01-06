@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Web Page Annotator",
   "description": "Lets you take notes on the web page.",
-  "version": "0.0.5",
+  "version": "0.5",
   "icons": {
       "16": "images/draw-16.png",
       "48": "images/draw-48.png",
