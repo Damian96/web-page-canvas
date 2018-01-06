@@ -172,6 +172,12 @@ class WebPageAnnotatorPopup {
         }
     }
 
+    disableMenu() {
+        Array.from(document.querySelectorAll('#switcher button')).forEach(function(element) {
+            element.disabled = true;
+        });
+    }
+
     switcherClickHandler(element, sendMessageToTab = true) {
 
         if(element.classList.contains('off')) {
@@ -518,6 +524,7 @@ window.onload = function() {
 
         if(tab.url.includes('chrome://') || tab.url.includes('file:///')) {
             webPageAnnotator.isProperPage = false;
+            webPageAnnotator.disableMenu();
         }
 
         chrome.runtime.sendMessage({
