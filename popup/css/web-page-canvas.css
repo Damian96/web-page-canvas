@@ -96,56 +96,82 @@ body {
     background-color: rgba(255,255,255,1);
 }
 
-.tab-title.active[data-tool-color="red"],
-.tab-content.active[data-tool-color="red"],
-.tab-content.active .color[title="Red"] {
+.tab-content.active span.color {
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    border: 1px solid #000000;
+    cursor: pointer;
+}
+
+.tab-content.active span.color.active {
+    background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.2),
+        rgba(0, 0, 0, 0.2) 5px, rgba(0, 0, 0, 0.5) 5px, rgba(0, 0, 0, 0.3) 10px);
+}
+
+.tab-content.active span.color[title="Red"] {
     background-color: #ff0000;
 }
 
-.tab-title.active[data-tool-color="green"],
-.tab-content.active[data-tool-color="green"],
-.tab-content.active .color[title="Green"] {
+.tab-content.active[data-tool-color="red"] h3.color {
+    color: #ff0000;
+}
+
+.tab-content.active span.color[title="Green"] {
     background-color: #008000;
-    color: #fff;
 }
 
-.tab-title.active[data-tool-color="blue"],
-.tab-content.active[data-tool-color="blue"],
-.tab-content.active .color[title="Blue"] {
+.tab-content.active[data-tool-color="green"] h3.color {
+    color: #008000;
+}
+
+.tab-content.active span.color[title="Blue"] {
     background-color: #0000FF;
-    color: #fff;
 }
 
-.tab-title.active[data-tool-color="yellow"],
-.tab-content.active[data-tool-color="yellow"],
-.tab-content.active .color[title="Yellow"] {
+.tab-content.active[data-tool-color="blue"] h3.color {
+    color: #0000FF;
+}
+
+.tab-content.active span.color[title="Yellow"] {
     background-color: #FFFF00;
 }
 
-.tab-title.active[data-tool-color="purple"],
-.tab-content.active[data-tool-color="purple"],
-.tab-content.active .color[title="Purple"] {
-    background-color: #800080;
-    color: #fff;
+.tab-content.active[data-tool-color="yellow"] h3.color {
+    color: rgb(175, 175, 0);
 }
 
-.tab-title.active[data-tool-color="pink"],
-.tab-content.active[data-tool-color="pink"],
-.tab-content.active .color[title="Pink"] {
+.tab-content.active span.color[title="Purple"] {
+    background-color: #800080;
+}
+
+.tab-content.active[data-tool-color="purple"] h3.color {
+    color: #800080;
+}
+
+.tab-content.active span.color[title="Pink"] {
     background-color: #FFC0CB;
 }
 
-.tab-title.active[data-tool-color="orange"],
-.tab-content.active[data-tool-color="orange"],
-.tab-content.active .color[title="Orange"] {
+.tab-content.active[data-tool-color="pink"] h3.color {
+    color: #FFC0CB;
+}
+
+.tab-content.active span.color[title="Orange"] {
     background-color: #FFA500;
 }
 
-.tab-title.active[data-tool-color="brown"],
-.tab-content.active[data-tool-color="brown"],
-.tab-content.active .color[title="Brown"] {
+.tab-content.active[data-tool-color="orange"] h3.color {
+    color: #FFA500;
+}
+
+.tab-content.active span.color[title="Brown"] {
     background-color: #A52A2A;
-    color: #fff;
+}
+
+.tab-content.active[data-tool-color="brown"] h3.color {
+    color: #A52A2A;
 }
 
 .tab-title.active[data-tool-id="eraser"] {
@@ -196,20 +222,6 @@ body {
 
 .tab-content.active hr {
     border-bottom: 1px solid #000000;
-}
-
-.tab-content.active .color {
-    display: inline-block;
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    border: 1px solid #000000;
-    cursor: pointer;
-}
-
-.tab-content.active .color.active {
-    background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.2),
-        rgba(0, 0, 0, 0.2) 5px, rgba(0, 0, 0, 0.5) 5px, rgba(0, 0, 0, 0.3) 10px);
 }
 
 .tab-content.active .range-value {

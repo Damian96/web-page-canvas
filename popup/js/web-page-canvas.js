@@ -1,7 +1,7 @@
 /* globals chrome */
 
 var background = chrome.extension.getBackgroundPage(),
-    webPageAnnotator;
+    webPageCanvas;
 
 /**
  * @class
@@ -12,7 +12,7 @@ var background = chrome.extension.getBackgroundPage(),
  * @prop {number} tabID The chrome ID of the current tab.
  * @prop {boolean} isProperPage If the current webpage is proper for opening the extension.
  */
-class WebPageAnnotatorPopup {
+class webPageCanvasPopup {
 
     /**
      * @constructor
@@ -40,7 +40,7 @@ class WebPageAnnotatorPopup {
         };
         this.localSnapshots = [];
         this.isProperPage = true;
-        this.STORAGEAREAKEY = 'webPageAnnotator_screenshots_array';
+        this.STORAGEAREAKEY = 'webPageCanvas_screenshots_array';
     }
 
     init() {
@@ -511,36 +511,36 @@ class WebPageAnnotatorPopup {
     }
 }
 
-webPageAnnotator = new WebPageAnnotatorPopup();
+webPageCanvas = new webPageCanvasPopup();
 
 window.onunload = function() {
-    background.popupObjects[webPageAnnotator.tabID] = webPageAnnotator;
+    background.popupObjects[webPageCanvas.tabID] = webPageCanvas;
 };
 
 window.onload = function() {
 
     chrome.tabs.getSelected(null, function(tab) {
-        webPageAnnotator.tabID = tab.id;
+        webPageCanvas.tabID = tab.id;
 
-        if(tab.url.includes('chrome://') || tab.url.includes('file:///')) {
-            webPageAnnotator.isProperPage = false;
-            webPageAnnotator.disableMenu();
+        if(tab.url.includes('chrome://') || tab.url.includes('file:///') || tab.url.includes('chrome-extension://')) {
+            webPageCanvas.isProperPage = false;
+            webPageCanvas.disableMenu();
         }
 
         chrome.runtime.sendMessage({
             message: 'init-object',
-            tabID: webPageAnnotator.tabID
+            tabID: webPageCanvas.tabID
         }, function(response) {
 
             if(response.hasOwnProperty('message')) {
 
                 if(response.message == 'do-it-yourself') {
 
-                    webPageAnnotator.init();
+                    webPageCanvas.init();
 
                 } else if(response.message == 'sending-popup-object-data' && response.hasOwnProperty('data')) {
 
-                    webPageAnnotator.reload(response.data);
+                    webPageCanvas.reload(response.data);
 
                 }
             }
@@ -548,14 +548,14 @@ window.onload = function() {
         });
     });
 
-    webPageAnnotator.reloadSlideshow();
+    webPageCanvas.reloadSlideshow();
 
 };
 
 chrome.runtime.onMessage.addListener(function(request) {
 
     if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'update-snapshot-process')) {
-        webPageAnnotator.animateLoader(request.data);
+        webPageCanvas.animateLoader(request.data);
     }
 
 });

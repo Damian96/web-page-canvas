@@ -1,6 +1,6 @@
 /* globals chrome, html2canvas */
 
-var webPageAnnotator,
+var webPageCanvas,
     insertDownload = function(url) {
         let a = document.createElement('a'),
             date = new Date();
@@ -23,7 +23,7 @@ var webPageAnnotator,
  * @prop {number} imagesLoaded The number of the images loaded on the virtually generated canvas each moment.
  * @prop {string[]} canvasImages The Image elements that are going to be loaded to the virtual canvas.
  */
-class WebPageAnotator {
+class WebPageCanvas {
 
     /**
      * @constructor
@@ -349,9 +349,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
             if(request.message == 'init-canvas') {
 
-                webPageAnnotator = new WebPageAnotator(request.data);
-                webPageAnnotator.init();
-                webPageAnnotator.handleFixedElements(false);
+                webPageCanvas = new WebPageCanvas(request.data);
+                webPageCanvas.init();
+                webPageCanvas.handleFixedElements(false);
 
             } else if(request.message == 'insert-snapshot-download') {
 
@@ -359,9 +359,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
             }
 
-            if(webPageAnnotator != null && request.message == 'update-info') {
+            if(webPageCanvas != null && request.message == 'update-info') {
 
-                webPageAnnotator.updateToolInfo(request.data);
+                webPageCanvas.updateToolInfo(request.data);
 
             }
 
@@ -369,8 +369,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
         if(request.message == 'close-canvas') {
 
-            webPageAnnotator.removeHTML();
-            webPageAnnotator.handleFixedElements(true);
+            webPageCanvas.removeHTML();
+            webPageCanvas.handleFixedElements(true);
 
         } else if(request.message == 'scrollTop') {
 
@@ -379,11 +379,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
         }
 
-        if(webPageAnnotator != null && webPageAnnotator.htmlInserted) {
+        if(webPageCanvas != null && webPageCanvas.htmlInserted) {
 
             if(request.message == 'resize-canvas') {
 
-                webPageAnnotator.adjustCanvas.call(webPageAnnotator);
+                webPageCanvas.adjustCanvas.call(webPageCanvas);
 
             } else if(request.message == 'save-canvas') {
 
@@ -395,8 +395,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                     document.getElementById('canvas-close-message').remove();
                 }
 
-                webPageAnnotator.scrollToTop(0);
-                webPageAnnotator.saveCanvas().then(function(snapshots) {
+                webPageCanvas.scrollToTop(0);
+                webPageCanvas.saveCanvas().then(function(snapshots) {
                         if(typeof snapshots == 'object') {
 
                             this.loadImages(snapshots).then(function(finalImage) {
@@ -411,14 +411,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                         document.body.classList.remove('web-page-annotator');
                         this.scrollToTop(1000);
 
-                    }.bind(webPageAnnotator)).catch(function(error) {
+                    }.bind(webPageCanvas)).catch(function(error) {
 
-                        webPageAnnotator.removeHTML();
+                        webPageCanvas.removeHTML();
                         this.scrollToTop(1000);
                         this.handleFixedElements(true);
                         this.removeHTML();
 
-                    }.bind(webPageAnnotator));
+                    }.bind(webPageCanvas));
 
             }
 

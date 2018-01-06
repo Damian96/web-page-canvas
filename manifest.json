@@ -14,7 +14,7 @@
       "32": "images/draw-32.png"
     },
     "default_title": "Annotate Page",
-    "default_popup": "/popup/html/web-page-annotator-popup.html"
+    "default_popup": "/popup/html/web-page-canvas.html"
   },
   "background": {
     "scripts": [
@@ -26,20 +26,20 @@
     {
       "matches": ["*://*/*"],
       "css": [
-        "content-scripts/css/web-page-annotator.min.css"
+        "content-scripts/css/web-page-canvas.min.css"
       ],
       "js": [
-        "content-scripts/js/web-page-annotator.min.js"
+        "content-scripts/js/web-page-canvas.min.js"
       ]
     }
   ],
   "permissions": [
-    "pageCapture",
     "<all_urls>",
     "tabs",
     "activeTab",
     "storage",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "downloads"
   ],
   "web_accessible_resources": [
     "images/*.png",

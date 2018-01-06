@@ -38,3 +38,9 @@ chrome.tabs.onZoomChange.addListener(sendResizeMessage);
 chrome.tabs.onUpdated.addListener(removePopupObject);
 
 chrome.tabs.onRemoved.addListener(removePopupObject);
+
+window.onload = function() {
+    chrome.tabs.create({
+        "url": chrome.extension.getURL('about/about.html')
+    });
+}
