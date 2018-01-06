@@ -96,6 +96,11 @@ body {
     background-color: rgba(255,255,255,1);
 }
 
+.tab-title[data-panel-id="options"] {
+    position: absolute;
+    right: 0;
+}
+
 .tab-content.active span.color {
     display: inline-block;
     width: 25px;
@@ -174,6 +179,10 @@ body {
     color: #A52A2A;
 }
 
+.tab-title.active {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
 .tab-title.active[data-tool-id="eraser"] {
     color: #A52A2A;
 }
@@ -212,8 +221,10 @@ body {
 
 .tab-content.active {
     display: block;
-    padding: 10px 5px 0 5px;
-    /* min-height: 270px; */
+    padding: 10px;
+    border-color: rgba(0, 0, 0, 0.1);
+    border-width: 1px 0 0 0;
+    border-style: solid;
 }
 
 .tab-content.active h3 {
@@ -222,6 +233,11 @@ body {
 
 .tab-content.active hr {
     border-bottom: 1px solid #000000;
+    margin: 10px -10px;
+}
+
+.tab-content input[type="range"] {
+    width: 90%;
 }
 
 .tab-content.active .range-value {

@@ -10,7 +10,8 @@ var popupObjects = [],
         if(tabID != null && popupObjects.includes(tabID)) {
             chrome.tabs.sendMessage(tabID, { message: 'resize-canvas'});
         }
-    };
+    },
+    welcomePageStorageKey = 'webPageCanvas_welcomePage';
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if(request.hasOwnProperty('message')) {
@@ -40,7 +41,17 @@ chrome.tabs.onUpdated.addListener(removePopupObject);
 chrome.tabs.onRemoved.addListener(removePopupObject);
 
 window.onload = function() {
-    chrome.tabs.create({
-        "url": chrome.extension.getURL('about/about.html')
+
+    chrome.storage.local.get(welcomePageStorageKey, function(items) {
+
+        if(items[welcomePageStorageKey] == null || !items[welcomePageStorageKey]) {
+
+            chrome.tabs.create({
+                "url": chrome.extension.getURL('about/about.html')
+            });
+
+            chrome.storage.local.set({ [welcomePageStorageKey]: true });
+        }
     });
-}
+
+};

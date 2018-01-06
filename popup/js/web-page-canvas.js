@@ -178,6 +178,17 @@ class webPageCanvasPopup {
         });
     }
 
+    insertDownload(file) {
+        let date = new Date();
+
+        chrome.downloads.download({
+            url: file,
+            filename: ('Web-Page-Drawing_' + date.getTime() + '.png'),
+            saveAs: true
+        });
+
+    }
+
     switcherClickHandler(element, sendMessageToTab = true) {
 
         if(element.classList.contains('off')) {
@@ -222,12 +233,7 @@ class webPageCanvasPopup {
         if(slideshow.className == '' && slideImage.src != null) {
             if(element.classList.contains('save-screenshot')) {
 
-                chrome.tabs.sendMessage(this.tabID, {
-
-                    message: 'insert-snapshot-download',
-                    data: slideImage.src
-
-                });
+                this.insertDownload(slideImage.src);
 
             } else if(element.classList.contains('delete-screenshot')) {
                 chrome.storage.local.get(this.STORAGEAREAKEY, function(slideImage, slideshow, items) {

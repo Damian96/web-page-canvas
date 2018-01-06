@@ -1,15 +1,15 @@
 /* globals chrome, html2canvas */
 
-var webPageCanvas,
-    insertDownload = function(url) {
-        let a = document.createElement('a'),
-            date = new Date();
-        a.href = url;
-        a.download = window.location.hostname + '_Canvas-Drawing_' + date.getTime() + '.png';
-        a.classList.add('web-page-annotator-download');
-        document.body.appendChild(a);
-        a.click();
-    };
+var webPageCanvas;
+    // insertDownload = function(url) {
+    //     let a = document.createElement('a'),
+    //         date = new Date();
+    //     a.href = url;
+    //     a.download = window.location.hostname + '_Canvas-Drawing_' + date.getTime() + '.png';
+    //     a.classList.add('web-page-annotator-download');
+    //     document.body.appendChild(a);
+    //     a.click();
+    // };
 
 /**
  * @class
@@ -352,10 +352,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 webPageCanvas = new WebPageCanvas(request.data);
                 webPageCanvas.init();
                 webPageCanvas.handleFixedElements(false);
-
-            } else if(request.message == 'insert-snapshot-download') {
-
-                insertDownload(request.data);
 
             }
 
