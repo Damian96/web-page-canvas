@@ -438,3 +438,13 @@ body {
     height: auto;
     left: 10%;
 }
+
+.tab-content .option-description {
+    font-size: 17px;
+    vertical-align: middle;
+}
+
+#clear-screenshots {
+    cursor: pointer;
+    padding: 10px;
+}
