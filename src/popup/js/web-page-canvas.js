@@ -325,7 +325,7 @@ class webPageCanvasPopup {
 
         chrome.tabs.sendMessage(this.tabID, {message: 'save-canvas'}, function(response) {
 
-            if(response.hasOwnProperty('message') && response.hasOwnProperty('data') && (response.message == 'saved')) {
+            if(response != null && response.hasOwnProperty('message') && response.hasOwnProperty('data') && (response.message == 'saved')) {
 
                 this.insertImage(response.data).then(function() {
 
@@ -575,7 +575,7 @@ window.onload = function() {
             tabID: webPageCanvas.tabID
         }, function(response) {
 
-            if(response.hasOwnProperty('message')) {
+            if(response != null && response.hasOwnProperty('message')) {
 
                 if(response.message == 'do-it-yourself') {
 
@@ -594,6 +594,10 @@ window.onload = function() {
 };
 
 chrome.runtime.onMessage.addListener(function(request) {
+
+    if(request == null) {
+        return;
+    }
 
     if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'update-snapshot-process'))
         webPageCanvas.animateLoader(request.data);
