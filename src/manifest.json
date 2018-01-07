@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Web Page Canvas",
-  "description": "Lets you take notes on the web page. You can draw lines on the live webpage. Select whichever color you want. Select size. And finnaly save the drawed webpage as a picture.",
+  "description": "An extension that lets you draw on live web pages.",
   "version": "1",
   "icons": {
       "16": "images/draw-16.png",
