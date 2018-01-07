@@ -20,7 +20,7 @@ var paths = {
 		'src/images/*',
 		'src/about/about.html',
 		'src/popup/fonts/*',
-		'src/popup/html/popup.html',
+		'src/popup/html/web-page-canvas.html',
 		'src/manifest.json'
 	]
 };
