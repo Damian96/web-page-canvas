@@ -14,6 +14,7 @@ var popupObjects = [],
     welcomePageStorageKey = 'webPageCanvas_welcomePage';
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    console.log(request, sender);
     if(request.hasOwnProperty('message')) {
         if(sender.hasOwnProperty('tab')) {
             if(request.message == 'get-tool-info')

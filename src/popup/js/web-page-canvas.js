@@ -40,6 +40,7 @@ class webPageCanvasPopup {
         };
         this.localSnapshots = [];
         this.isProperPage = true;
+        this.lastCanvas = null;
         this.STORAGEAREAKEY = 'webPageCanvas_screenshots_array';
     }
 
@@ -81,6 +82,8 @@ class webPageCanvasPopup {
             switcher.classList.add('on');
             document.getElementById('save').disabled = false;
 
+            if(this.lastCanvas != null)
+                document.getElementById('restore').disabled = false;
         } else {
 
             switcher.classList.remove('on');
@@ -111,9 +114,9 @@ class webPageCanvasPopup {
     updateSlideshow() {
 
         chrome.storage.local.get(this.STORAGEAREAKEY, function(items) {
-            console.log(items[this.STORAGEAREAKEY]);
+
             if(items[this.STORAGEAREAKEY] != null && items[this.STORAGEAREAKEY].length > this.localSnapshots.length) {
-console.log('updating slideshow');
+
                 this.localSnapshots =  items[this.STORAGEAREAKEY];
                 this.reloadSlideshowWithLocalSnapshots();
 
@@ -182,6 +185,8 @@ console.log('updating slideshow');
         for(let element of document.querySelectorAll('#slideshow > .screenshot-navigation > i')) {
             element.addEventListener('click', this.screenshotNavigationClickHandler.bind(this, element));
         }
+
+        document.getElementById('restore').addEventListener('click', this.restoreClickHandler.bind(this, document.querySelector('restore')));
     }
 
     disableMenu() {
@@ -219,6 +224,9 @@ console.log('updating slideshow');
             element.classList.add('on');
             document.getElementById('save').disabled = false;
 
+            if(this.lastCanvas != null)
+                document.getElementById('restore').disabled = false;
+
         } else if(element.classList.contains('on')) {
 
             this.overlayOpen = false;
@@ -235,6 +243,12 @@ console.log('updating slideshow');
 
         }
 
+    }
+
+    restoreClickHandler(element) {
+        if(this.lastCanvas != null)
+            chrome.tabs.sendMessage(this.tabID, {message: 'restore-canvas', data: this.lastCanvas});
+            restore.disabled = true;
     }
 
     screenshotActionClickHandler(element) {
@@ -582,5 +596,6 @@ chrome.runtime.onMessage.addListener(function(request) {
 
     if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'update-snapshot-process'))
         webPageCanvas.animateLoader(request.data);
-
+    else if(request.hasOwnProperty('message') &&  (request.message == 'save-last-canvas') && request.hasOwnProperty('data'))
+        webPageCanvas.lastCanvas = request.data;
 });

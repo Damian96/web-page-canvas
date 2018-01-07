@@ -18,7 +18,8 @@ body {
 }
 
 #save,
-#switcher {
+#switcher,
+#restore {
     width: 33.3333333%;
     display: inline-block;
     box-sizing: border-box;
@@ -26,7 +27,8 @@ body {
 }
 
 #switcher > button,
-#save {
+#save,
+#restore {
     cursor: pointer;
     font-size: 18px;
     padding: 5px;
@@ -60,7 +62,8 @@ body {
     color: #0000FF;
 }
 
-#save:disabled  > .icon-floppy-disk {
+#save:disabled  > .icon-floppy-disk,
+#restore:disabled > .icon-restore {
     color: graytext;
 }
 

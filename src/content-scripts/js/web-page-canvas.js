@@ -1,15 +1,6 @@
 /* globals chrome, html2canvas */
 
 var webPageCanvas;
-    // insertDownload = function(url) {
-    //     let a = document.createElement('a'),
-    //         date = new Date();
-    //     a.href = url;
-    //     a.download = window.location.hostname + '_Canvas-Drawing_' + date.getTime() + '.png';
-    //     a.classList.add('web-page-canvas-download');
-    //     document.body.appendChild(a);
-    //     a.click();
-    // };
 
 /**
  * @class
@@ -307,6 +298,22 @@ class WebPageCanvas {
         }
     }
 
+    restoreCanvas(dataURL) {
+
+        var image = document.createElement('img');
+
+        image.style.width = this.canvas.element.width + 'px';
+        image.style.height = this.canvas.element.height + 'px';
+        console.log(image);
+        image.onload = function() {
+            console.log('image loaded');
+            this.canvas.context.drawImage(image, 0, 0, this.canvas.element.width, this.canvas.element.height);
+        }.bind(this);
+
+        image.src = dataURL;
+
+    }
+
     /**
      * Unsets / sets all fixed elements of document for better page capturing.
      * @param {boolean} handler
@@ -355,16 +362,21 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
             }
 
-            if(webPageCanvas != null && request.message == 'update-info') {
-
+            if(webPageCanvas != null && request.message == 'update-info')
                 webPageCanvas.updateToolInfo(request.data);
-
+            else if(webPageCanvas != null && (request.message == 'restore-canvas') && request.hasOwnProperty('data')) {
+                webPageCanvas.restoreCanvas(request.data);
             }
 
         }
 
         if(request.message == 'close-canvas') {
 
+            var canvas = document.querySelector('canvas').toDataURL();
+            chrome.runtime.sendMessage({
+                message: 'save-last-canvas',
+                data: canvas
+            });
             webPageCanvas.removeHTML();
             webPageCanvas.handleFixedElements(true);
 
