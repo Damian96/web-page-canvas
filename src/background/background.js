@@ -2,12 +2,12 @@
 
 var popupObjects = [],
     removePopupObject = function(tabID) {
-        if(tabID != null && popupObjects.includes(tabID)) {
+        if(tabID != null && popupObjects[tabID] != null) {
             popupObjects[tabID].overlayOpen = false;
         }
     },
     sendResizeMessage = function (tabID) {
-        if(tabID != null && popupObjects.includes(tabID)) {
+        if(tabID != null && popupObjects[tabID] != null) {
             chrome.tabs.sendMessage(tabID, { message: 'resize-canvas'});
         }
     },
