@@ -240,6 +240,7 @@ class webPageCanvasPopup {
             element.classList.remove('on');
             element.classList.add('off');
             document.getElementById('save').disabled = true;
+            document.getElementById('restore').disabled = true;
 
         }
 
