@@ -6,7 +6,7 @@ var webPageCanvas;
     //         date = new Date();
     //     a.href = url;
     //     a.download = window.location.hostname + '_Canvas-Drawing_' + date.getTime() + '.png';
-    //     a.classList.add('web-page-annotator-download');
+    //     a.classList.add('web-page-canvas-download');
     //     document.body.appendChild(a);
     //     a.click();
     // };
@@ -76,14 +76,14 @@ class WebPageCanvas {
     }
 
     insertHTML() {
-        var code = "<canvas id='canvas' class='web-page-annotator'></canvas>" +
-            "<div id='canvas-close-message' class='web-page-annotator' " +
+        var code = "<canvas id='canvas' class='web-page-canvas'></canvas>" +
+            "<div id='canvas-close-message' class='web-page-canvas' " +
             "style='display: none;'>Press <u>ESC</u> to close.</div>" +
-            "<div id='canvas-overlay' class='web-page-annotator'>" +
-            "<span id='close-overlay' class='web-page-annotator' title='Close'>&#10006;</span>" +
-            "<p id='overlay-message' class='web-page-annotator'>" +
+            "<div id='canvas-overlay' class='web-page-canvas'>" +
+            "<span id='close-overlay' class='web-page-canvas' title='Close'>&#10006;</span>" +
+            "<p id='overlay-message' class='web-page-canvas'>" +
             "Use the tools on the plugin popup window to annotate the page. Have fun!" +
-            "<br/><button id='confirm-message' class='web-page-annotator' title='Close'>" +
+            "<br/><button id='confirm-message' class='web-page-canvas' title='Close'>" +
             "&#10003;&nbsp;OK</button></p></div>";
         document.body.innerHTML += code;
         for(var element of document.querySelectorAll('#close-overlay, #confirm-message')) {
@@ -96,8 +96,8 @@ class WebPageCanvas {
     }
 
     closeIntroMessage() {
-        document.querySelector('#canvas-overlay.web-page-annotator').remove();
-        document.querySelector("#canvas-close-message.web-page-annotator").style.display = 'inline-block';
+        document.querySelector('#canvas-overlay.web-page-canvas').remove();
+        document.querySelector("#canvas-close-message.web-page-canvas").style.display = 'inline-block';
         window.onkeydown = function(event) {
             if(event.keyCode == 27) { // if event keycode is the Escape keycode
                 this.removeHTML();
@@ -118,10 +118,10 @@ class WebPageCanvas {
     }
 
     removeHTML() {
-        for(var element of document.querySelectorAll('#canvas.web-page-annotator,' +
-            '#canvas-overlay.web-page-annotator, ' +
-            '#canvas-close-message.web-page-annotator, ' +
-            'a.web-page-annotator-download')) {
+        for(var element of document.querySelectorAll('#canvas.web-page-canvas,' +
+            '#canvas-overlay.web-page-canvas, ' +
+            '#canvas-close-message.web-page-canvas, ' +
+            'a.web-page-canvas-download')) {
                 element.remove();
         }
         document.body.style.userSelect = 'initial';
@@ -130,14 +130,14 @@ class WebPageCanvas {
     }
 
     removeGenImages() {
-        for(var element of document.querySelectorAll('img.web-page-annotator-created')) {
+        for(var element of document.querySelectorAll('img.web-page-canvas-created')) {
             element.remove();
         }
     }
 
     initCanvas() {
         // assign proper variables
-        this.canvas.element = document.querySelector('#canvas.web-page-annotator');
+        this.canvas.element = document.querySelector('#canvas.web-page-canvas');
         this.canvas.element.width = window.innerWidth;
         this.canvas.element.height = this.getMaxHeight();
         this.canvas.context = this.canvas.element.getContext('2d');
@@ -322,7 +322,7 @@ class WebPageCanvas {
             for(var element of document.querySelectorAll('div, nav, section, header')) {
                 var computedStyle = window.getComputedStyle(element, null).getPropertyValue('position');
 
-                if(!element.classList.contains('web-page-annotator') && (element.style.position == 'fixed' || computedStyle == 'fixed')) {
+                if(!element.classList.contains('web-page-canvas') && (element.style.position == 'fixed' || computedStyle == 'fixed')) {
                     element.style.position = 'absolute';
                     this.fixedElems.push(element);
                 }
@@ -383,8 +383,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
             } else if(request.message == 'save-canvas') {
 
-                if(!document.body.classList.contains('web-page-annotator')) {
-                    document.body.classList.add('web-page-annotator');
+                if(!document.body.classList.contains('web-page-canvas')) {
+                    document.body.classList.add('web-page-canvas');
                 }
 
                 if(document.getElementById('canvas-close-message').length > 0) {
@@ -397,14 +397,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
                             this.loadImages(snapshots).then(function(finalImage) {
 
-                                document.body.classList.remove('web-page-annotator');
+                                document.body.classList.remove('web-page-canvas');
                                 sendResponse({message: 'saved', data: finalImage});
 
                             });
 
                         }
 
-                        document.body.classList.remove('web-page-annotator');
+                        document.body.classList.remove('web-page-canvas');
                         this.scrollToTop(1000);
 
                     }.bind(webPageCanvas)).catch(function(error) {

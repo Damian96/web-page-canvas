@@ -47,11 +47,11 @@ class webPageCanvasPopup {
 
         this.attachHandlers();
         this.tabClickHandler.call(this, document.querySelector(".tab-title[data-tool-id='paint-brush']"));
+        this.updateSlideshow();
 
         if(!this.isProperPage) {
             document.querySelector('#switcher button.on').disabled = true;
         }
-
     }
 
     reload(attributes) {
@@ -60,6 +60,7 @@ class webPageCanvasPopup {
         }
         this.attachHandlers();
         this.reloadValues();
+        this.updateSlideshow();
     }
 
     reloadValues() {
@@ -107,42 +108,49 @@ class webPageCanvasPopup {
 
     }
 
-    reloadSlideshow() {
+    updateSlideshow() {
+
+        chrome.storage.local.get(this.STORAGEAREAKEY, function(items) {
+            console.log(items[this.STORAGEAREAKEY]);
+            if(items[this.STORAGEAREAKEY] != null && items[this.STORAGEAREAKEY].length > this.localSnapshots.length) {
+console.log('updating slideshow');
+                this.localSnapshots =  items[this.STORAGEAREAKEY];
+                this.reloadSlideshowWithLocalSnapshots();
+
+            } else if(this.localSnapshots.length > 0) {
+                this.reloadSlideshowWithLocalSnapshots();
+                chrome.storage.local.set({[this.STORAGEAREAKEY]: this.localSnapshots});
+            } else
+                this.clearSlideshow();
+        }.bind(this));
+
+    }
+
+    reloadSlideshowWithLocalSnapshots() {
 
         let slideshow = document.getElementById('slideshow'),
             slideImage = document.getElementById('slide-image'),
             currentScreenshotNumber = document.getElementById('current-screenshot-number'),
             totalScreenshotNumber = document.getElementById('total-screenshot-number');
 
-        if(this.localSnapshots.length > 0) {
+        slideshow.className = '';
+        slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1]);
+        slideImage.dataset.storageIndex = this.localSnapshots.length - 1;
+        currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : this.localSnapshots.length;
+        totalScreenshotNumber.innerText = this.localSnapshots.length;
 
-            slideshow.className = '';
-            slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1]);
-            slideImage.dataset.storageIndex = this.localSnapshots.length - 1;
-            currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : this.localSnapshots.length;
-            totalScreenshotNumber.innerText = this.localSnapshots.length;
+    }
 
-        } else {
+    clearSlideshow() {
 
-            chrome.storage.local.get(this.STORAGEAREAKEY, function(items) {
-                if(items[this.STORAGEAREAKEY] != null) {
+        let slideshow = document.getElementById('slideshow'),
+            slideImage = document.getElementById('slide-image'),
+            currentScreenshotNumber = document.getElementById('current-screenshot-number'),
+            totalScreenshotNumber = document.getElementById('total-screenshot-number');
 
-                    this.localSnapshots =  items[this.STORAGEAREAKEY];
-                    slideshow.className = '';
-                    slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1]);
-                    slideImage.dataset.storageIndex = this.localSnapshots.length - 1;
-                    currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : this.localSnapshots.length;
-                    totalScreenshotNumber.innerText = this.localSnapshots.length;
-
-                } else {
-
-                    slideshow.className = 'empty';
-                    slideImage.src = slideImage.dataset.storageIndex = currentScreenshotNumber.innerText = totalScreenshotNumber.innerText = '';
-
-                }
-            }.bind(this));
-
-        }
+        slideshow.className = 'empty';
+        slideImage.src = slideImage.dataset.storageIndex = currentScreenshotNumber.innerText = totalScreenshotNumber.innerText = '';
+        this.localSnapshots = {};
 
     }
 
@@ -250,20 +258,15 @@ class webPageCanvasPopup {
 
                         if(data.length > 0) {
 
-                            slideImage.src = this.b64ToBlobURL(data[data.length - 1]);
-                            slideImage.dataset.storageIndex = data.length - 1;
-                            currentScreenshotNumber.innerText = (data.length - 1) == 0 ? 1 : data.length;
-                            totalScreenshotNumber.innerText = data.length;
+                            this.localSnapshots = data;
+                            this.reloadSlideshowWithLocalSnapshots();
 
                         } else {
 
-                            slideshow.className = 'empty';
-                            slideImage.src = '';
-                            slideImage.dataset.storageIndex = '-1';
+                            this.clearSlideshow();
 
                         }
 
-                        this.localSnapshots = data;
                         chrome.storage.local.set({ [this.STORAGEAREAKEY]: data });
 
                     }
@@ -311,7 +314,7 @@ class webPageCanvasPopup {
 
                 this.insertImage(response.data).then(function() {
 
-                    this.reloadSlideshow();
+                    this.updateSlideshow();
 
                 }.bind(this));
 
@@ -345,7 +348,11 @@ class webPageCanvasPopup {
 
                 if(id == 'library') {
 
-                    this.reloadSlideshow();
+                    if(this.localSnapshots.length > 0)
+                        this.reloadSlideshowWithLocalSnapshots();
+                    else
+                        this.clearSlideshow();
+
 
                 } else if(id == 'options') {
 
@@ -369,7 +376,7 @@ class webPageCanvasPopup {
 
             chrome.storage.local.set({[this.STORAGEAREAKEY]: null});
             this.localSnapshots = {};
-            this.reloadSlideshow();
+            this.reloadSlideshowWithLocalSnapshots();
 
         }
 
@@ -568,8 +575,6 @@ window.onload = function() {
 
         });
     });
-
-    webPageCanvas.reloadSlideshow();
 
 };
 

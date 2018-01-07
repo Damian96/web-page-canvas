@@ -16,11 +16,10 @@ var popupObjects = [],
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if(request.hasOwnProperty('message')) {
         if(sender.hasOwnProperty('tab')) {
-            if(request.message == 'get-tool-info') {
+            if(request.message == 'get-tool-info')
                 sendResponse(popupObjects[sender.tab.id]);
-            } else if(request.message == 'manually-disabled-canvas') {
+            else if(request.message == 'manually-disabled-canvas')
                 popupObjects[sender.tab.id].overlayOpen = false;
-            }
         } else {
             if(request.message == 'init-object' && request.hasOwnProperty('tabID')) {
                 if(popupObjects[request.tabID] != null) {
