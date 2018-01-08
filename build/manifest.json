@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Web Page Canvas",
   "description": "An extension that lets you draw on live web pages.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "icons": {
       "16": "images/draw-16.png",
       "48": "images/draw-48.png",

@@ -572,7 +572,10 @@ window.onload = function() {
     chrome.tabs.getSelected(null, function(tab) {
         webPageCanvas.tabID = tab.id;
 
-        if(tab.url.includes('chrome://') || tab.url.includes('file:///') || tab.url.includes('chrome-extension://')) {
+        var isDefaultPage = tab.url.includes('chrome://') || tab.url.includes('chrome-extension://');
+        var isImageOrPDF = tab.url.includes('.pdf') || tab.url.includes('.jpg') || tab.url.includes('.gif') || tab.url.includes('.jpeg') || tab.url.includes('.JPG') || tab.url.includes('.PNG') || tab.url.includes('.GIF');
+
+        if(tab.url.includes('file:///') || isDefaultPage || isImageOrPDF) {
             webPageCanvas.isProperPage = false;
             webPageCanvas.disableMenu();
         }
