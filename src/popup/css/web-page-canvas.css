@@ -36,6 +36,10 @@ body {
     background-color: #fff;
 }
 
+#restore > .icon-repeat {
+    color: #FFA500;
+}
+
 #switcher button.on:disabled > i {
     color: graytext !important;
 }
@@ -63,7 +67,7 @@ body {
 }
 
 #save:disabled  > .icon-floppy-disk,
-#restore:disabled > .icon-restore {
+#restore:disabled > .icon-repeat {
     color: graytext;
 }
 
@@ -71,6 +75,7 @@ body {
 #contents {
     width: 100%;
     display: block;
+    position: relative;
 }
 
 /* Titles CSS */
@@ -123,6 +128,25 @@ body {
     right: 0;
 }
 
+.tab-content-overlay {
+    background-color: rgba(12, 12, 12, 0.8);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 3;
+}
+
+.tab-content-overlay > span {
+    color: #fff;
+    font-size: 18px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 75%;
+    text-align: center;
+}
+
 .tab-content.active span.color {
     display: inline-block;
     width: 25px;
@@ -168,7 +192,11 @@ body {
 }
 
 .tab-content.active[data-tool-color="yellow"] h3.color {
-    color: rgb(175, 175, 0);
+    color: #FFFF00;
+}
+
+.tab-content.active span.color[title="Black"] {
+    background-color: #000;
 }
 
 .tab-content.active span.color[title="Purple"] {
@@ -372,7 +400,7 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, 25%);
+    transform: translate(-50%, -50%);
     font-size: 18px;
     color: #fff;
     font-weight: bold;

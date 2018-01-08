@@ -60,6 +60,7 @@ class webPageCanvasPopup {
         }
         this.attachHandlers();
         this.reloadValues();
+        this.changeTabOverlay();
         this.updateSlideshow();
     }
 
@@ -245,6 +246,20 @@ class webPageCanvasPopup {
 
         }
 
+        this.changeTabOverlay();
+
+    }
+
+    changeTabOverlay() {
+
+        var overlay = document.querySelector('.tab-content-overlay');
+
+        if(!this.overlayOpen && (this.activePanel.id == 'none') && overlay.classList.contains('hidden')) {
+            overlay.classList.remove('hidden');
+        } else if(this.overlayOpen || this.activePanel.id != 'none') {
+            overlay.classList.add('hidden');
+        }
+
     }
 
     restoreClickHandler(element) {
@@ -358,9 +373,10 @@ class webPageCanvasPopup {
                 let id = element.dataset.toolId;
 
                 document.querySelector(".tab-content[data-tool-id='" + id + "']").classList.add('active');
-                this.activePanel.id = 'none';
-                this.activePanel.htmlId = 'none';
+                this.activePanel.id = this.activePanel.htmlId = 'none';
                 this.changeActiveTool(id);
+
+                this.activePanel.id = this.activePanel.htmlId = 'none';
 
             } else {
 
@@ -375,11 +391,6 @@ class webPageCanvasPopup {
                     else
                         this.clearSlideshow();
 
-
-                } else if(id == 'options') {
-
-                    this.activePanel.id = this.activePanel.htmlId = 'options';
-
                 }
 
                 this.activePanel.id = id;
@@ -388,6 +399,8 @@ class webPageCanvasPopup {
                 this.activeTool.htmlId = 'paint-brush';
 
             }
+
+            this.changeTabOverlay();
         }
 
     }
@@ -426,7 +439,7 @@ class webPageCanvasPopup {
 
     colorClickHandler(element) {
 
-        if(!element.classList.contains('active')) {
+        if(element.classList.contains('color') && !element.classList.contains('active')) {
 
             let tabContent = element.parentElement.parentElement,
                 toolId = tabContent.dataset.toolId,
@@ -436,9 +449,7 @@ class webPageCanvasPopup {
             element.classList.add('active');
 
             if(toolId === 'paint-brush') {
-
                 this.toolsOptions.paintBrush.color = element.dataset.colorCode;
-
             }
 
             tabContent.dataset.toolColor = colorName;
