@@ -30,6 +30,11 @@ var clean = function() {
   return del(['build/*']);
 };
 
+var destination = function(file) {
+	// dirname = base
+	return file.base.replace('\\src\\', '\\build\\');
+};
+
 var minifyJS = function() {
 	gulp.src(paths.js)
 		.pipe(uglifyjs())
@@ -37,6 +42,7 @@ var minifyJS = function() {
 };
 
 var minifyCSS = function() {
+	var cssOptions = {uglyComments: true};
 	gulp.src(paths.css)
 		.pipe(uglifycss(cssOptions))
 		.pipe(gulp.dest(destination));
@@ -47,14 +53,16 @@ var copyOther = function() {
 		.pipe(gulp.dest(destination));
 };
 
-var watch = function() {
+gulp.task('minifyJS', minifyJS);
+gulp.task('minifyCSS', minifyCSS);
+gulp.task('copyOther', copyOther);
+
+gulp.task('build', ['minifyCSS', 'minifyJS', 'copyOther']);
+gulp.task('watch', function() {
 	gulp.watch(paths.js, minifyJS);
 	gulp.watch(paths.css, minifyCSS);
 	gulp.watch(paths.other, copyOther);
-};
+});
 
-var build = gulp.series(clean, gulp.parallel(minifyCSS, minifyJS, copyOther));
-
-gulp.task('build', build);
-gulp.task('default', build);
-gulp.task('watch', watch);
+gulp.task('clean', clean);
+gulp.task('default', ['minifyCSS', 'minifyJS', 'copyOther', 'watch']);

@@ -13,9 +13,9 @@
   "dependencies": {
     "del": "^3.0.0",
     "gulp": "^3.9.1",
+    "gulp-uglify-es": "^0.1.9",
     "gulp-uglifycss": "^1.0.9",
-    "jshint": "^2.9.5",
-    "gulp-uglify-es": "^0.1.9"
+    "jshint": "^2.9.5"
   },
   "jshintConfig": {
     "undef": true,
