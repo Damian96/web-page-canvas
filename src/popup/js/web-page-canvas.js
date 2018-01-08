@@ -40,7 +40,6 @@ class webPageCanvasPopup {
         };
         this.localSnapshots = [];
         this.isProperPage = true;
-        this.lastCanvas = null;
         this.STORAGEAREAKEY = 'webPageCanvas_screenshots_array';
     }
 
@@ -258,7 +257,7 @@ class webPageCanvasPopup {
             slideImage = document.getElementById('slide-image');
 
         if(slideshow.className == '' && slideImage.src != null) {
-            if(element.classList.contains('save-screenshot'))
+            if(element.classList.contains('download-screenshot'))
                 this.insertDownload(slideImage.src);
             else if(element.classList.contains('delete-screenshot')) {
                 chrome.storage.local.get(this.STORAGEAREAKEY, function(slideImage, slideshow, items) {
@@ -599,8 +598,14 @@ chrome.runtime.onMessage.addListener(function(request) {
         return;
     }
 
-    if(request.hasOwnProperty('message') && request.hasOwnProperty('data') && (request.message == 'update-snapshot-process'))
-        webPageCanvas.animateLoader(request.data);
-    else if(request.hasOwnProperty('message') &&  (request.message == 'save-last-canvas') && request.hasOwnProperty('data'))
-        webPageCanvas.lastCanvas = request.data;
+    if(request.hasOwnProperty('message') && request.hasOwnProperty('data')) {
+
+        if(request.message == 'update-snapshot-process')
+            webPageCanvas.animateLoader(request.data);
+        else if(request.message == 'save-last-canvas')
+            webPageCanvas.lastCanvas = request.data;
+
+    }
+
+
 });

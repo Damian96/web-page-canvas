@@ -114,8 +114,10 @@ body {
 }
 
 .tab-content.active span.color.active {
-    background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.2),
-        rgba(0, 0, 0, 0.2) 5px, rgba(0, 0, 0, 0.5) 5px, rgba(0, 0, 0, 0.3) 10px);
+    transform: scale(1.35, 1.35);
+    margin: 0 5px;
+    border-color: #636363;
+    border-width: 1.5px;
 }
 
 .tab-content.active span.color[title="Red"] {
@@ -282,8 +284,8 @@ body {
 
 #slideshow:not(.empty) > .screenshot-actions {
     display: block;
-    margin: 0 10%;
-    width: 80%;
+    margin: 0 5%;
+    width: 90%;
     position: absolute;
     top: 80%;
     background-color: transparent;
@@ -295,7 +297,7 @@ body {
 }
 
 #slideshow:not(.empty) > .screenshot-actions > div {
-    width: 77px;
+    width: 90px;
     text-align: center;
     display: inline-block;
     border: 1px solid #000;
@@ -315,6 +317,10 @@ body {
 
 #slideshow:not(.empty) > .screenshot-actions > div:not(:hover) > i {
    color: graytext;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div > span {
+    font-weight: bold;
 }
 
 #slideshow:not(.empty) > .screenshot-actions > div:not(:hover) > span {
@@ -347,7 +353,7 @@ body {
     font-weight: bold;
 }
 
-#slideshow:not(.empty) > .screenshot-actions > .save-screenshot:hover > .icon-floppy-disk {
+#slideshow:not(.empty) > .screenshot-actions > .download-screenshot:hover > .icon-download {
     color: #0000FF;
 }
 
@@ -435,10 +441,13 @@ body {
 }
 
 #slide-image {
-    position: relative;
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
     z-index: 2;
     width: 80%;
     height: auto;
+    min-height: 80%;
     left: 10%;
 }
 

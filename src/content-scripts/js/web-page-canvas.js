@@ -41,6 +41,7 @@ class WebPageCanvas {
         this.finalCanvas = {
             element:  document.createElement('CANVAS')
         };
+        this.hasDrawings = false;
         this.finalCanvas.context = this.finalCanvas.element.getContext('2d');
         this.CAPTURED_IMAGE_EXTENSION = 'png';
     }
@@ -48,6 +49,12 @@ class WebPageCanvas {
     init() {
         this.insertHTML();
         this.initCanvas();
+    }
+
+    destroy() {
+        webPageCanvas.saveLastCanvas();
+        webPageCanvas.removeHTML();
+        webPageCanvas.handleFixedElements(true);
     }
 
     resetFinalCanvas() {
@@ -73,7 +80,7 @@ class WebPageCanvas {
             "<div id='canvas-overlay' class='web-page-canvas'>" +
             "<span id='close-overlay' class='web-page-canvas' title='Close'>&#10006;</span>" +
             "<p id='overlay-message' class='web-page-canvas'>" +
-            "Use the tools on the plugin popup window to annotate the page. Have fun!" +
+            "Use the tools on the plugin popup window to annotate the page.<br/>Have fun!" +
             "<br/><button id='confirm-message' class='web-page-canvas' title='Close'>" +
             "&#10003;&nbsp;OK</button></p></div>";
         document.body.innerHTML += code;
@@ -91,7 +98,7 @@ class WebPageCanvas {
         document.querySelector("#canvas-close-message.web-page-canvas").style.display = 'inline-block';
         window.onkeydown = function(event) {
             if(event.keyCode == 27) { // if event keycode is the Escape keycode
-                this.removeHTML();
+                this.destroy();
                 chrome.runtime.sendMessage({message: 'manually-disabled-canvas'});
             }
         }.bind(this);
@@ -148,6 +155,9 @@ class WebPageCanvas {
             var x = e.pageX - this.canvas.element.offsetLeft,
                 y = e.pageY - this.canvas.element.offsetTop;
             if(this.canvas.isDrawing) {
+                if(!this.hasDrawings) {
+                    this.hasDrawings = true;
+                }
                 if(this.activeToolInfo.id === 'paintBrush') {
                     this.addClick(x, y, true,
                         this.activeToolInfo.id,
@@ -304,14 +314,22 @@ class WebPageCanvas {
 
         image.style.width = this.canvas.element.width + 'px';
         image.style.height = this.canvas.element.height + 'px';
-        console.log(image);
         image.onload = function() {
-            console.log('image loaded');
             this.canvas.context.drawImage(image, 0, 0, this.canvas.element.width, this.canvas.element.height);
         }.bind(this);
 
         image.src = dataURL;
 
+    }
+
+    saveLastCanvas() {
+        if(this.hasDrawings) {
+            var canvas = document.querySelector('canvas').toDataURL();
+            chrome.runtime.sendMessage({
+                message: 'save-last-canvas',
+                data: canvas
+            });
+        }
     }
 
     /**
@@ -372,13 +390,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
         if(request.message == 'close-canvas') {
 
-            var canvas = document.querySelector('canvas').toDataURL();
-            chrome.runtime.sendMessage({
-                message: 'save-last-canvas',
-                data: canvas
-            });
-            webPageCanvas.removeHTML();
-            webPageCanvas.handleFixedElements(true);
+            webPageCanvas.destroy();
 
         } else if(request.message == 'scrollTop') {
 
@@ -421,10 +433,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
                     }.bind(webPageCanvas)).catch(function(error) {
 
-                        webPageCanvas.removeHTML();
                         this.scrollToTop(1000);
-                        this.handleFixedElements(true);
-                        this.removeHTML();
+                        this.destroy();
 
                     }.bind(webPageCanvas));
 

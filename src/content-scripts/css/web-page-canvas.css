@@ -16,8 +16,7 @@ body.web-page-canvas #canvas-close-message.web-page-canvas {
     width: 100%;
     height: 100%;
     z-index: 2147483648;
-    background-color: #B3B3B3;
-    opacity: 0.7;
+    background-color: rgba(12, 12, 12, 0.8);
     text-align: center;
 }
 
@@ -54,7 +53,7 @@ body.web-page-canvas #canvas-close-message.web-page-canvas {
     left: 49.8%;
     transform: translate(-50%, 0%);
     font-size: 28px;
-    color: #000000;
+    color: #fff;
     cursor: pointer;
 }
 
@@ -68,10 +67,12 @@ body.web-page-canvas #canvas-close-message.web-page-canvas {
     height: 30px;
     border-radius: 5px;
     padding: 0 8px;
-    background-color: rgb(30, 255, 0);
-    color: #000000;
+    color: #fff;
+    background-color: rgb(0, 11, 93);
+    border: 1px solid #000;
     font-size: 16.5px;
     border: none;
+    cursor: pointer;
 }
 
 #confirm-message.web-page-canvas:focus {
@@ -85,4 +86,5 @@ body.web-page-canvas #canvas-close-message.web-page-canvas {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -75%);
+    color: #fff;
 }

@@ -14,13 +14,15 @@ var popupObjects = [],
     welcomePageStorageKey = 'webPageCanvas_welcomePage';
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log(request, sender);
+
     if(request.hasOwnProperty('message')) {
         if(sender.hasOwnProperty('tab')) {
             if(request.message == 'get-tool-info')
                 sendResponse(popupObjects[sender.tab.id]);
             else if(request.message == 'manually-disabled-canvas')
                 popupObjects[sender.tab.id].overlayOpen = false;
+            else if(request.message == 'save-last-canvas' && request.hasOwnProperty('data'))
+                popupObjects[sender.tab.id].lastCanvas = request.data;
         } else {
             if(request.message == 'init-object' && request.hasOwnProperty('tabID')) {
                 if(popupObjects[request.tabID] != null) {
