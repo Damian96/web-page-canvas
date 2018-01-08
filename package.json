@@ -1,18 +1,13 @@
 {
-  "name": "Web_Page_Annotator",
-  "version": "0.0.1",
-  "description": "A firefox extension for annotating the webpage.",
+  "name": "Web Page Canvas",
+  "version": "1.0",
+  "description": "A chrome extension for annotating the webpage.",
   "main": "index.js",
-  "scripts": {
-    // "debug-content": "jshint ./content-scripts/js/web-page-canvas.js",
-    // "debug-bg": "jshint ./background/background.js",
-    // "debug-popup": "jshint ./popup/js/web-page-canvas.js",
-    // "debug": "jshint ./content-scripts/js/web-page-canvas.js && jshint ./background/background.js && jshint ./popup/js/web-page-canvas.js",
-    // "minify-popup": "uglifycss --ugly-comments --output ./popup/css/web-page-canvas.min.css ./popup/css/web-page-canvas.css && uglifyjs --compress --output ./popup/js/web-page-canvas.min.js ./popup/js/web-page-canvas.js",
-    // "minify-content": "uglifycss --ugly-comments --output ./content-scripts/css/web-page-canvas.min.css ./content-scripts/css/web-page-canvas.css && uglifyjs --compress --output ./content-scripts/js/web-page-canvas.min.js ./content-scripts/js/web-page-canvas.js",
-    // "minify-about": "uglifycss --ugly-comments --output ./about/about.min.css ./about/about.css",
-    // "minify": "uglifycss --ugly-comments --output ./popup/css/web-page-canvas.min.css ./popup/css/web-page-canvas.css && uglifyjs --compress --output ./popup/js/web-page-canvas.min.js ./popup/js/web-page-canvas.js && uglifycss --ugly-comments --output ./content-scripts/css/web-page-canvas.min.css ./content-scripts/css/web-page-canvas.css && uglifyjs --compress --output ./content-scripts/js/web-page-canvas.min.js ./content-scripts/js/web-page-canvas.js && uglifycss --ugly-comments --output ./about/about.min.css ./about/about.css"
+  "repository": {
+    "type": "private",
+    "url": "https://damianGiank@bitbucket.org/damianGiank/gc-web-page-annotator.git"
   },
+  "scripts": {},
   "author": "Damianos Giankakis",
   "license": "UNLICENSED",
   "dependencies": {
@@ -20,7 +15,7 @@
     "gulp": "^3.9.1",
     "gulp-uglifycss": "^1.0.9",
     "jshint": "^2.9.5",
-    "pump": "^2.0.0"
+    "gulp-uglify-es": "^0.1.9"
   },
   "jshintConfig": {
     "undef": true,
@@ -29,8 +24,5 @@
     "browser": true,
     "devel": true,
     "sub": true
-  },
-  "devDependencies": {
-    "gulp-uglify-es": "^0.1.9"
   }
 }

@@ -2,8 +2,6 @@ var gulp = require('gulp');
 var del = require('del');
 var uglifyjs = require('gulp-uglify-es').default;
 var uglifycss = require('gulp-uglifycss');
-var pump = require('pump');
-
 
 var paths = {
 	css: [
@@ -27,31 +25,36 @@ var paths = {
 
 // Not all tasks need to use streams
 // A gulpfile is just another node program and you can use any package available on npm
-gulp.task('clean', function() {
+var clean = function() {
   // You can use multiple globbing patterns as you would with `gulp.src`
   return del(['build/*']);
-});
+};
 
-gulp.task('build', function () {
-	// the same options as described above
-	var cssOptions = {uglyComments: true};
-	var destination = function(file) {
-		// dirname = base
-		return file.base.replace('\\src\\', '\\build\\');
-	};
-
-	// Minify CSS
-	gulp.src(paths.css)
-		.pipe(uglifycss(cssOptions))
-		.pipe(gulp.dest(destination));
-
-	// Minify JS
+var minifyJS = function() {
 	gulp.src(paths.js)
 		.pipe(uglifyjs())
 		.pipe(gulp.dest(destination));
+};
 
-	// Copy Other Files
-	return gulp.src(paths.other)
+var minifyCSS = function() {
+	gulp.src(paths.css)
+		.pipe(uglifycss(cssOptions))
 		.pipe(gulp.dest(destination));
+};
 
-});
+var copyOther = function() {
+	gulp.src(paths.other)
+		.pipe(gulp.dest(destination));
+};
+
+var watch = function() {
+	gulp.watch(paths.js, minifyJS);
+	gulp.watch(paths.css, minifyCSS);
+	gulp.watch(paths.other, copyOther);
+};
+
+var build = gulp.series(clean, gulp.parallel(minifyCSS, minifyJS, copyOther));
+
+gulp.task('build', build);
+gulp.task('default', build);
+gulp.task('watch', watch);
