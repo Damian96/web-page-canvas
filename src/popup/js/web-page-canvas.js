@@ -123,8 +123,15 @@ class webPageCanvasPopup {
             } else if(this.localSnapshots.length > 0) {
                 this.reloadSlideshowWithLocalSnapshots();
                 chrome.storage.local.set({[this.STORAGEAREAKEY]: this.localSnapshots});
-            } else
+            } else {
                 this.clearSlideshow();
+            }
+
+            if(this.localSnapshots.length == null)
+                document.getElementById('clear-screenshots').disabled = true;
+            else
+                document.getElementById('clear-screenshots').disabled = false;
+
         }.bind(this));
 
     }
