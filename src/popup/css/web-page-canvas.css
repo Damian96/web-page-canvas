@@ -89,6 +89,24 @@ body {
     border-radius: 5px 5px 0px 0px;
     padding: 3px 7px 0 4px;
     cursor: pointer;
+    position: relative;
+}
+
+.tab-title:not(:first-child) {
+    margin-left: -7px;
+}
+
+.tab-title.active {
+    background-color: #cfcfcf;
+    z-index: 2;
+}
+
+.tab-title.active[data-tool-id="eraser"] {
+    color: #A52A2A;
+}
+
+.tab-title.active[data-panel-id="library"] {
+    color: #0000FF;
 }
 
 .tab-title:not(.active):hover {
@@ -97,6 +115,7 @@ body {
 
 .tab-title:not(.active) {
     background-color: rgba(255,255,255,1);
+    z-index: 1;
 }
 
 .tab-title[data-panel-id="options"] {
@@ -182,18 +201,6 @@ body {
 
 .tab-content.active[data-tool-color="brown"] h3.color {
     color: #A52A2A;
-}
-
-.tab-title.active {
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-.tab-title.active[data-tool-id="eraser"] {
-    color: #A52A2A;
-}
-
-.tab-title.active[data-panel-id="library"] {
-    color: #0000FF;
 }
 
 .tab-title > i {
@@ -451,12 +458,14 @@ body {
     left: 10%;
 }
 
-.tab-content .option-description {
+.tab-content .option-description,
+.tab-content .button-description {
     font-size: 17px;
     vertical-align: middle;
 }
 
-#clear-screenshots {
+#clear-screenshots,
+#clear-all {
     cursor: pointer;
     padding: 10px;
 }

@@ -155,9 +155,6 @@ class WebPageCanvas {
             var x = e.pageX - this.canvas.element.offsetLeft,
                 y = e.pageY - this.canvas.element.offsetTop;
             if(this.canvas.isDrawing) {
-                if(!this.hasDrawings) {
-                    this.hasDrawings = true;
-                }
                 if(this.activeToolInfo.id === 'paintBrush') {
                     this.addClick(x, y, true,
                         this.activeToolInfo.id,
@@ -192,6 +189,11 @@ class WebPageCanvas {
         }.bind(this);
     }
 
+    clearCanvas() {
+        this.hasDrawings = false;
+        return this.canvas.context.clearRect(0, 0, this.canvas.element.width, this.canvas.element.height);
+    }
+
     addClick(x, y, dragging, toolId, size, color) {
         this.canvas.clickX.push(x);
         this.canvas.clickY.push(y);
@@ -204,6 +206,9 @@ class WebPageCanvas {
     }
 
     draw() {
+        if(!this.hasDrawings) {
+            this.hasDrawings = true;
+        }
         for(var i = 0; i < this.canvas.clickX.length; i++) {
             this.canvas.context.globalCompositeOperation = 'source-over';
             this.canvas.context.beginPath();
@@ -368,7 +373,7 @@ class WebPageCanvas {
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
-    if(request.hasOwnProperty('message')) {
+    if(request != null && request.hasOwnProperty('message')) {
 
         if(request.hasOwnProperty('data')) {
 
@@ -388,16 +393,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
         }
 
-        if(request.message == 'close-canvas') {
-
+        if(request.message == 'close-canvas')
             webPageCanvas.destroy();
-
-        } else if(request.message == 'scrollTop') {
+        else if(request.message == 'scrollTop') {
 
             window.scrollTo(0, window.scrollY + window.innerHeight);
             sendResponse({message: 'Scrolled'});
 
-        }
+        } else if(request.message == 'clear-canvas')
+            webPageCanvas.clearCanvas();
 
         if(webPageCanvas != null && webPageCanvas.htmlInserted) {
 

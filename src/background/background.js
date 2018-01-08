@@ -2,14 +2,12 @@
 
 var popupObjects = [],
     removePopupObject = function(tabID) {
-        if(tabID != null && popupObjects[tabID] != null) {
+        if(popupObjects[tabID] != null)
             popupObjects[tabID].overlayOpen = false;
-        }
     },
     sendResizeMessage = function (tabID) {
-        if(tabID != null && popupObjects[tabID] != null) {
+        if(popupObjects[tabID] != null)
             chrome.tabs.sendMessage(tabID, { message: 'resize-canvas'});
-        }
     },
     welcomePageStorageKey = 'webPageCanvas_welcomePage';
 

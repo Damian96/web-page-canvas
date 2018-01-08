@@ -159,11 +159,15 @@ class webPageCanvasPopup {
     attachHandlers() {
 
         let switcher = document.getElementById('switcher'),
-            clearScreenshots = document.getElementById('clear-screenshots');
+            clearScreenshots = document.getElementById('clear-screenshots'),
+            restore = document.getElementById('restore'),
+            clear = document.getElementById('clear-all');
 
         document.getElementById('save').addEventListener('click', this.saveClickHandler.bind(this));
         switcher.addEventListener('click', this.switcherClickHandler.bind(this, switcher));
         clearScreenshots.addEventListener('click', this.clearScreenshotsClickHandler.bind(this, clearScreenshots));
+        restore.addEventListener('click', this.restoreClickHandler.bind(this, restore));
+        clear.addEventListener('click', this.clearClickHandler.bind(this, clear));
 
         for(let element of document.querySelectorAll('.tab-title')) {
             element.addEventListener('click', this.tabClickHandler.bind(this, element));
@@ -184,8 +188,6 @@ class webPageCanvasPopup {
         for(let element of document.querySelectorAll('#slideshow > .screenshot-navigation > i')) {
             element.addEventListener('click', this.screenshotNavigationClickHandler.bind(this, element));
         }
-
-        document.getElementById('restore').addEventListener('click', this.restoreClickHandler.bind(this, document.querySelector('restore')));
     }
 
     disableMenu() {
@@ -249,6 +251,12 @@ class webPageCanvasPopup {
         if(this.lastCanvas != null)
             chrome.tabs.sendMessage(this.tabID, {message: 'restore-canvas', data: this.lastCanvas});
             restore.disabled = true;
+    }
+
+    clearClickHandler(element) {
+        if(this.overlayOpen) {
+            chrome.tabs.sendMessage(this.tabID, {message: 'clear-canvas'});
+        }
     }
 
     screenshotActionClickHandler(element) {
