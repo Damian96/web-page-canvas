@@ -1,5 +1,5 @@
 # Ignore Builded App
-./build
+./build/*
 
 # Ignore package-lock.json
 package-lock.json
