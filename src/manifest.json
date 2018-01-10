@@ -22,19 +22,7 @@
       "background/captureAPI.js"
     ]
   },
-  "content_scripts": [
-    {
-      "matches": ["*://*/*"],
-      "css": [
-        "content-scripts/css/web-page-canvas.css"
-      ],
-      "js": [
-        "content-scripts/js/web-page-canvas.js"
-      ]
-    }
-  ],
   "permissions": [
-    "<all_urls>",
     "tabs",
     "activeTab",
     "storage",
