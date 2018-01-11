@@ -31,9 +31,8 @@
   ],
   "web_accessible_resources": [
     "images/*.png",
-    "content-scripts/css/*.css",
-    "content-scripts/js/*.js",
-    "content-scripts/html/*.html",
-    "content-scripts/fonts/*.*"
+    "web-resources/*/*",
+    "icons/*.css",
+    "icons/fonts/*"
   ]
 }
