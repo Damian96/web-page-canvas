@@ -26,7 +26,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                     popupObjects[sender.tab.id].lastCanvas = request.data;
                 }
                 chrome.tabs.executeScript(sender.tab.id, {
-                    code: "document.querySelector(\"iframe[src^='chrome-extension']\").remove();"
+                    code: "document.querySelector('iframe[src^=\"chrome-extension\"]').remove();"
                 });
                 popupObjects[sender.tab.id].overlayOpen = false;
             }

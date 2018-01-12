@@ -1,5 +1,6 @@
 # Ignore Builded App
-./build/*
+/build/*
+/build/*/*
 
 # Ignore package-lock.json
 package-lock.json
@@ -30,7 +31,7 @@ coverage
 .grunt
 
 # Bower dependency directory (https://bower.io/)
-./bower_components
+/bower_components
 
 # node-waf configuration
 .lock-wscript
@@ -39,11 +40,11 @@ coverage
 build/Release
 
 # Dependency directories
-./node_modules/
-./jspm_packages/
+/node_modules/
+/jspm_packages/
 
 # Typescript v1 declaration files
-./typings/
+/typings/
 
 # Optional npm cache directory
 .npm

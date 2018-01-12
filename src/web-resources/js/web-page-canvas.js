@@ -206,7 +206,6 @@ class WebPageCanvas {
     }
 
     initCanvas() {
-        // assign proper variables
         this.canvas.element = document.querySelector('canvas');
         this.canvas.context = this.canvas.element.getContext('2d');
 
@@ -241,10 +240,8 @@ class WebPageCanvas {
             this.canvas.isDrawing = true;
             if(this.activeToolInfo.id === 'paintBrush') {
                 this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, this.activeToolInfo.options.color);
-                // this.draw();
             } else if(this.activeToolInfo.id === 'eraser') {
                 this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, false);
-                // this.erase();
             }
         }.bind(this);
         this.canvas.element.onmouseup = function() {
@@ -381,5 +378,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 window.onmessage = function(event) {
     if(event.data == 'reset-toolbar') {
         document.getElementById('toolbar').classList.remove('hidden');
+    }
+};
+
+window.onkeydown = function(event) {
+    if(event.keyCode == 27) {
+        webPageCanvas.destroy();
     }
 };

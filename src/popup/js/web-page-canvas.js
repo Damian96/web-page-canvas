@@ -180,22 +180,12 @@ class webPageCanvasPopup {
 
             this.overlayOpen = true;
 
-            let src = chrome.runtime.getURL('/web-resources/html/web-page-canvas.html');
-
             if(!this.scriptInserted) {
 
                 chrome.tabs.executeScript(this.tabID, {
                     file: '/web-resources/js/web-page-canvas-content.js'
-                }, function() {
-                    chrome.tabs.executeScript(this.tabID, {
-                        code: "insertCanvas('" + src + "');"
-                    });
                 });
 
-            } else {
-                chrome.tabs.executeScript(this.tabID, {
-                    code: "insertCanvas('" + src + "');"
-                });
             }
 
             element.classList.remove('off');
@@ -529,12 +519,10 @@ window.onload = function() {
     chrome.tabs.getSelected(null, function(tab) {
         webPageCanvas.tabID = tab.id;
 
-        let isDefaultPage = tab.url.includes('chrome://') || tab.url.includes('chrome-extension://'),
-            isImageOrPDF = tab.url.includes('.pdf') || tab.url.includes('.jpg') || tab.url.includes('.gif') || tab.url.includes('.jpeg') || tab.url.includes('.JPG') || tab.url.includes('.PNG') || tab.url.includes('.GIF');
-
-        if(tab.url.includes('file:///') || isDefaultPage || isImageOrPDF) {
+        if(tab.url.includes('file:///') || tab.url.includes('chrome://') || tab.url.includes('chrome-extension://') || tab.url.includes('.pdf')) {
             webPageCanvas.isProperPage = false;
             webPageCanvas.disableMenu();
+            webPageCanvas.init();
         } else {
             chrome.runtime.sendMessage({
                 message: 'init-object',

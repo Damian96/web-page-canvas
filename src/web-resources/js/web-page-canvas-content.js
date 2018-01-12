@@ -26,12 +26,12 @@ var scrollToTop = function(delayMiliseconds) {
 	}, delayMiliseconds);
 };
 
-var insertCanvas = function(src) {
+var insertCanvas = function() {
 	canvasFrame.width = getMaxWidth();
 	canvasFrame.height = getMaxHeight();
 	canvasFrame.style.cssText = 'position: absolute; z-index: 123400000; top: 0; left: 0; min-width: 100%; min-height: 100%;';
 	document.body.style.overflowX = 'hidden';
-	canvasFrame.src = src;
+	canvasFrame.src = chrome.runtime.getURL('/web-resources/html/web-page-canvas.html');
 	document.body.appendChild(canvasFrame);
 };
 
@@ -92,7 +92,7 @@ var loadImages = function(snapshots) {
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-console.log(request);
+
 	if(request != null && request.hasOwnProperty('message')) {
 
 		if(request.message == 'close-canvas') {
@@ -130,3 +130,5 @@ console.log(request);
 	return true;
 
 });
+
+insertCanvas();
