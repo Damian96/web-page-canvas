@@ -106,10 +106,6 @@ body {
     z-index: 2;
 }
 
-.tab-title.active[data-tool-id="eraser"] {
-    color: #A52A2A;
-}
-
 .tab-title.active[data-panel-id="library"] {
     color: #0000FF;
 }
@@ -121,11 +117,6 @@ body {
 .tab-title:not(.active) {
     background-color: rgb(255, 255, 255);
     z-index: 1;
-}
-
-.tab-title[data-panel-id="options"] {
-    position: absolute;
-    right: 0;
 }
 
 .tab-content-overlay {
@@ -163,90 +154,11 @@ body {
     border-width: 1.5px;
 }
 
-.tab-content.active span.color[title="Red"] {
-    background-color: #ff0000;
-}
-
-.tab-content.active[data-tool-color="red"] h3.color {
-    color: #ff0000;
-}
-
-.tab-content.active span.color[title="Green"] {
-    background-color: #008000;
-}
-
-.tab-content.active[data-tool-color="green"] h3.color {
-    color: #008000;
-}
-
-.tab-content.active span.color[title="Blue"] {
-    background-color: #0000FF;
-}
-
-.tab-content.active[data-tool-color="blue"] h3.color {
-    color: #0000FF;
-}
-
-.tab-content.active span.color[title="Yellow"] {
-    background-color: #FFFF00;
-}
-
-.tab-content.active[data-tool-color="yellow"] h3.color {
-    color: #FFFF00;
-}
-
-.tab-content.active span.color[title="Black"] {
-    background-color: #000;
-}
-
-.tab-content.active span.color[title="Purple"] {
-    background-color: #800080;
-}
-
-.tab-content.active[data-tool-color="purple"] h3.color {
-    color: #800080;
-}
-
-.tab-content.active span.color[title="Pink"] {
-    background-color: #FFC0CB;
-}
-
-.tab-content.active[data-tool-color="pink"] h3.color {
-    color: #FFC0CB;
-}
-
-.tab-content.active span.color[title="Orange"] {
-    background-color: #FFA500;
-}
-
-.tab-content.active[data-tool-color="orange"] h3.color {
-    color: #FFA500;
-}
-
-.tab-content.active span.color[title="Brown"] {
-    background-color: #A52A2A;
-}
-
-.tab-content.active[data-tool-color="brown"] h3.color {
-    color: #A52A2A;
-}
-
 .tab-title > i {
     position: relative;
     padding: 2px 6px;
     font-size: 15px;
     left: 0;
-}
-
-.tab-title #paint-brush {
-    font-size: 14px;
-    padding: 3px;
-}
-
-.tab-title #eraser {
-    font-size: 16px;
-    padding: 1px 2px;
-    top: 1px;
 }
 
 .tab-title-text {
@@ -274,16 +186,6 @@ body {
 .tab-content.active hr {
     border-bottom: 1px solid #000000;
     margin: 10px -10px;
-}
-
-.tab-content input[type="range"] {
-    width: 90%;
-}
-
-.tab-content.active .range-value {
-    font-size: 17px;
-    position: relative;
-    top: -5px;
 }
 
 #slideshow {
@@ -492,8 +394,7 @@ body {
     vertical-align: middle;
 }
 
-#clear-screenshots,
-#clear-all {
+#clear-screenshots {
     cursor: pointer;
     padding: 10px;
 }
