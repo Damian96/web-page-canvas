@@ -10,3 +10,7 @@ A chrome extension that helps you draw on your current webpage.
 	- Adds 'Clear All' button to eraser tool.
 * v1.0.3
 	- Moves drawing tools to web page.
+* v1.0.4
+	- Adds canvas mode close on escape key.
+	- Adds support for images.
+	- Fixes bug when menu is disabled.
