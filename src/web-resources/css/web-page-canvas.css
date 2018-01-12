@@ -2,6 +2,7 @@ body {
     min-width: 100%;
     min-height: 100%;
     margin: 0;
+    font-family: 'Lora', serif;
 }
 
 .hidden {
@@ -47,6 +48,10 @@ canvas {
 #toolbar.aligned-bottom .dropdown-item.bottom {
     color: graytext !important;
     cursor: context-menu !important;
+}
+
+.tool-container:not(.active) * {
+    color: graytext !important;
 }
 
 #tool-col,
@@ -212,7 +217,8 @@ canvas {
     font-size: 16px;
 }
 
-.tool-container[title="Paint Brush"] .dropdown {
+.tool-container[title="Paint Brush"] .dropdown,
+.tool-container[title="Eraser"] .dropdown {
     padding: 0 5px;
 }
 
@@ -267,7 +273,7 @@ canvas {
 }
 
 .dropdown input[type="range"] {
-    width: 85%;
+    width: 80%;
 }
 
 .dropdown .range-value {

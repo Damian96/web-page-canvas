@@ -1,5 +1,5 @@
 {
-  "name": "Web Page Canvas",
+  "name": "Web-Page-Canvas",
   "version": "1.0",
   "description": "A chrome extension for annotating the webpage.",
   "main": "index.js",
@@ -10,7 +10,7 @@
   "scripts": {},
   "author": "Damianos Giankakis",
   "license": "UNLICENSED",
-  "dependencies": {
+  "devDependencies": {
     "del": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-uglify-es": "^0.1.9",

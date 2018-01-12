@@ -22,19 +22,7 @@
       "background/captureAPI.js"
     ]
   },
-  "content_scripts": [
-    {
-      "matches": ["*://*/*"],
-      "css": [
-        "content-scripts/css/web-page-canvas.css"
-      ],
-      "js": [
-        "content-scripts/js/web-page-canvas.js"
-      ]
-    }
-  ],
   "permissions": [
-    "<all_urls>",
     "tabs",
     "activeTab",
     "storage",
@@ -43,9 +31,8 @@
   ],
   "web_accessible_resources": [
     "images/*.png",
-    "content-scripts/css/*.css",
-    "content-scripts/js/*.js",
-    "content-scripts/html/*.html",
-    "content-scripts/fonts/*.*"
+    "web-resources/*/*",
+    "icons/*.css",
+    "icons/fonts/*"
   ]
 }

@@ -21,6 +21,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 popupObjects[sender.tab.id].overlayOpen = false;
             else if(request.message == 'save-last-canvas' && request.hasOwnProperty('data'))
                 popupObjects[sender.tab.id].lastCanvas = request.data;
+            else if(request.message == 'close-canvas') {
+                if(request.data != null) {
+                    popupObjects[sender.tab.id].lastCanvas = request.data;
+                }
+                chrome.tabs.executeScript(sender.tab.id, {
+                    code: "document.querySelector(\"iframe[src^='chrome-extension']\").remove();"
+                });
+                popupObjects[sender.tab.id].overlayOpen = false;
+            }
         } else {
             if(request.message == 'init-object' && request.hasOwnProperty('tabID')) {
                 if(popupObjects[request.tabID] != null) {

@@ -75,7 +75,7 @@ class CaptureAPI {
                     chrome.tabs.captureVisibleTab({format: 'jpeg'},
                         function(onSuccess, thisArg, param1, dataUrl) {
                             this.snapshots.push(dataUrl);
-                            chrome.tabs.sendMessage(this.tabID, {message: 'scrollTop'},
+                            chrome.tabs.sendMessage(this.tabID, {message: 'scroll-top'},
                                 function(onSuccess, thisArg, param1, response) {
                                     if(response.message === 'Scrolled') {
                                         chrome.runtime.sendMessage({
@@ -95,15 +95,16 @@ class CaptureAPI {
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    console.log(request);
     if(request.message === 'take-snapshot' && request.data != null) {
-        if((request.data.tabID != null) && (request.data.windowHeight != null) && (request.data.pageHeight != null)) {
-            captureObjects[request.data.tabID] = new CaptureAPI(request.data.tabID,
+        if((sender.tab.id != null) && (request.data.windowHeight != null) && (request.data.pageHeight != null)) {
+            captureObjects[sender.tab.id] = new CaptureAPI(sender.tab.id,
                 request.data.windowHeight,
                 request.data.pageHeight);
-            captureObjects[request.data.tabID].init();
-            captureObjects[request.data.tabID].takeSnapshot(function(sendResponse, snapshots) {
+            captureObjects[sender.tab.id].init();
+            captureObjects[sender.tab.id].takeSnapshot(function(sendResponse, snapshots) {
                 var result = [],
-                    captureObject = captureObjects[request.data.tabID];
+                    captureObject = captureObjects[sender.tab.id];
                 for(var i = 0; i < snapshots.length; i++) {
                     var y = 0,
                         lastSnapshot = snapshots.length - 1;
