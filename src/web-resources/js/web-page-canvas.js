@@ -228,26 +228,45 @@ class WebPageCanvas {
         }.bind(this);
 
         this.canvas.element.onmousemove = function(e) {
-            if(this.canvas.isDrawing) {
 
-                if((this.activeToolInfo.id == 'paintBrush') || (this.activeToolInfo.id == 'highlighter')) {
-                    this.addClick(e.offsetX, e.offsetY, true,
-                        this.activeToolInfo.id,
-                        this.activeToolInfo.options.size,
-                        this.activeToolInfo.options.color);
-                    this.draw();
-                } else if(this.activeToolInfo.id == 'eraser') {
-                    this.addClick(e.offsetX, e.offsetY, true,
-                        this.activeToolInfo.id, this.activeToolInfo.options.size, false, false);
-                    this.erase();
+            if(this.activeToolInfo.id == 'highlighter') {
+
+                // chrome.tabs.sendMessage(this.tabID, {
+                //     message: 'highlight-selection',
+                //     data: {
+                //         toolBarHeight: document.getElementById('toolbar').offsetHeight
+                //     }
+                // }, function(response) {
+
+                //     if(response != null && response.hasOwnProperty('data')) {
+
+                //     }
+
+                // });
+
+            } else {
+                if(this.canvas.isDrawing) {
+
+                    if(this.activeToolInfo.id == 'paintBrush') {
+                        this.addClick(e.offsetX, e.offsetY, true,
+                            this.activeToolInfo.id,
+                            this.activeToolInfo.options.size,
+                            this.activeToolInfo.options.color);
+                        this.draw();
+                    } else if(this.activeToolInfo.id == 'eraser') {
+                        this.addClick(e.offsetX, e.offsetY, true,
+                            this.activeToolInfo.id, this.activeToolInfo.options.size, false, false);
+                        this.erase();
+                    }
+
                 }
-
             }
+
         }.bind(this);
         this.canvas.element.onmousedown = function(e) {
 
             this.canvas.isDrawing = true;
-            if((this.activeToolInfo.id == 'paintBrush') || (this.activeToolInfo.id == 'highlighter')) {
+            if(this.activeToolInfo.id == 'paintBrush') {
                 this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, this.activeToolInfo.options.color);
             } else if(this.activeToolInfo.id == 'eraser') {
                 this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, false);
@@ -289,13 +308,15 @@ class WebPageCanvas {
 
         for(let i = 0; i < this.canvas.clickX.length; i++) {
 
-            if(this.canvas.clickTool[i] == 'highlighter') {
-                this.canvas.context.globalAlpha = 0.4;
-                this.canvas.context.lineJoin = 'mitter';
-            } else {
-                this.canvas.context.globalAlpha = 1;
-                this.canvas.context.lineJoin = 'round';
-            }
+            // if(this.canvas.clickTool[i] == 'highlighter') {
+            //     this.canvas.context.globalAlpha = 0.4;
+            //     this.canvas.context.lineJoin = 'mitter';
+            // } else {
+            //     this.canvas.context.globalAlpha = 1;
+            //     this.canvas.context.lineJoin = 'round';
+            // }
+
+            this.canvas.context.lineJoin = 'round';
 
             this.canvas.context.beginPath();
 
@@ -376,6 +397,9 @@ class WebPageCanvas {
 document.addEventListener('DOMContentLoaded', function() {
     webPageCanvas = new WebPageCanvas();
     webPageCanvas.init();
+    chrome.tabs.getCurrent(function(tab) {
+        webPageCanvas.tabID = tab.id;
+    });
 }, {once: true});
 
 
@@ -435,4 +459,8 @@ window.onkeydown = function(event) {
     if(event.keyCode == 27) {
         webPageCanvas.destroy();
     }
+};
+
+window.onmessage = function(event) {
+    console.log(event.data);
 };
