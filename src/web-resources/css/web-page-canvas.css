@@ -75,8 +75,14 @@ canvas {
     font-size: 18px;
 }
 
-#toolbar .icon-eraser, .icon-menu {
+#toolbar .icon-eraser,
+#toolbar .icon-menu,
+#toolbar .icon-highlighter {
     font-size: 17px;
+}
+
+#toolbar .icon-highlighter {
+    font-weight: bolder;
 }
 
 .tool-container:active > .tool-label,
@@ -89,7 +95,8 @@ canvas {
     font-size: 15px;
 }
 
-.icon-paint-brush {
+.icon-paint-brush,
+.icon-highlighter {
     color: #FFFF00;
     padding: 3px;
 }
@@ -97,24 +104,32 @@ canvas {
 .icon-paint-brush.black,
 .icon-paint-brush.green,
 .icon-paint-brush.purple,
-.icon-paint-brush.brown {
+.icon-paint-brush.brown,
+.icon-highlighter.black,
+.icon-highlighter.green,
+.icon-highlighter.purple,
+.icon-highlighter.brown {
     background-color: #fff;
     border-radius: 50%;
 }
 
-.icon-paint-brush.black {
+.icon-paint-brush.black,
+.icon-highlighter.black {
     color: #000 !important;
 }
 
-.icon-paint-brush.green {
+.icon-paint-brush.green,
+.icon-highlighter.green {
     color: #008000 !important;
 }
 
-.icon-paint-brush.purple {
+.icon-paint-brush.purple,
+.icon-highlighter.purple {
     color: #800080 !important;
 }
 
-.icon-paint-brush.brown {
+.icon-paint-brush.brown,
+.icon-highlighter.brown {
     color: #A52A2A !important;
 }
 
@@ -216,11 +231,12 @@ canvas {
 }
 
 .tool-container[title="Paint Brush"] .dropdown,
-.tool-container[title="Eraser"] .dropdown {
+.tool-container[title="Eraser"] .dropdown,
+.tool-container[title="Highlighter"] .dropdown {
     padding: 0 5px;
 }
 
-.tool-container[title="Paint Brush"] .dropdown .color {
+.dropdown .color {
     width: 20px;
     height: 20px;
     border: 1px solid #000;
@@ -228,40 +244,40 @@ canvas {
     display: inline-block;
 }
 
-.tool-container[title="Paint Brush"] .dropdown .color.active {
+.dropdown .color.active {
     transform: scale(1.2, 1.2);
     border: 2px solid #808080;
 }
 
-.tool-container[title="Paint Brush"] .dropdown .color.red {
+.dropdown .color.red {
     background-color: #FF0000
 }
 
-.tool-container[title="Paint Brush"] .dropdown .color.green {
+.dropdown .color.green {
     background-color: #008000
 }
 
-.tool-container[title="Paint Brush"] .dropdown .color.blue {
+.dropdown .color.blue {
     background-color: #0000FF
 }
 
-.tool-container[title="Paint Brush"] .dropdown .color.yellow {
+.dropdown .color.yellow {
     background-color: #FFFF00
 }
 
-.tool-container[title="Paint Brush"] .dropdown .color.purple {
+.dropdown .color.purple {
     background-color: #800080
 }
 
-.tool-container[title="Paint Brush"] .dropdown .color.brown {
+.dropdown .color.brown {
     background-color: #A52A2A
 }
 
-.tool-container[title="Paint Brush"] .dropdown .color.black {
+.dropdown .color.black {
     background-color: #000
 }
 
-.tool-container[title="Paint Brush"] .dropdown .color.white {
+.dropdown .color.white {
     background-color: #fff
 }
 

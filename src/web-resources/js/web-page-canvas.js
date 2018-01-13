@@ -1,4 +1,4 @@
-/* globals chrome, html2canvas */
+/* globals chrome */
 
 var webPageCanvas;
 
@@ -93,6 +93,8 @@ class WebPageCanvas {
             }
         }
 
+        this.resetCanvasTools();
+
         if(tool.classList.contains('tool-container') && !tool.classList.contains('active')) {
 
             let activeTool = document.querySelector('.tool-container.active');
@@ -102,22 +104,25 @@ class WebPageCanvas {
 
             tool.classList.add('active');
 
-            if(tool.title == "Paint Brush") {
+            let selector = ".tool-container[title='" + tool.title + "']";
 
-                let selector = ".tool-container[title='Paint Brush']";
+            if(tool.title == "Paint Brush") {
 
                 this.activeToolInfo.id = 'paintBrush';
                 this.activeToolInfo.htmlID = 'paint-brush';
-                this.sizeChangeHandler.call(this, document.querySelector("input[type='range'][data-tool='paint-brush']"));
+                this.sizeChangeHandler.call(this, document.querySelector(selector + " input[type='range']"));
                 this.activeToolInfo.options.color = document.querySelector(selector + " span.color.active").dataset.colorCode;
 
             } else if(tool.title == 'Eraser') {
 
-
-                let selector = ".tool-container[title='Eraser']";
-
                 this.activeToolInfo.id = this.activeToolInfo.htmlID = 'eraser';
-                this.sizeChangeHandler.call(this, document.querySelector("input[type='range'][data-tool='eraser']"));
+                this.sizeChangeHandler.call(this, document.querySelector(selector + " input[type='range']"));
+
+            } else if(tool.title == 'Highlighter') {
+
+                this.activeToolInfo.id = this.activeToolInfo.htmlID = 'highlighter';
+                this.sizeChangeHandler.call(this, document.querySelector(selector + " input[type='range']"));
+                this.activeToolInfo.options.color = document.querySelector(selector + " span.color.active").dataset.colorCode;
 
             }
 
@@ -129,70 +134,67 @@ class WebPageCanvas {
 
         let toolbar = document.getElementById('toolbar');
 
-        if(element.classList.contains('top')) {
-            toolbar.classList.remove('aligned-bottom');
-            toolbar.classList.add('aligned-top');
+        if(element.className == 'top') {
+            toolbar.className = 'aligned-top';
             toolbar.style.top = this.windowScroll + 'px';
-        } else if(element.classList.contains('bottom')) {
-            toolbar.classList.remove('aligned-top');
-            toolbar.classList.add('aligned-bottom');
+        } else if(element.className == 'bottom') {
+            toolbar.className = 'aligned-bottom';
             toolbar.style.top = (this.windowScroll + this.windowHeight - toolbar.offsetHeight) + 'px';
         }
 
     }
 
     sizeChangeHandler(element) {
-        if(element.dataset.tool == 'paint-brush') {
-
-            element.nextElementSibling.innerText = element.value;
-
-        } else if(element.dataset.tool == 'eraser') {
-
-            element.nextElementSibling.innerText = element.value;
-
-        }
-
+        element.nextElementSibling.innerText = element.value;
         this.activeToolInfo.options.size = parseInt(element.value);
-
     }
 
     colorClickHandler(element) {
 
+        let toolTitle = element.parentElement.parentElement.parentElement.title;
+        let toolSelector = ".tool-container[title='" + toolTitle + "']";
+
         if(!element.classList.contains('active')) {
-            document.querySelector('span.color.active[data-color-code]').classList.remove('active');
+            document.querySelector(toolSelector + ' span.color.active[data-color-code]').classList.remove('active');
             element.classList.add('active');
 
-            let paintBrush = document.querySelector(".icon-paint-brush");
-            let color = element.dataset.colorCode;
+            let icon,
+                color = element.dataset.colorCode;
 
-            if(color) {
-                if(element.title == 'Black') {
-                    paintBrush.classList.add('black');
-                    paintBrush.classList.remove('green');
-                    paintBrush.classList.remove('purple');
-                    paintBrush.classList.remove('brown');
-                } else if(element.title == 'Green') {
-                    paintBrush.classList.add('green');
-                    paintBrush.classList.remove('black');
-                    paintBrush.classList.remove('purple');
-                    paintBrush.classList.remove('brown');
-                } else if(element.title == 'Purple') {
-                    paintBrush.classList.add('purple');
-                    paintBrush.classList.remove('black');
-                    paintBrush.classList.remove('green');
-                    paintBrush.classList.remove('brown');
-                } else if(element.title == 'Brown') {
-                    paintBrush.classList.add('brown');
-                    paintBrush.classList.remove('black');
-                    paintBrush.classList.remove('green');
-                    paintBrush.classList.remove('purple');
-                } else {
-                    paintBrush.style.color = element.dataset.colorCode;
-                    paintBrush.classList.remove('black');
-                    paintBrush.classList.remove('green');
-                    paintBrush.classList.remove('purple');
-                    paintBrush.classList.remove('brown');
-                }
+            if(toolTitle == 'Paint Brush')
+                icon = document.querySelector(".icon-paint-brush");
+            else if(toolTitle == 'Highlighter')
+                icon = document.querySelector(".icon-highlighter");
+            else if((toolTitle != 'Paint Brush' && toolTitle != 'Highlighter') || !color) {
+                return;
+            }
+
+            if(element.title == 'Black') {
+                icon.classList.add('black');
+                icon.classList.remove('green');
+                icon.classList.remove('purple');
+                icon.classList.remove('brown');
+            } else if(element.title == 'Green') {
+                icon.classList.add('green');
+                icon.classList.remove('black');
+                icon.classList.remove('purple');
+                icon.classList.remove('brown');
+            } else if(element.title == 'Purple') {
+                icon.classList.add('purple');
+                icon.classList.remove('black');
+                icon.classList.remove('green');
+                icon.classList.remove('brown');
+            } else if(element.title == 'Brown') {
+                icon.classList.add('brown');
+                icon.classList.remove('black');
+                icon.classList.remove('green');
+                icon.classList.remove('purple');
+            } else {
+                icon.style.color = element.dataset.colorCode;
+                icon.classList.remove('black');
+                icon.classList.remove('green');
+                icon.classList.remove('purple');
+                icon.classList.remove('brown');
             }
 
             this.activeToolInfo.options.color = color;
@@ -227,39 +229,47 @@ class WebPageCanvas {
 
         this.canvas.element.onmousemove = function(e) {
             if(this.canvas.isDrawing) {
-                if(this.activeToolInfo.id === 'paintBrush') {
+
+                if((this.activeToolInfo.id == 'paintBrush') || (this.activeToolInfo.id == 'highlighter')) {
                     this.addClick(e.offsetX, e.offsetY, true,
                         this.activeToolInfo.id,
                         this.activeToolInfo.options.size,
                         this.activeToolInfo.options.color);
                     this.draw();
-                } else if(this.activeToolInfo.id === 'eraser') {
+                } else if(this.activeToolInfo.id == 'eraser') {
                     this.addClick(e.offsetX, e.offsetY, true,
                         this.activeToolInfo.id, this.activeToolInfo.options.size, false, false);
                     this.erase();
                 }
+
             }
         }.bind(this);
         this.canvas.element.onmousedown = function(e) {
+
             this.canvas.isDrawing = true;
-            if(this.activeToolInfo.id === 'paintBrush') {
+            if((this.activeToolInfo.id == 'paintBrush') || (this.activeToolInfo.id == 'highlighter')) {
                 this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, this.activeToolInfo.options.color);
-            } else if(this.activeToolInfo.id === 'eraser') {
+            } else if(this.activeToolInfo.id == 'eraser') {
                 this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, false);
             }
+
         }.bind(this);
         this.canvas.element.onmouseup = function() {
             this.canvas.isDrawing = false;
-            this.canvas.clickX = [];
-            this.canvas.clickY = [];
-            this.canvas.clickDrag = [];
-            this.canvas.clickSize = [];
-            this.canvas.clickColor = [];
-            this.canvas.clickTool = [];
+            this.resetCanvasTools();
         }.bind(this);
         this.canvas.element.onmouseleave = function() {
             this.canvas.isDrawing = false;
         }.bind(this);
+    }
+
+    resetCanvasTools() {
+        this.canvas.clickX = [];
+        this.canvas.clickY = [];
+        this.canvas.clickDrag = [];
+        this.canvas.clickSize = [];
+        this.canvas.clickColor = [];
+        this.canvas.clickTool = [];
     }
 
     addClick(x, y, dragging, toolId, size, color) {
@@ -268,33 +278,50 @@ class WebPageCanvas {
         this.canvas.clickDrag.push(dragging);
         this.canvas.clickTool.push(toolId);
         this.canvas.clickSize.push(size);
-        if((toolId === 'paintBrush') && color) {
+        if(color) {
             this.canvas.clickColor.push(color);
         }
     }
 
     draw() {
-        if(!this.hasDrawings) {
-            this.hasDrawings = true;
-        }
-        for(var i = 0; i < this.canvas.clickX.length; i++) {
-            this.canvas.context.globalCompositeOperation = 'source-over';
-            this.canvas.context.lineJoin = 'round';
+
+        if(!this.hasDrawings) this.hasDrawings = true;
+
+        for(let i = 0; i < this.canvas.clickX.length; i++) {
+
+            if(this.canvas.clickTool[i] == 'highlighter') {
+                this.canvas.context.globalAlpha = 0.4;
+                this.canvas.context.lineJoin = 'mitter';
+            } else {
+                this.canvas.context.globalAlpha = 1;
+                this.canvas.context.lineJoin = 'round';
+            }
+
             this.canvas.context.beginPath();
 
             if(this.canvas.clickDrag[i] && i) {
+
                 this.canvas.context.moveTo(this.canvas.clickX[i - 1], this.canvas.clickY[i - 1]);
+                this.canvas.clickX.splice(i - 1, 1);
+                this.canvas.clickY.splice(i - 1, 1);
+
             } else {
+
                 this.canvas.context.moveTo(this.canvas.clickX[i] - 1, this.canvas.clickY[i]);
+                this.canvas.clickX.splice(i, 1);
+                this.canvas.clickY.splice(i, 1);
+
             }
+
             this.canvas.context.lineTo(this.canvas.clickX[i], this.canvas.clickY[i]);
             this.canvas.context.closePath();
             this.canvas.context.lineWidth = this.canvas.clickSize[i];
-            if(this.canvas.clickTool[i] === 'paintBrush' && this.canvas.clickColor[i]) {
-                this.canvas.context.strokeStyle = this.canvas.clickColor[i];
+
+            if(this.canvas.clickColor[i] && (this.canvas.context.strokeStyle = this.canvas.clickColor[i])) {
                 this.canvas.context.stroke();
             }
         }
+
     }
 
     erase() {
@@ -305,8 +332,12 @@ class WebPageCanvas {
             this.canvas.context.lineWidth = this.canvas.clickSize[i];
             if(this.canvas.clickDrag[i] && i){
                 this.canvas.context.moveTo(this.canvas.clickX[i - 1], this.canvas.clickY[i - 1]);
+                this.canvas.clickX.splice(i - 1, 1);
+                this.canvas.clickY.splice(i - 1, 1);
             } else {
                 this.canvas.context.moveTo(this.canvas.clickX[i] - 1, this.canvas.clickY[i]);
+                this.canvas.clickX.splice(i, 1);
+                this.canvas.clickY.splice(i, 1);
             }
             this.canvas.context.lineTo(this.canvas.clickX[i], this.canvas.clickY[i]);
             this.canvas.context.closePath();
@@ -316,9 +347,6 @@ class WebPageCanvas {
 
     clearCanvas() {
         this.hasDrawings = false;
-        this.canvas.clickX = [];
-        this.canvas.clickY = [];
-        this.canvas.clickDrag = [];
         this.canvas.context.clearRect(0, 0, this.canvas.element.width, this.canvas.element.height);
     }
 
