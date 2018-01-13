@@ -24,7 +24,7 @@ canvas {
 
 #toolbar {
     background: linear-gradient(rgb(20, 20, 20) , rgb(60, 60, 60));
-    position: absolute;
+    position: fixed;
     z-index: 2;
     user-select: none;
     transform: translate(-50%, 0);
@@ -35,12 +35,11 @@ canvas {
 }
 
 #toolbar.aligned-top {
-    top: 0;
+    top: 0 !important;
     border-bottom-right-radius: 5px;
 }
 
 #toolbar.aligned-bottom {
-    bottom: 0;
     border-top-right-radius: 5px;
 }
 

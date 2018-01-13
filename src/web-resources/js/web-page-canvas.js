@@ -32,6 +32,7 @@ class WebPageCanvas {
             context: null
         };
         this.hasDrawings = false;
+        this.windowHeight = 0;
     }
 
     init() {
@@ -130,9 +131,10 @@ class WebPageCanvas {
         if(element.classList.contains('top') && !toolbar.classList.contains('aligned-top')) {
             toolbar.classList.remove('aligned-bottom');
             toolbar.classList.add('aligned-top');
-        } else if(element.classList.contains('bottom') && !toolbar.classList.contains('aligned-bottom')) {
+        } else if(element.classList.contains('bottom')) {
             toolbar.classList.remove('aligned-top');
             toolbar.classList.add('aligned-bottom');
+            toolbar.style.top = (this.windowHeight - toolbar.offsetHeight) + 'px';
         }
 
     }
@@ -378,6 +380,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 window.onmessage = function(event) {
     if(event.data == 'reset-toolbar') {
         document.getElementById('toolbar').classList.remove('hidden');
+    } else if(typeof event.data == 'object' && event.data.hasOwnProperty('message') && event.data.message == 'set-window-height') {
+        if((webPageCanvas.windowHeight != 0) && document.getElementById('toolbar').classList.contains('aligned-bottom')) {
+            webPageCanvas.windowHeight = event.data.data;
+            webPageCanvas.alignClickHandler.call(webPageCanvas, document.querySelector('#toolbar-alignment .dropdown-item.bottom'));
+        } else {
+            webPageCanvas.windowHeight = event.data.data;
+        }
     }
 };
 

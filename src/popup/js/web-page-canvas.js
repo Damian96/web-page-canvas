@@ -185,7 +185,12 @@ class webPageCanvasPopup {
                 chrome.tabs.executeScript(this.tabID, {
                     file: '/web-resources/js/web-page-canvas-content.js'
                 });
+                this.scriptInserted = true;
 
+            } else {
+                chrome.tabs.executeScript(this.tabID, {
+                    code: 'insertCanvas();'
+                });
             }
 
             element.classList.remove('off');
@@ -203,7 +208,7 @@ class webPageCanvasPopup {
 
                 chrome.tabs.sendMessage(this.tabID, { message: 'close-canvas' }, function(response) {
 
-                    if(response.data != null)
+                    if(response != null && response.hasOwnProperty('data') != null)
                         this.lastCanvas = response.data;
 
                 }.bind(this));

@@ -4,6 +4,7 @@ var popupObjects = [],
     removePopupObject = function(tabID) {
         if(popupObjects[tabID] != null)
             popupObjects[tabID].overlayOpen = false;
+            popupObjects[tabID].scriptInserted = false;
     },
     sendResizeMessage = function (tabID) {
         if(popupObjects[tabID] != null)

@@ -31,6 +31,9 @@ var insertCanvas = function() {
 	canvasFrame.height = getMaxHeight();
 	canvasFrame.style.cssText = 'position: absolute; z-index: 123400000; top: 0; left: 0; min-width: 100%; min-height: 100%;';
 	document.body.style.overflowX = 'hidden';
+	canvasFrame.onload = window.onresize = function() {
+		canvasFrame.contentWindow.postMessage({message: 'set-window-height', data: window.innerHeight}, canvasFrame.src);
+	};
 	canvasFrame.src = chrome.runtime.getURL('/web-resources/html/web-page-canvas.html');
 	document.body.appendChild(canvasFrame);
 };
@@ -103,8 +106,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 				if(typeof snapshots == 'object') {
 					loadImages(snapshots).then(function(finalImage) {
 
-						let frame = document.querySelector("iframe[src^='chrome-extension']");
-						frame.contentWindow.postMessage('reset-toolbar', frame.src);
+						canvasFrame.contentWindow.postMessage('reset-toolbar', canvasFrame.src);
 
 						sendResponse({message: 'saved', data: finalImage});
 
