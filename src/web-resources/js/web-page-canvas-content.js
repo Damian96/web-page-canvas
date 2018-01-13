@@ -34,6 +34,9 @@ var insertCanvas = function() {
 	canvasFrame.onload = window.onresize = function() {
 		canvasFrame.contentWindow.postMessage({message: 'set-window-height', data: window.innerHeight}, canvasFrame.src);
 	};
+	window.onscroll = function() {
+		canvasFrame.contentWindow.postMessage({message: 'set-window-scroll', data: window.scrollY}, canvasFrame.src);
+	};
 	canvasFrame.src = chrome.runtime.getURL('/web-resources/html/web-page-canvas.html');
 	document.body.appendChild(canvasFrame);
 };

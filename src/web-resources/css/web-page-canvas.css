@@ -35,7 +35,6 @@ canvas {
 }
 
 #toolbar.aligned-top {
-    top: 0 !important;
     border-bottom-right-radius: 5px;
 }
 
