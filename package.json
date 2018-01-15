@@ -4,8 +4,7 @@
   "description": "A chrome extension for annotating the webpage.",
   "main": "index.js",
   "repository": {
-    "type": "private",
-    "url": "https://damianGiank@bitbucket.org/damianGiank/gc-web-page-annotator.git"
+    "url": "https://github.com/Damian96/web-page-canvas.git"
   },
   "scripts": {},
   "author": "Damianos Giankakis",
@@ -15,14 +14,6 @@
     "gulp": "^3.9.1",
     "gulp-uglify-es": "^0.1.9",
     "gulp-uglifycss": "^1.0.9"
-  },
-  "jshintConfig": {
-    "undef": true,
-    "unused": true,
-    "esversion": 6,
-    "browser": true,
-    "devel": true,
-    "sub": true
   },
   "dependencies": {
     "del": "^3.0.0",
