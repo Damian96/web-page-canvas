@@ -1,6 +1,8 @@
 # Ignore Builded App
-/build/*
-/build/*/*
+/build/
+
+# Ignore VSCode Workspace Settings
+/.vscode/
 
 # Ignore package-lock.json
 package-lock.json
@@ -31,7 +33,7 @@ coverage
 .grunt
 
 # Bower dependency directory (https://bower.io/)
-/bower_components
+/bower_components/
 
 # node-waf configuration
 .lock-wscript

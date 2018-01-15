@@ -27,18 +27,49 @@ var scrollToTop = function(delayMiliseconds) {
 };
 
 var insertCanvas = function() {
-	canvasFrame.width = getMaxWidth();
-	canvasFrame.height = getMaxHeight();
-	canvasFrame.style.cssText = 'border: none; position: absolute; z-index: 123400000; top: 0; left: 0; min-width: 100%; min-height: 100%;';
-	document.body.style.overflowX = 'hidden';
-	canvasFrame.onload = window.onresize = function() {
-		canvasFrame.contentWindow.postMessage({message: 'set-window-height', data: window.innerHeight}, canvasFrame.src);
+	let htmlURL = chrome.runtime.getURL('/web-resources/html/web-page-canvas.html'),
+		cssURL = chrome.runtime.getURL('/web-resources/css/web-page-canvas.css'),
+		iconsURL = chrome.runtime.getURL('/icons/icons.css'),
+		jsURL = chrome.runtime.getURL('/web-resources/js/web-page-canvas.js');
+
+	let request = new XMLHttpRequest();
+
+	request.onload = function() {
+		switch(this.responseURL) {
+			case htmlURL:
+				document.body.innerHTML += this.responseText;
+				break;
+			case cssURL:
+				let style = document.createElement('style');
+				style.innerText = this.responseText;
+				style.type = 'text/css';
+				style.className = 'web-page-canvas';
+				document.body.appendChild(style);
+				break;
+			case iconsURL:
+				let iconsStyle = document.createElement('style');
+				iconsStyle.innerText = this.responseText;
+				iconsStyle.type = 'text/css';
+				iconsStyle.className = 'web-page-canvas';
+				document.body.appendChild(iconsStyle);
+				break;
+			case jsURL:
+				let script = document.createElement('script');
+				script.innerText = this.responseText;
+				script.type = 'text/javascript';
+				script.async = true;
+				script.className = 'web-page-canvas';
+				document.body.appendChild(script);
+				break;
+		}
 	};
-	window.onscroll = function() {
-		canvasFrame.contentWindow.postMessage({message: 'set-window-scroll', data: window.scrollY}, canvasFrame.src);
-	};
-	canvasFrame.src = chrome.runtime.getURL('/web-resources/html/web-page-canvas.html');
-	document.body.appendChild(canvasFrame);
+
+	request.open('GET', htmlURL);
+	request.open('GET', cssURL);
+	request.open('GET', iconsURL);
+	request.open('GET', jsURL);
+	request.send();
+
 };
 
 var saveCanvas = function() {
