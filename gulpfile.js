@@ -6,12 +6,12 @@ var uglifycss = require('gulp-uglifycss');
 var paths = {
 	css: [
 		'src/about/*.css',
-		'src/web-resources/css/*.css',
+		'src/content-scripts/css/*.css',
 		'src/popup/css/*.css'
 	],
 	js: [
 		'src/background/*.js',
-		'src/web-resources/js/*.js',
+		'src/content-scripts/js/*.js',
 		'src/popup/js/*.js',
 	],
 	other: [

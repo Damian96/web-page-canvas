@@ -34,6 +34,11 @@ class WebPageCanvas {
         this.hasDrawings = false;
         this.windowHeight = 0;
         this.windowScroll = 0;
+        this.finalCanvas = {
+            element: document.createElement('CANVAS'),
+            context: null
+        };
+        this.finalCanvas.context = this.finalCanvas.element.getContext('2d');
     }
 
     init() {
@@ -60,10 +65,65 @@ class WebPageCanvas {
         document.getElementById("close-toolbar").addEventListener('click', this.destroy.bind(this));
     }
 
+    resetFinalCanvas() {
+        this.canvasImages = [];
+        this.imagesLoaded = 0;
+        this.finalCanvas.element.width = getMaxWidth();
+        this.finalCanvas.element.height = getMaxHeight();
+        this.finalCanvas.context.clearRect(0, 0, this.finalCanvas.element.width, this.finalCanvas.element.height);
+    }
+
+    saveCanvas() {
+
+        this.resetFinalCanvas();
+        window.scrollTo(0, 0);
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({
+                message: 'take-snapshot',
+                data: {
+                    windowHeight: window.innerHeight,
+                    pageHeight: this.getMaxHeight()
+                }
+            }, function(response) {
+                if(response != null && response.hasOwnProperty('data')) {
+                    if(response.hasOwnProperty('error')) {
+                        reject(response.error);
+                    } else {
+                        resolve(response.data);
+                    }
+                } else {
+                    reject();
+                }
+            });
+        });
+
+    }
+
+    loadImages(snapshots) {
+
+        this.snapshots = snapshots;
+
+        return new Promise((resolve) => {
+
+            for(let snapshot of this.snapshots) {
+                let img = new Image();
+
+                img.onload = function(img, x, y) {
+                    this.finalCanvas.context.drawImage(img, x, y);
+                    if(++this.imagesLoaded == this.snapshots.length)
+                        resolve(this.finalCanvas.element.toDataURL('image/png'));
+                }.bind(this, img, snapshot.x, snapshot.y);
+
+                img.src = snapshot.src;
+                this.canvasImages.push(img);
+            }
+        });
+    }
+
     onToolClickHandler(tool, event) {
 
         if(tool.dataset.hasDropdown) {
-            Array.from(tool.children).forEach(function(child) {
+            for(let child of tool.children) {
 
                 if(child.classList.contains('dropdown') && child.classList.contains('hidden')) {
 
@@ -85,7 +145,7 @@ class WebPageCanvas {
 
                 }
 
-            }.bind(this));
+            }
         } else {
             let activeDropdown = document.querySelector('.dropdown:not(.hidden)');
             if(activeDropdown != null) {
@@ -366,9 +426,21 @@ class WebPageCanvas {
         }
     }
 
-    clearCanvas() {
-        this.hasDrawings = false;
-        this.canvas.context.clearRect(0, 0, this.canvas.element.width, this.canvas.element.height);
+    insertHTML() {
+        let request = new XMLHttpRequest();
+        request.onload = function() {
+            document.body.innerHTML += request.responseText;
+        };
+        request.open('GET', chrome.runtime.getURL('/web-resources/html/web-page-canvas.html'));
+        request.send();
+    }
+
+    getMaxHeight() {
+        return Math.max(window.innerHeight, document.body.offsetHeight, document.body.scrollHeight, document.body.clientHeight, document.documentElement.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight);
+    }
+
+    getMaxWidth() {
+        return Math.max(window.innerWidth, document.body.offsetWidth, document.body.scrollLeft)
     }
 
     adjustCanvas() {
@@ -392,15 +464,26 @@ class WebPageCanvas {
         image.src = dataURL;
 
     }
+
+    /**
+     * Scrolls the page to the top.
+     * @param {number} delay - The delay of the scroll in milliseconds.
+     */
+    scrollToTop(delay) {
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, delay);
+    }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+window.onload = function() {
     webPageCanvas = new WebPageCanvas();
-    webPageCanvas.init();
-    chrome.tabs.getCurrent(function(tab) {
-        webPageCanvas.tabID = tab.id;
-    });
-}, {once: true});
+    webPageCanvas.insertHTML();
+    // webPageCanvas.init();
+    // chrome.tabs.getCurrent(function(tab) {
+    //     webPageCanvas.tabID = tab.id;
+    // });
+};
 
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -459,8 +542,4 @@ window.onkeydown = function(event) {
     if(event.keyCode == 27) {
         webPageCanvas.destroy();
     }
-};
-
-window.onmessage = function(event) {
-    console.log(event.data);
 };

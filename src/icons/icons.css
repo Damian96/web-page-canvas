@@ -6,7 +6,7 @@
   font-style: normal;
 }
 
-i {
+.web-page-canvas i {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'web-page-canvas' !important;
   speak: none;
@@ -20,98 +20,98 @@ i {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-highlighter:before {
+.web-page-canvas .icon-highlighter:before {
   content: "\e90b";
 }
 
-.icon-align-top:before {
+.web-page-canvas .icon-align-top:before {
   content: "\e908";
 }
 
-.icon-align-bottom:before {
+.web-page-canvas .icon-align-bottom:before {
   content: "\e90a";
 }
 
-.icon-bucket:before {
+.web-page-canvas .icon-bucket:before {
   content: "\e904";
 }
 
-.icon-close:before {
+.web-page-canvas .icon-close:before {
   content: "\e900";
 }
 
-.icon-cancel:before {
+.web-page-canvas .icon-cancel:before {
   content: "\e901";
 }
 
-.icon-caret-down:before {
+.web-page-canvas .icon-caret-down:before {
   content: "\e909";
 }
 
-.icon-download:before {
+.web-page-canvas .icon-download:before {
   content: "\e907";
 }
 
-.icon-repeat:before {
+.web-page-canvas .icon-repeat:before {
   content: "\e905";
 }
 
-.icon-rotate-right:before {
+.web-page-canvas .icon-rotate-right:before {
   content: "\e905";
 }
 
-.icon-cog:before {
+.web-page-canvas .icon-cog:before {
   content: "\e903";
 }
 
-.icon-gear:before {
+.web-page-canvas .icon-gear:before {
   content: "\e903";
 }
 
-.icon-paint-brush:before {
+.web-page-canvas .icon-paint-brush:before {
   content: "\e906";
 }
 
-.icon-eraser:before {
+.web-page-canvas .icon-eraser:before {
   content: "\e902";
 }
 
-.icon-books:before {
+.web-page-canvas .icon-books:before {
   content: "\e920";
 }
 
-.icon-floppy-disk:before {
+.web-page-canvas .icon-floppy-disk:before {
   content: "\e962";
 }
 
-.icon-enlarge2:before {
+.web-page-canvas .icon-enlarge2:before {
   content: "\e98b";
 }
 
-.icon-equalizer2:before {
+.web-page-canvas .icon-equalizer2:before {
   content: "\e993";
 }
 
-.icon-bin:before {
+.web-page-canvas .icon-bin:before {
   content: "\e9ac";
 }
 
-.icon-menu:before {
+.web-page-canvas .icon-menu:before {
   content: "\e9bd";
 }
 
-.icon-cross:before {
+.web-page-canvas .icon-cross:before {
   content: "\ea0f";
 }
 
-.icon-checkmark:before {
+.web-page-canvas .icon-checkmark:before {
   content: "\ea10";
 }
 
-.icon-arrow-right:before {
+.web-page-canvas .icon-arrow-right:before {
   content: "\ea34";
 }
 
-.icon-arrow-left:before {
+.web-page-canvas .icon-arrow-left:before {
   content: "\ea38";
 }
