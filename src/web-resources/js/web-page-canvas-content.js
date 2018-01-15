@@ -29,10 +29,13 @@ var scrollToTop = function(delayMiliseconds) {
 var insertCanvas = function() {
 	canvasFrame.width = getMaxWidth();
 	canvasFrame.height = getMaxHeight();
-	canvasFrame.style.cssText = 'position: absolute; z-index: 123400000; top: 0; left: 0; min-width: 100%; min-height: 100%;';
+	canvasFrame.style.cssText = 'border: none; position: absolute; z-index: 123400000; top: 0; left: 0; min-width: 100%; min-height: 100%;';
 	document.body.style.overflowX = 'hidden';
 	canvasFrame.onload = window.onresize = function() {
 		canvasFrame.contentWindow.postMessage({message: 'set-window-height', data: window.innerHeight}, canvasFrame.src);
+	};
+	window.onscroll = function() {
+		canvasFrame.contentWindow.postMessage({message: 'set-window-scroll', data: window.scrollY}, canvasFrame.src);
 	};
 	canvasFrame.src = chrome.runtime.getURL('/web-resources/html/web-page-canvas.html');
 	document.body.appendChild(canvasFrame);
@@ -124,6 +127,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 			window.scrollTo(0, window.scrollY + window.innerHeight);
             sendResponse({message: 'Scrolled'});
+
+		}
+
+	} else if((request != null) && request.hasOwnProperty('message') && request.hasOwnProperty('data')) {
+
+		if(request.message == 'highlight-selection') {
+
+
 
 		}
 

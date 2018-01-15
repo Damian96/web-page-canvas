@@ -77,7 +77,7 @@ class CaptureAPI {
                             this.snapshots.push(dataUrl);
                             chrome.tabs.sendMessage(this.tabID, {message: 'scroll-top'},
                                 function(onSuccess, thisArg, param1, response) {
-                                    if(response.message === 'Scrolled') {
+                                    if(response.message == 'Scrolled') {
                                         chrome.runtime.sendMessage({
                                             message: 'update-snapshot-process',
                                             data: this.snapshots.length * 100 / this.maxSnapshots
@@ -95,8 +95,7 @@ class CaptureAPI {
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log(request);
-    if(request.message === 'take-snapshot' && request.data != null) {
+    if(request.message == 'take-snapshot' && request.data != null) {
         if((sender.tab.id != null) && (request.data.windowHeight != null) && (request.data.pageHeight != null)) {
             captureObjects[sender.tab.id] = new CaptureAPI(sender.tab.id,
                 request.data.windowHeight,
@@ -105,8 +104,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             captureObjects[sender.tab.id].takeSnapshot(function(sendResponse, snapshots) {
                 var result = [],
                     captureObject = captureObjects[sender.tab.id];
-                for(var i = 0; i < snapshots.length; i++) {
-                    var y = 0,
+                for(let i = 0; i < snapshots.length; i++) {
+                    let y = 0,
                         lastSnapshot = snapshots.length - 1;
 
                     if(i < lastSnapshot || (i == lastSnapshot && captureObject.maxSnapshots % 1 == 0)) {

@@ -158,9 +158,9 @@ class webPageCanvasPopup {
     }
 
     disableMenu() {
-        Array.from(document.querySelectorAll('#switcher button')).forEach(function(element) {
+        for(let element of document.querySelectorAll('#switcher button')) {
             element.disabled = true;
-        });
+        }
     }
 
     insertDownload(file) {
@@ -395,7 +395,7 @@ class webPageCanvasPopup {
             this.disableAllColors(toolId);
             element.classList.add('active');
 
-            if(toolId === 'paint-brush') {
+            if(toolId == 'paint-brush') {
                 this.toolsOptions.paintBrush.color = element.dataset.colorCode;
             }
 
@@ -411,16 +411,15 @@ class webPageCanvasPopup {
         let toolId = element.dataset.toolId,
             value = parseFloat(element.value);
         element.nextElementSibling.innerHTML = value + 'px';
-        if(toolId === 'paint-brush')
+        if(toolId == 'paint-brush')
             this.toolsOptions.paintBrush.size = value;
-        else if(toolId === 'eraser')
+        else if(toolId == 'eraser')
             this.toolsOptions.eraser.size = value;
         this.changeActiveTool(toolId);
     }
 
     disableAllColors(toolId) {
-        let contentSelector = ".tab-content[data-tool-id='" + toolId + "']";
-        for(let element of document.querySelectorAll(contentSelector + " .color.active")) {
+        for(let element of document.querySelectorAll(".tab-content[data-tool-id='" + toolId + "']" + " .color.active")) {
             element.classList.remove('active');
         }
     }

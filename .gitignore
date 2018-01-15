@@ -1,6 +1,8 @@
+# Ignore VSCode Settings
+/.vscode/*.*
+
 # Ignore Builded App
-/build/*
-/build/*/*
+/build/
 
 # Ignore package-lock.json
 package-lock.json
