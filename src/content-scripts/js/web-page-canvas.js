@@ -39,13 +39,8 @@ class WebPageCanvas {
             context: null
         };
         this.finalCanvas.context = this.finalCanvas.element.getContext('2d');
-    }
-
-    init() {
-        this.initCanvas();
-        window.onresize = this.adjustCanvas.bind(this);
-        this.attachHandlers();
-        this.adjustCanvas();
+        this.contentDocument = null;
+        this.insertedStyleSheets = false;
     }
 
     attachHandlers() {
@@ -61,16 +56,34 @@ class WebPageCanvas {
         for(let element of document.querySelectorAll(".dropdown input[type='range']")) {
             element.addEventListener('change', this.sizeChangeHandler.bind(this, element));
         }
-        document.querySelector(".option-container[title='Clear All']").addEventListener('click', this.canvas.context.clearAll.bind(this));
         document.getElementById("close-toolbar").addEventListener('click', this.destroy.bind(this));
     }
 
     resetFinalCanvas() {
         this.canvasImages = [];
         this.imagesLoaded = 0;
-        this.finalCanvas.element.width = getMaxWidth();
-        this.finalCanvas.element.height = getMaxHeight();
+        this.finalCanvas.element.width = this.getMaxWidth();
+        this.finalCanvas.element.height = this.getMaxHeight();
         this.finalCanvas.context.clearRect(0, 0, this.finalCanvas.element.width, this.finalCanvas.element.height);
+    }
+
+    destroy() {
+        webPageCanvas.handleElements(false);
+        chrome.runtime.sendMessage({
+            message: 'manually-closed-canvas'
+        });
+    }
+
+    handleElements(show) {
+
+        for(let element of document.getElementsByClassName('web-page-canvas')) {
+            if(show) {
+                element.classList.remove('hidden');
+            } else {
+                element.classList.add('hidden');
+            }
+        }
+
     }
 
     saveCanvas() {
@@ -263,14 +276,6 @@ class WebPageCanvas {
 
     }
 
-    destroy() {
-        if(this.hasDrawings) {
-            chrome.runtime.sendMessage({message: 'close-canvas', data: this.canvas.element.toDataURL()});
-        } else {
-            chrome.runtime.sendMessage({message: 'close-canvas'});
-        }
-    }
-
     initCanvas() {
         this.canvas.element = document.querySelector('canvas');
         this.canvas.context = this.canvas.element.getContext('2d');
@@ -286,6 +291,7 @@ class WebPageCanvas {
             this.hasDrawings = false;
             this.canvas.context.clearRect(0, 0, this.canvas.element.width, this.canvas.element.height);
         }.bind(this);
+        document.querySelector(".option-container[title='Clear All']").addEventListener('click', this.canvas.context.clearAll.bind(this));
 
         this.canvas.element.onmousemove = function(e) {
 
@@ -368,14 +374,6 @@ class WebPageCanvas {
 
         for(let i = 0; i < this.canvas.clickX.length; i++) {
 
-            // if(this.canvas.clickTool[i] == 'highlighter') {
-            //     this.canvas.context.globalAlpha = 0.4;
-            //     this.canvas.context.lineJoin = 'mitter';
-            // } else {
-            //     this.canvas.context.globalAlpha = 1;
-            //     this.canvas.context.lineJoin = 'round';
-            // }
-
             this.canvas.context.lineJoin = 'round';
 
             this.canvas.context.beginPath();
@@ -426,13 +424,44 @@ class WebPageCanvas {
         }
     }
 
+    getContentDocument() {
+        return new Promise((resolve) => {
+
+            let request = new XMLHttpRequest();
+
+            request.onload = function() {
+                if(request.responseType == 'document')
+                    this.contentDocument = request.responseXML;
+                    resolve('success');
+            }.bind(this);
+
+            request.open('GET', chrome.runtime.getURL('/web-resources/html/web-page-canvas.html'));
+            request.responseType = 'document';
+            request.send();
+
+        });
+    }
+
+    /**
+     * Inserts all of the retrieved HTML in the current document.
+     */
     insertHTML() {
-        let request = new XMLHttpRequest();
-        request.onload = function() {
-            document.body.innerHTML += request.responseText;
-        };
-        request.open('GET', chrome.runtime.getURL('/web-resources/html/web-page-canvas.html'));
-        request.send();
+        if(this.contentDocument != null) {
+            this.insertedStyleSheets = true;
+            for(let styleSheet of this.contentDocument.querySelectorAll(("head > link"))) {
+
+                if(styleSheet.href.indexOf('http') == -1) {
+                    let href = styleSheet.getAttribute('href');
+                    styleSheet.setAttribute('href', chrome.runtime.getURL(href));
+                }
+
+                document.head.appendChild(styleSheet);
+
+            }
+
+            document.body.innerHTML += this.contentDocument.body.innerHTML;
+
+        }
     }
 
     getMaxHeight() {
@@ -440,7 +469,7 @@ class WebPageCanvas {
     }
 
     getMaxWidth() {
-        return Math.max(window.innerWidth, document.body.offsetWidth, document.body.scrollLeft)
+        return Math.max(window.innerWidth, document.body.offsetWidth, document.body.scrollLeft);
     }
 
     adjustCanvas() {
@@ -476,31 +505,67 @@ class WebPageCanvas {
     }
 }
 
-window.onload = function() {
-    webPageCanvas = new WebPageCanvas();
-    webPageCanvas.insertHTML();
-    // webPageCanvas.init();
-    // chrome.tabs.getCurrent(function(tab) {
-    //     webPageCanvas.tabID = tab.id;
-    // });
-};
-
-
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     if(request != null && request.hasOwnProperty('message') && !request.hasOwnProperty('data')) {
 
-        if(request.message == 'close-canvas') {
+        if(request.message == 'init-canvas') {
+
+            if(webPageCanvas == null) {
+
+                webPageCanvas = new WebPageCanvas();
+                webPageCanvas.getContentDocument()
+                    .then(function(success) {
+                        webPageCanvas.insertHTML();
+                        webPageCanvas.attachHandlers();
+                        webPageCanvas.initCanvas();
+                        window.onresize = webPageCanvas.adjustCanvas();
+                    });
+
+            } else if(webPageCanvas != null) {
+
+                webPageCanvas.handleElements(true);
+
+            }
+
+        } else if(request.message == 'close-canvas') {
+
+            webPageCanvas.handleElements(false);
+
             if(webPageCanvas.hasDrawings) {
                 sendResponse({data: webPageCanvas.canvas.element.toDataURL()});
             } else {
                 sendResponse(null);
             }
+
         } else if(request.message == 'save-canvas') {
+
             document.getElementById('toolbar').classList.add('hidden');
-        } else if(request.message == 'resize-canvas') {
+            webPageCanvas.scrollToTop(0);
+			webPageCanvas.saveCanvas().then(function(snapshots) {
+				if(typeof snapshots == 'object') {
+					webPageCanvas.loadImages(snapshots).then(function(finalImage) {
+
+                        document.getElementById('toolbar').classList.remove('hidden');
+						sendResponse({message: 'saved', data: finalImage});
+
+					});
+				}
+
+				webPageCanvas.scrollToTop(500);
+
+			}).catch(function() {
+				webPageCanvas.scrollToTop(0);
+			});
+
+        } else if(request.message == 'resize-canvas')
             webPageCanvas.adjustCanvas();
-        }
+        else if(request.message == 'scroll-top') {
+
+			window.scrollTo(0, window.scrollY + window.innerHeight);
+            sendResponse({message: 'Scrolled'});
+
+		}
 
     } else if(request != null && request.hasOwnProperty('message') && request.hasOwnProperty('data')) {
 
@@ -509,7 +574,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         }
 
     }
-
     return true;
 
 });
@@ -535,11 +599,5 @@ window.onmessage = function(event) {
         } else {
             webPageCanvas.windowScroll = event.data.data;
         }
-    }
-};
-
-window.onkeydown = function(event) {
-    if(event.keyCode == 27) {
-        webPageCanvas.destroy();
     }
 };

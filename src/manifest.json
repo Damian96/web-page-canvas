@@ -25,8 +25,7 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["content-scripts/js/web-page-canvas.js"],
-      "css": ["content-scripts/css/web-page-canvas.css"]
+      "js": ["content-scripts/js/web-page-canvas.js"]
     }
   ],
   "permissions": [
@@ -40,7 +39,6 @@
   "web_accessible_resources": [
     "images/*.png",
     "web-resources/*/*",
-    "icons/*.css",
-    "icons/fonts/*"
+    "web-resources/icons/fonts/*"
   ]
 }

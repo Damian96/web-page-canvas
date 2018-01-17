@@ -2,23 +2,25 @@ var gulp = require('gulp');
 var del = require('del');
 var uglifyjs = require('gulp-uglify-es').default;
 var uglifycss = require('gulp-uglifycss');
+var jshint = require('gulp-jshint');
+var package = require('./package');
 
 var paths = {
 	css: [
 		'src/about/*.css',
-		'src/content-scripts/css/*.css',
-		'src/popup/css/*.css'
+		'src/web-resources/css/*.css',
+		'src/popup/css/*.css',
+		'src/web-resources/icons/*.css',
 	],
 	js: [
 		'src/background/*.js',
-		'src/content-scripts/js/*.js',
+		'src/content-scripts/js/web-page-canvas.js',
 		'src/popup/js/*.js',
 	],
 	other: [
 		'src/images/*',
 		'src/about/about.html',
-		'src/icons/fonts/*',
-		'src/icons/*.css',
+		'src/web-resources/icons/fonts/*',
 		'src/popup/html/web-page-canvas.html',
 		'src/web-resources/html/web-page-canvas.html',
 		'src/manifest.json'
@@ -39,6 +41,8 @@ var destination = function(file) {
 
 var minifyJS = function() {
 	gulp.src(paths.js)
+		.pipe(jshint(package.jshintConfig))
+		.pipe(jshint.reporter('default'))
 		.pipe(uglifyjs())
 		.pipe(gulp.dest(destination));
 };

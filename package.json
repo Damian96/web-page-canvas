@@ -20,5 +20,18 @@
     "gulp": "^3.9.1",
     "gulp-uglify-es": "^0.1.9",
     "gulp-uglifycss": "^1.0.9"
+  },
+  "devDependencies": {
+    "gulp-jshint": "^2.1.0",
+    "jshint": "^2.9.5"
+  },
+  "jshintConfig": {
+    "esversion": 6,
+    "moz": true,
+    "undef": true,
+    "unused": true,
+    "browser": true,
+    "devel": true,
+    "sub": true
   }
 }
