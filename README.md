@@ -14,3 +14,6 @@ A chrome extension that helps you draw on your current webpage.
 	- Adds canvas mode close on escape key.
 	- Adds support for images.
 	- Fixes bug when menu is disabled.
+* v1.0.5
+	- Adds highligter tool.
+	- Fixes toolbar alignment bug.
