@@ -375,18 +375,20 @@ class WebPageCanvas {
 
             this.canvas.context.beginPath();
 
-            if(this.canvas.clickDrag[i] && i) {
+            if((this.canvas.clickX.indexOf(this.canvas.clickX[i - 1]) == this.canvas.clickY.indexOf(this.canvas.clickY[i - 1]) && this.canvas.clickX.indexOf(this.canvas.clickX[i - 1]) == (i - 1)) || (this.canvas.clickX.indexOf(this.canvas.clickX[i]) == this.canvas.clickY.indexOf(this.canvas.clickY[i]) && this.canvas.clickX.indexOf(this.canvas.clickX[i]) == i)) {
+                if(this.canvas.clickDrag[i] && i) {
 
-                this.canvas.context.moveTo(this.canvas.clickX[i - 1], this.canvas.clickY[i - 1]);
-                this.canvas.clickX.splice(i - 1, 1);
-                this.canvas.clickY.splice(i - 1, 1);
+                    this.canvas.context.moveTo(this.canvas.clickX[i - 1], this.canvas.clickY[i - 1]);
+                    this.canvas.clickX.splice(i - 1, 1);
+                    this.canvas.clickY.splice(i - 1, 1);
 
-            } else {
+                } else {
 
-                this.canvas.context.moveTo(this.canvas.clickX[i] - 1, this.canvas.clickY[i]);
-                this.canvas.clickX.splice(i, 1);
-                this.canvas.clickY.splice(i, 1);
+                    this.canvas.context.moveTo(this.canvas.clickX[i] - 1, this.canvas.clickY[i]);
+                    this.canvas.clickX.splice(i, 1);
+                    this.canvas.clickY.splice(i, 1);
 
+                }
             }
 
             this.canvas.context.lineTo(this.canvas.clickX[i], this.canvas.clickY[i]);
