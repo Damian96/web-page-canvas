@@ -14,6 +14,8 @@ body {
 
 .row {
     display: block;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
 }
 
 canvas {
@@ -24,7 +26,7 @@ canvas {
 }
 
 #toolbar {
-    background: linear-gradient(rgb(20, 20, 20) , rgb(60, 60, 60));
+    background: linear-gradient(rgb(20, 20, 20), rgb(60, 60, 60));
     position: fixed;
     z-index: 10000001;
     user-select: none;
@@ -37,10 +39,12 @@ canvas {
 
 #toolbar.aligned-top {
     border-bottom-right-radius: 5px;
+    top: 0
 }
 
 #toolbar.aligned-bottom {
     border-top-right-radius: 5px;
+    bottom: 0
 }
 
 #toolbar.aligned-top .dropdown-item.top,
@@ -182,7 +186,7 @@ canvas {
 }
 
 .icon-floppy-disk {
-    color: #0000FF;
+    color: #0000FF
 }
 
 .dropdown:not(.hidden) {
@@ -229,12 +233,24 @@ canvas {
 
 .dropdown h3 {
     font-size: 16px;
+    font-family: inherit !important;
+    font-weight: bold !important;
+    line-height: initial !important;
+    color: #000 !important;
 }
 
 .tool-container[title="Paint Brush"] .dropdown,
 .tool-container[title="Eraser"] .dropdown,
 .tool-container[title="Highlighter"] .dropdown {
     padding: 0 5px;
+}
+
+.tool-container[title="Eraser"] .dropdown {
+    min-width: 80px
+}
+
+.tool-container[title="Highlighter"] .dropdown {
+    min-width: 250px
 }
 
 .dropdown .color {
@@ -289,6 +305,7 @@ canvas {
 
 .dropdown input[type="range"] {
     width: 80%;
+    display: inline-block !important;
 }
 
 .dropdown .range-value {
