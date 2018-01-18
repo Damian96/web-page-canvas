@@ -3,6 +3,12 @@
 
 # Ignore Builded App
 /build/
+<<<<<<< HEAD
+=======
+
+# Ignore VSCode Workspace Settings
+/.vscode/
+>>>>>>> develop_highlighter
 
 # Ignore package-lock.json
 package-lock.json
@@ -33,7 +39,7 @@ coverage
 .grunt
 
 # Bower dependency directory (https://bower.io/)
-/bower_components
+/bower_components/
 
 # node-waf configuration
 .lock-wscript

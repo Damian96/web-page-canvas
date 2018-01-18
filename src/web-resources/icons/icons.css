@@ -1,0 +1,117 @@
+@font-face {
+  font-family: 'web-page-canvas';
+  src: url('fonts/web-page-canvas.eot?m4j5aj');
+  src: url('fonts/web-page-canvas.eot?m4j5aj#iefix') format('embedded-opentype'), url('fonts/web-page-canvas.ttf?m4j5aj') format('truetype'), url('fonts/web-page-canvas.woff?m4j5aj') format('woff'), url('fonts/web-page-canvas.svg?m4j5aj#web-page-canvas') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.web-page-canvas i {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'web-page-canvas' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.web-page-canvas .icon-highlighter:before {
+  content: "\e90b";
+}
+
+.web-page-canvas .icon-align-top:before {
+  content: "\e908";
+}
+
+.web-page-canvas .icon-align-bottom:before {
+  content: "\e90a";
+}
+
+.web-page-canvas .icon-bucket:before {
+  content: "\e904";
+}
+
+.web-page-canvas .icon-close:before {
+  content: "\e900";
+}
+
+.web-page-canvas .icon-cancel:before {
+  content: "\e901";
+}
+
+.web-page-canvas .icon-caret-down:before {
+  content: "\e909";
+}
+
+.web-page-canvas .icon-download:before {
+  content: "\e907";
+}
+
+.web-page-canvas .icon-repeat:before {
+  content: "\e905";
+}
+
+.web-page-canvas .icon-rotate-right:before {
+  content: "\e905";
+}
+
+.web-page-canvas .icon-cog:before {
+  content: "\e903";
+}
+
+.web-page-canvas .icon-gear:before {
+  content: "\e903";
+}
+
+.web-page-canvas .icon-paint-brush:before {
+  content: "\e906";
+}
+
+.web-page-canvas .icon-eraser:before {
+  content: "\e902";
+}
+
+.web-page-canvas .icon-books:before {
+  content: "\e920";
+}
+
+.web-page-canvas .icon-floppy-disk:before {
+  content: "\e962";
+}
+
+.web-page-canvas .icon-enlarge2:before {
+  content: "\e98b";
+}
+
+.web-page-canvas .icon-equalizer2:before {
+  content: "\e993";
+}
+
+.web-page-canvas .icon-bin:before {
+  content: "\e9ac";
+}
+
+.web-page-canvas .icon-menu:before {
+  content: "\e9bd";
+}
+
+.web-page-canvas .icon-cross:before {
+  content: "\ea0f";
+}
+
+.web-page-canvas .icon-checkmark:before {
+  content: "\ea10";
+}
+
+.web-page-canvas .icon-arrow-right:before {
+  content: "\ea34";
+}
+
+.web-page-canvas .icon-arrow-left:before {
+  content: "\ea38";
+}

@@ -180,18 +180,7 @@ class webPageCanvasPopup {
 
             this.overlayOpen = true;
 
-            if(!this.scriptInserted) {
-
-                chrome.tabs.executeScript(this.tabID, {
-                    file: '/web-resources/js/web-page-canvas-content.js'
-                });
-                this.scriptInserted = true;
-
-            } else {
-                chrome.tabs.executeScript(this.tabID, {
-                    code: 'insertCanvas();'
-                });
-            }
+            chrome.tabs.sendMessage(this.tabID, {message: 'init-canvas'});
 
             element.classList.remove('off');
             element.classList.add('on');
@@ -228,10 +217,10 @@ class webPageCanvasPopup {
     restoreClickHandler(element) {
         if(this.lastCanvas != null)
             chrome.tabs.sendMessage(this.tabID, {message: 'restore-canvas', data: this.lastCanvas});
-            restore.disabled = true;
+            element.disabled = true;
     }
 
-    clearClickHandler(element) {
+    clearClickHandler() {
         if(this.overlayOpen) {
             chrome.tabs.sendMessage(this.tabID, {message: 'clear-canvas'});
         }
@@ -248,9 +237,7 @@ class webPageCanvasPopup {
             else if(element.classList.contains('delete-screenshot')) {
                 chrome.storage.local.get(this.STORAGEAREAKEY, function(slideImage, slideshow, items) {
 
-                    let data = items[this.STORAGEAREAKEY],
-                        currentScreenshotNumber = document.getElementById('current-screenshot-number'),
-                        totalScreenshotNumber = document.getElementById('total-screenshot-number');
+                    let data = items[this.STORAGEAREAKEY];
 
                     if(typeof data == 'object' && data.length > 0) {
 
@@ -352,7 +339,7 @@ class webPageCanvasPopup {
 
     }
 
-    clearScreenshotsClickHandler(element) {
+    clearScreenshotsClickHandler() {
 
         if(this.localSnapshots.length > 0) {
 
@@ -564,6 +551,8 @@ chrome.runtime.onMessage.addListener(function(request) {
         if(request.message == 'update-snapshot-process')
             webPageCanvas.animateLoader(request.data);
 
+    } else if(request.hasOwnProperty('message') && request.message == 'manually-closed-canvas') {
+        webPageCanvas.switcherClickHandler.call(webPageCanvas, document.getElementById('switcher'));
     }
 
 

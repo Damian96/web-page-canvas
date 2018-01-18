@@ -22,7 +22,14 @@
       "background/captureAPI.js"
     ]
   },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content-scripts/js/web-page-canvas.js"]
+    }
+  ],
   "permissions": [
+    "<all_urls>",
     "tabs",
     "activeTab",
     "storage",
@@ -32,7 +39,6 @@
   "web_accessible_resources": [
     "images/*.png",
     "web-resources/*/*",
-    "icons/*.css",
-    "icons/fonts/*"
+    "web-resources/icons/fonts/*"
   ]
 }

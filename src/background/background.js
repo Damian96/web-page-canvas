@@ -18,7 +18,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if(sender.hasOwnProperty('tab')) {
             if(request.message == 'get-tool-info')
                 sendResponse(popupObjects[sender.tab.id]);
-            else if(request.message == 'manually-disabled-canvas')
+            else if(request.message == 'manually-closed-canvas')
                 popupObjects[sender.tab.id].overlayOpen = false;
             else if(request.message == 'save-last-canvas' && request.hasOwnProperty('data'))
                 popupObjects[sender.tab.id].lastCanvas = request.data;
