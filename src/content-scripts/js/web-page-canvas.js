@@ -18,7 +18,8 @@ class WebPageCanvas {
             options: {
                 color: '#FFFF00',
                 size: 5,
-                opacity: null
+                opacity: null,
+                assist: false
             }
         };
         this.canvas = {
@@ -30,7 +31,8 @@ class WebPageCanvas {
             clickSize: [],
             isDrawing: false,
             element: null,
-            context: null
+            context: null,
+            startingClickY: false
         };
         this.hasDrawings = false;
         this.finalCanvas = {
@@ -56,6 +58,7 @@ class WebPageCanvas {
             element.addEventListener('change', this.sizeChangeHandler.bind(this, element));
         }
         document.getElementById("close-toolbar").addEventListener('click', this.destroy.bind(this));
+        document.querySelector("input[type='checkbox'][data-tool='highlighter']").addEventListener('change', this.onToolOptionChangeHandler.bind(this, document.querySelector("input[type='checkbox'][data-tool='highlighter']")));
     }
 
     resetFinalCanvas() {
@@ -203,6 +206,21 @@ class WebPageCanvas {
 
     }
 
+    onToolOptionChangeHandler(element) {
+
+        if((this.activeToolInfo.id  == 'highlighter') && (element.dataset.tool == 'highlighter') && (element.dataset.option == 'highlighting-assist')) {
+
+            if(element.checked)
+                this.activeToolInfo.options.assist = true;
+            else {
+                this.activeToolInfo.options.assist = this.canvas.startingClickY = false;
+            }
+
+
+        }
+
+    }
+
     alignClickHandler(element) {
 
         let toolbar = document.getElementById('toolbar');
@@ -302,17 +320,9 @@ class WebPageCanvas {
 
             if(this.canvas.isDrawing) {
 
-                if(this.activeToolInfo.id == 'paintBrush' || this.activeToolInfo.id == 'highlighter') {
-                    this.addClick(e.offsetX, e.offsetY, true,
-                        this.activeToolInfo.id,
-                        this.activeToolInfo.options.size,
-                        this.activeToolInfo.options.color);
-                    this.draw();
-                } else if(this.activeToolInfo.id == 'eraser') {
-                    this.addClick(e.offsetX, e.offsetY, true,
-                        this.activeToolInfo.id, this.activeToolInfo.options.size, false);
-                    this.erase();
-                }
+                this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, this.activeToolInfo.id == 'eraser' ? false : this.activeToolInfo.options.color);
+
+                this.activeToolInfo.id == 'eraser' ? this.erase() : this.draw();
 
             }
 
@@ -321,11 +331,10 @@ class WebPageCanvas {
         this.canvas.element.onmousedown = function(e) {
 
             this.canvas.isDrawing = true;
-            if(this.activeToolInfo.id == 'paintBrush' || this.activeToolInfo.id == 'highlighter') {
-                this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, this.activeToolInfo.options.color);
-            } else if(this.activeToolInfo.id == 'eraser') {
-                this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, false);
-            }
+            this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, this.activeToolInfo.id == 'eraser' ? false : this.activeToolInfo.options.color);
+
+            if(this.activeToolInfo.id == 'highlighter' && this.activeToolInfo.options.assist)
+                this.canvas.startingClickY = e.offsetY;
 
         }.bind(this);
         this.canvas.element.onmouseup = function() {
@@ -376,22 +385,24 @@ class WebPageCanvas {
             this.canvas.context.beginPath();
 
             if((this.canvas.clickX.indexOf(this.canvas.clickX[i - 1]) == this.canvas.clickY.indexOf(this.canvas.clickY[i - 1]) && this.canvas.clickX.indexOf(this.canvas.clickX[i - 1]) == (i - 1)) || (this.canvas.clickX.indexOf(this.canvas.clickX[i]) == this.canvas.clickY.indexOf(this.canvas.clickY[i]) && this.canvas.clickX.indexOf(this.canvas.clickX[i]) == i)) {
+
                 if(this.canvas.clickDrag[i] && i) {
 
-                    this.canvas.context.moveTo(this.canvas.clickX[i - 1], this.canvas.clickY[i - 1]);
+                    this.canvas.context.moveTo(this.canvas.clickX[i - 1], !this.canvas.startingClickY ? this.canvas.clickY[i - 1] : this.canvas.startingClickY);
                     this.canvas.clickX.splice(i - 1, 1);
                     this.canvas.clickY.splice(i - 1, 1);
 
                 } else {
 
-                    this.canvas.context.moveTo(this.canvas.clickX[i] - 1, this.canvas.clickY[i]);
+                    this.canvas.context.moveTo(this.canvas.clickX[i] - 1, !this.canvas.startingClickY ? this.canvas.clickY[i] : this.canvas.startingClickY);
                     this.canvas.clickX.splice(i, 1);
                     this.canvas.clickY.splice(i, 1);
 
                 }
+
             }
 
-            this.canvas.context.lineTo(this.canvas.clickX[i], this.canvas.clickY[i]);
+            this.canvas.context.lineTo(this.canvas.clickX[i], !this.canvas.startingClickY ? this.canvas.clickY[i] : this.canvas.startingClickY);
             this.canvas.context.closePath();
             this.canvas.context.lineWidth = this.canvas.clickSize[i];
 
