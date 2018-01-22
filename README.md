@@ -17,3 +17,5 @@ A chrome extension that helps you draw on your current webpage.
 * v1.0.5
 	- Adds highligter tool.
 	- Fixes toolbar alignment bug.
+* v1.0.6
+	- Adds highlighting assist option.

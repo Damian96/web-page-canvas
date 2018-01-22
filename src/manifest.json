@@ -21,7 +21,8 @@
     "scripts": [
       "background/background.js",
       "background/captureAPI.js"
-    ]
+    ],
+    "persistent": false
   },
   "content_scripts": [
     {
@@ -41,5 +42,7 @@
     "images/*.png",
     "web-resources/*/*",
     "web-resources/icons/fonts/*"
-  ]
+  ],
+  "offline_enabled": true,
+  "homepage_url": "http://dgiankakis.it-studies.gr/index.php/en/component/spsimpleportfolio/item/20-web-page-canvas-extension-en"
 }
