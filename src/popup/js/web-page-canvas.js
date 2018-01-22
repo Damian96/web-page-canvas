@@ -510,7 +510,7 @@ window.onload = function() {
     chrome.tabs.getSelected(null, function(tab) {
         webPageCanvas.tabID = tab.id;
 
-        if(tab.url.includes('file:///') || tab.url.includes('chrome://') || tab.url.includes('chrome-extension://') || tab.url.includes('.pdf')) {
+        if(tab.url.includes('file:///') || tab.url.includes('chrome://') || tab.url.includes('chrome-extension://') || tab.url.includes('.pdf') || tab.url.includes('.png') || tab.url.includes('.jpg') || tab.url.includes('.gif') || tab.url.includes('.jpeg') || tab.url.includes('.JPEG') || tab.url.includes('.PNG') || tab.url.includes('.svg') || tab.url.includes('data:image/')) {
             webPageCanvas.isProperPage = false;
             webPageCanvas.disableMenu();
             webPageCanvas.init();
