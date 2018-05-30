@@ -1,0 +1,400 @@
+html,
+body {
+    width: 500px;
+    margin: 0;
+}
+
+.hidden {
+    display: none;
+}
+
+.row {
+    display: block;
+}
+
+#actions-container {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#save,
+#switcher,
+#restore {
+    width: 33.3333333%;
+    display: inline-block;
+    box-sizing: border-box;
+    margin-right: -3px;
+}
+
+#switcher > button,
+#save,
+#restore {
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    border: 1px solid #dddddd;
+    background-color: #fff;
+}
+
+#restore > .icon-repeat {
+    color: #FFA500;
+}
+
+#switcher button.on:disabled > i {
+    color: graytext !important;
+}
+
+#switcher.off button.on,
+#switcher.on button.off {
+    width: 100%;
+}
+
+#switcher.on > .on,
+#switcher.off > .off {
+    display: none;
+}
+
+#switcher .icon-checkmark {
+    color: green;
+}
+
+#switcher .icon-cross {
+    color: red;
+}
+
+#save:not(:disabled) > .icon-floppy-disk {
+    color: #0000FF;
+}
+
+#save:disabled  > .icon-floppy-disk,
+#restore:disabled > .icon-repeat {
+    color: graytext;
+}
+
+#titles,
+#contents {
+    width: 100%;
+    display: block;
+    position: relative;
+}
+
+/* Titles CSS */
+
+#titles {
+    height: auto;
+    margin-left: -1px;
+}
+
+.tab-title {
+    display: inline-block;
+    height: 27px;
+    border-width: 1px 1px 0 1px;
+    border-style: solid;
+    border-color: #d2d2d2;
+    border-radius: 5px 5px 0px 0px;
+    padding: 3px 7px 0 4px;
+    cursor: pointer;
+    position: relative;
+}
+
+.tab-title:not(:first-child) {
+    margin-left: -7px;
+}
+
+.tab-title.active {
+    background-color: #cfcfcf;
+    z-index: 2;
+}
+
+.tab-title.active[data-panel-id="library"] {
+    color: #0000FF;
+}
+
+.tab-title:not(.active):hover {
+    background-color: rgb(206, 206, 206);
+}
+
+.tab-title:not(.active) {
+    background-color: rgb(255, 255, 255);
+    z-index: 1;
+}
+
+.tab-content-overlay {
+    background-color: rgba(12, 12, 12, 0.8);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 3;
+}
+
+.tab-content-overlay > span {
+    color: #fff;
+    font-size: 18px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 75%;
+    text-align: center;
+}
+
+.tab-content.active span.color {
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    border: 1px solid #000000;
+    cursor: pointer;
+}
+
+.tab-content.active span.color.active {
+    transform: scale(1.35, 1.35);
+    margin: 0 5px;
+    border-color: #636363;
+    border-width: 1.5px;
+}
+
+.tab-title > i {
+    position: relative;
+    padding: 2px 6px;
+    font-size: 15px;
+    left: 0;
+}
+
+.tab-title-text {
+    font-size: 16px;
+}
+
+/* Contents CSS */
+
+.tab-content:not(.active) {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    padding: 10px;
+    border-color: rgba(0, 0, 0, 0.1);
+    border-width: 1px 0 0 0;
+    border-style: solid;
+}
+
+.tab-content.active h3 {
+    margin: 0 0 10px 0;
+}
+
+.tab-content.active hr {
+    border-bottom: 1px solid #000000;
+    margin: 10px -10px;
+}
+
+#slideshow {
+    width: 250px;
+    height: 200px;
+    margin: auto;
+    border: 1px solid #000;
+}
+
+#slideshow:not(.empty) {
+    background-color: darkgray;
+    overflow: hidden;
+    position: relative;
+}
+
+#slideshow:not(.empty) > .screenshot-navigation {
+    position: absolute;
+    top: 50%;
+    color: #000000;
+    font-size: 18px;
+    width: 100%;
+    height: max-content;
+}
+
+#slideshow:not(.empty) > .screenshot-navigation > i {
+    cursor: pointer;
+}
+
+#slideshow:not(.empty) > .screenshot-navigation > i.icon-arrow-right {
+    position: relative;
+    left: 84%;
+}
+
+#slideshow:not(.empty) > .screenshot-actions {
+    display: block;
+    margin: 0 5%;
+    width: 90%;
+    position: absolute;
+    top: 80%;
+    background-color: transparent;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div:last-child {
+    right: 0;
+    position: absolute;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div {
+    width: 90px;
+    text-align: center;
+    display: inline-block;
+    border: 1px solid #000;
+    border-radius: 5px;
+    padding: 2px 5px;
+    cursor: pointer;
+    background-color: #ffffff;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div:hover {
+    background-color: rgba(206, 206, 206, 1);
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div > i {
+    font-size: 17px;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div:not(:hover) > i {
+   color: graytext;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div > span {
+    font-weight: bold;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div:not(:hover) > span {
+    color: graytext;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div:hover > span {
+    color: #000000;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > div > span {
+    font-size: 15px;
+    position: relative;
+    top: -1px;
+    color: graytext;
+}
+
+#slideshow:not(.empty) > .screenshot-number-notification {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 3;
+    font-size: 10px;
+    text-align: right;
+}
+
+#slideshow:not(.empty) > .screenshot-number-notification > span {
+    color: #ff0000;
+    font-weight: bold;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > .download-screenshot:hover > .icon-download {
+    color: #0000FF;
+}
+
+#slideshow:not(.empty) > .screenshot-actions > .delete-screenshot:hover > .icon-bin {
+    color: #ff0000;
+}
+
+#slideshow.empty > .save-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    color: #fff;
+    font-weight: bold;
+}
+
+#slideshow.empty {
+    background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.2),
+        rgba(0, 0, 0, 0.2) 5px, rgba(0, 0, 0, 0.5) 5px, rgba(0, 0, 0, 0.5) 10px);
+}
+
+#slideshow.empty > .screenshot-navigation,
+#slideshow.empty > .screenshot-actions,
+#slideshow.empty > img,
+#slideshow.empty > .screenshot-number-notification,
+#slideshow:not(.empty) > .save-message,
+#slideshow:not(.loading) > .image-loader,
+#slideshow.loading > .screenshot-navigation,
+#slideshow.loading > .screenshot-actions,
+#slideshow.loading > .screenshot-number-notification,
+#slideshow.loading > img {
+    display: none;
+}
+
+#slideshow:not(.empty) > .icon-arrow-left {
+    left: 0;
+}
+
+#slideshow:not(.empty) > .icon-arrow-right {
+    left: 85%;
+}
+
+/* Loader CSS */
+
+#slideshow.loading > .image-loader {
+    text-align: center;
+    position: relative;
+    top: 35%;
+}
+
+#slideshow.loading > .image-loader > #loader-caption,
+#slideshow.loading > .image-loader > #loader-bar {
+    display: block;
+}
+
+#slideshow.loading > .image-loader #loader-bar,
+#slideshow.loading > .image-loader #passed-bar {
+    height: 15px;
+    display: block;
+    border-radius: 15px;
+}
+
+#slideshow.loading > .image-loader #loader-bar {
+    width: 80%;
+    margin: auto;
+    background: repeating-linear-gradient(45deg,
+        rgba(133, 75, 75, 0.2),
+        rgba(0, 0, 204, 0.2) 5px,
+        rgba(0, 0, 204, 0.5) 5px,
+        rgba(0, 0, 204, 0.3) 10px);
+}
+
+#slideshow.loading > .image-loader #passed-bar {
+    width: 0%;
+    height: 100%;
+    display: block;
+    background-color: #0000FF;
+}
+
+#slideshow > div,
+#slideshow > span {
+    position: relative;
+    z-index: 2;
+}
+
+#slide-image {
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    z-index: 2;
+    width: 80%;
+    height: auto;
+    min-height: 80%;
+    left: 10%;
+}
+
+.tab-content .option-description,
+.tab-content .button-description {
+    font-size: 17px;
+    vertical-align: middle;
+}
+
+#clear-screenshots {
+    cursor: pointer;
+    padding: 10px;
+}

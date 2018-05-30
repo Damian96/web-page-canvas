@@ -1,4 +1,4 @@
-/* globals chrome */
+/* globals browser */
 
 var webPageCanvas;
 
@@ -71,7 +71,7 @@ class WebPageCanvas {
 
     destroy() {
         webPageCanvas.handleElements(false);
-        chrome.runtime.sendMessage({
+        browser.runtime.sendMessage({
             message: 'manually-closed-canvas'
         });
     }
@@ -93,7 +93,7 @@ class WebPageCanvas {
         this.resetFinalCanvas();
         window.scrollTo(0, 0);
         return new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({
+            browser.runtime.sendMessage({
                 message: 'take-snapshot',
                 data: {
                     windowHeight: window.innerHeight,
@@ -322,7 +322,7 @@ class WebPageCanvas {
 
                 this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, this.activeToolInfo.id == 'eraser' ? false : this.activeToolInfo.options.color);
 
-                this.activeToolInfo.id == 'eraser' ? this.erase() : this.draw();
+                this.activeToolInfo.id == ('eraser' ? this.erase() : this.draw());
 
             }
 
@@ -445,7 +445,7 @@ class WebPageCanvas {
                     resolve('success');
             }.bind(this);
 
-            request.open('GET', chrome.runtime.getURL('/web-resources/html/web-page-canvas.html'));
+            request.open('GET', browser.runtime.getURL('/web-resources/html/web-page-canvas.html'));
             request.responseType = 'document';
             request.send();
 
@@ -462,7 +462,7 @@ class WebPageCanvas {
 
                 if(styleSheet.href.indexOf('http') == -1) {
                     let href = styleSheet.getAttribute('href');
-                    styleSheet.setAttribute('href', chrome.runtime.getURL(href));
+                    styleSheet.setAttribute('href', browser.runtime.getURL(href));
                 }
 
                 document.head.appendChild(styleSheet);
@@ -515,7 +515,7 @@ class WebPageCanvas {
     }
 }
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+browser.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     if(request != null && request.hasOwnProperty('message') && !request.hasOwnProperty('data')) {
 
@@ -525,7 +525,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
                 webPageCanvas = new WebPageCanvas();
                 webPageCanvas.getContentDocument()
-                    .then(function(success) {
+                    .then(function() {
                         webPageCanvas.insertHTML();
                         webPageCanvas.attachHandlers();
                         webPageCanvas.initCanvas();

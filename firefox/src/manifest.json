@@ -1,0 +1,51 @@
+{
+  "manifest_version": 2,
+  "name": "Web Page Canvas",
+  "short_name": "Web Canvas",
+  "description": "An extension that lets you draw on live web pages.",
+  "version": "1.0.6",
+  "icons": {
+    "16": "images/draw-16.png",
+    "48": "images/draw-48.png",
+    "128": "images/draw-128.png"
+  },
+  "browser_action": {
+    "default_icon": {
+      "16": "images/draw-16.png",
+      "32": "images/draw-32.png"
+    },
+    "default_title": "Annotate Page",
+    "default_popup": "/popup/html/web-page-canvas.html"
+  },
+  "background": {
+    "scripts": [
+      "background/background.js",
+      "background/captureAPI.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content-scripts/js/web-page-canvas.js"
+      ]
+    }
+  ],
+  "permissions": [
+    "<all_urls>",
+    "tabs",
+    "activeTab",
+    "storage",
+    "unlimitedStorage",
+    "downloads"
+  ],
+  "web_accessible_resources": [
+    "images/*.png",
+    "web-resources/*/*",
+    "web-resources/icons/fonts/*"
+  ],
+  "homepage_url": "http://dgiankakis.it-studies.gr/index.php/en/component/spsimpleportfolio/item/20-web-page-canvas-extension-en"
+}

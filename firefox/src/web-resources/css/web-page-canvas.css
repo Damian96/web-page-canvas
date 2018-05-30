@@ -1,0 +1,324 @@
+body {
+    min-width: 100%;
+    min-height: 100%;
+    margin: 0;
+}
+
+.web-page-canvas {
+    font-family: 'Lora', serif;
+}
+
+.hidden {
+    display: none;
+}
+
+.row {
+    display: block;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+canvas {
+    position: absolute;
+    z-index: 10000000;
+    top: 0;
+    left: 0;
+}
+
+#toolbar {
+    background: linear-gradient(rgb(20, 20, 20), rgb(60, 60, 60));
+    position: fixed;
+    z-index: 10000001;
+    user-select: none;
+    transform: translate(-50%, 0);
+    width: -webkit-max-content;
+    height: -webkit-max-content;
+    max-width: 80%;
+    left: 50%;
+}
+
+#toolbar.aligned-top {
+    border-bottom-right-radius: 5px;
+    top: 0
+}
+
+#toolbar.aligned-bottom {
+    border-top-right-radius: 5px;
+    bottom: 0
+}
+
+#toolbar.aligned-top .dropdown-item.top,
+#toolbar.aligned-bottom .dropdown-item.bottom {
+    color: graytext !important;
+    cursor: context-menu !important;
+}
+
+.tool-container:not(.active) * {
+    color: graytext !important;
+}
+
+#tool-col,
+#option-col,
+.tool-container,
+.option-container {
+    display: inline-block;
+    width: -webkit-max-content;
+}
+
+#tool-col {
+    border-right: 1px solid #fff;
+}
+
+.tool-container:not(:last-child),
+.option-container:not(:last-child) {
+    border-right: 1px dashed #fff;
+}
+
+.tool-container > .tool-label,
+.option-container > .tool-label {
+    color: #fff;
+    font-size: 18px;
+}
+
+#toolbar .icon-eraser,
+#toolbar .icon-menu,
+#toolbar .icon-highlighter {
+    font-size: 17px;
+}
+
+#toolbar .icon-highlighter {
+    font-weight: bolder;
+}
+
+.tool-container:active > .tool-label,
+.option-container:active > .tool-label {
+    color: #d2d2d2;
+}
+
+.icon-paint-brush,
+.icon-floppy-disk {
+    font-size: 15px;
+}
+
+.icon-paint-brush,
+.icon-highlighter {
+    color: #FFFF00;
+    padding: 3px;
+}
+
+.icon-paint-brush.black,
+.icon-paint-brush.green,
+.icon-paint-brush.purple,
+.icon-paint-brush.brown,
+.icon-highlighter.black,
+.icon-highlighter.green,
+.icon-highlighter.purple,
+.icon-highlighter.brown {
+    background-color: #fff;
+    border-radius: 50%;
+}
+
+.icon-paint-brush.black,
+.icon-highlighter.black {
+    color: #000 !important;
+}
+
+.icon-paint-brush.green,
+.icon-highlighter.green {
+    color: #008000 !important;
+}
+
+.icon-paint-brush.purple,
+.icon-highlighter.purple {
+    color: #800080 !important;
+}
+
+.icon-paint-brush.brown,
+.icon-highlighter.brown {
+    color: #A52A2A !important;
+}
+
+.icon-eraser {
+    position: relative;
+    top: 2px;
+    color: #A52A2A;
+}
+
+.icon-menu {
+    position: relative;
+    top: 1px;
+    color: #87ceeb;
+}
+
+#cancel {
+    font-size: 17px;
+    position: relative;
+    top: 50%;
+    padding: 1px 2px 2px 1px;
+    color: #FF0000;
+    font-weight: bolder;
+    background-color: #fff;
+    border-radius: 50%;
+}
+
+.icon-close {
+    font-size: 20px;
+    color: #FFA500;
+    position: relative;
+    top: 2px;
+}
+
+[data-has-dropdown='true'] .icon-caret-down {
+    color: #fff;
+    font-size: 19px;
+}
+
+.tool-container,
+.option-container {
+    padding: 5px 10px;
+    cursor: pointer;
+    position: relative;
+}
+
+.tool-container:not(:first-child),
+.option-container {
+    margin-left: -4px;
+}
+
+.icon-floppy-disk {
+    color: #0000FF
+}
+
+.dropdown:not(.hidden) {
+    background-color: #fff;
+    border: 1px solid #000;
+    width: -webkit-max-content;
+    min-width: 100%;
+    height: -webkit-max-content;
+    position: absolute;
+    left: 0;
+    border-radius: 0 0 5px 5px;
+}
+
+#toolbar.aligned-top .dropdown {
+    top: 100%;
+    box-shadow: -3px 3px 2px #e8e8e8;
+}
+
+#toolbar.aligned-bottom .dropdown {
+    top: 0;
+    transform: translate(0, -100%);
+    box-shadow: 3px -3px 2px #e8e8e8;
+}
+
+.dropdown:not(.hidden) > .dropdown-item {
+    padding: 5px;
+    text-align: center;
+}
+
+.dropdown:not(.hidden) > .dropdown-item:first-child {
+    border-bottom: 1px solid #000;
+}
+
+.dropdown:not(.hidden) > .dropdown-item:active {
+    background-color: #d2d2d2;
+}
+
+.dropdown .row,
+.dropdown h3,
+.dropdown hr {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.dropdown h3 {
+    font-size: 16px;
+    font-family: inherit !important;
+    font-weight: bold !important;
+    line-height: initial !important;
+    color: #000 !important;
+}
+
+.tool-container[title="Paint Brush"] .dropdown,
+.tool-container[title="Eraser"] .dropdown,
+.tool-container[title="Highlighter"] .dropdown {
+    padding: 0 5px;
+}
+
+.tool-container[title="Eraser"] .dropdown {
+    min-width: 80px
+}
+
+.tool-container[title="Highlighter"] .dropdown {
+    min-width: 250px
+}
+
+.dropdown .color {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #000;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dropdown .color.active {
+    transform: scale(1.2, 1.2);
+    border: 2px solid #808080;
+}
+
+.dropdown .color.red {
+    background-color: #FF0000
+}
+
+.dropdown .color.green {
+    background-color: #008000
+}
+
+.dropdown .color.blue {
+    background-color: #0000FF
+}
+
+.dropdown .color.yellow {
+    background-color: #FFFF00
+}
+
+.dropdown .color.purple {
+    background-color: #800080
+}
+
+.dropdown .color.brown {
+    background-color: #A52A2A
+}
+
+.dropdown .color.black {
+    background-color: #000
+}
+
+.dropdown .color.white {
+    background-color: #fff
+}
+
+.dropdown hr {
+    margin-left: -5px;
+    margin-right: -5px;
+}
+
+.dropdown input[type="range"] {
+    width: 80%;
+    display: inline-block !important;
+}
+
+.dropdown input[type="checkbox"] {
+    transform: scale(1.3, 1.3);
+}
+
+.dropdown input[type="checkbox"] + .tool-label {
+    font-size: 17.5px;
+}
+
+.dropdown .range-value {
+    position: relative;
+    top: -4px;
+    left: 5px;
+    font-size: 18px;
+}

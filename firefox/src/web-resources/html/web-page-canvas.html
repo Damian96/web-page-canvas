@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8"/>
+		<link rel="stylesheet" href="web-resources/css/web-page-canvas.css" type="text/css"/>
+		<link rel="stylesheet" href="web-resources/icons/icons.css" type="text/css"/>
+		<link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet" type="text/css">
+	</head>
+	<body>
+<canvas class="web-page-canvas"></canvas>
+<div id="toolbar" class="aligned-top web-page-canvas">
+    <div id="tool-col">
+        <div class="tool-container active" title="Paint Brush" data-has-dropdown="true">
+            <i class="icon-paint-brush"></i><span class="tool-label">&nbsp;Paint Brush</span>
+            <i class="icon-caret-down"></i>
+            <div class="dropdown hidden">
+                <div class="row">
+                    <h3>Color</h3>
+                    <span class="color yellow active" title="Yellow" data-color-code="#FFFF00"></span>
+                    <span class='color red' title='Red' data-color-code='#FF0000'></span>
+                    <span class='color blue' title='Blue' data-color-code='#0000FF'></span>
+                    <span class='color green' title='Green' data-color-code='#008000'></span>
+                    <span class='color purple' title='Purple' data-color-code='#800080'></span>
+                    <span class='color brown' title='Brown' data-color-code='#A52A2A'></span>
+                    <span class='color black' title='Black' data-color-code='#000000'></span>
+                    <span class='color white' title='White' data-color-code='#ffffff'></span>
+                    <hr/>
+                </div>
+                <div class="row">
+                    <h3>Size</h3>
+                    <input data-tool="paint-brush" type="range" step="1" min="1" max="30" value="5" data-option="size"/><span class="range-value">5</span>
+                </div>
+            </div>
+        </div>
+        <div class="tool-container" title="Eraser" data-has-dropdown="true">
+            <i class="icon-eraser"></i><span class="tool-label">&nbsp;Eraser</span>
+            <i class="icon-caret-down"></i>
+            <div class="dropdown hidden">
+                <div class="row">
+                    <h3>Size</h3>
+                    <input data-tool="eraser" type="range" step="1" min="1" max="30" value="5" data-option="size"/><span class="range-value">5</span>
+                </div>
+            </div>
+        </div>
+        <div class="tool-container" title="Highlighter" data-has-dropdown="true">
+            <i class="icon-highlighter"></i><span class="tool-label">&nbsp;Highlighter</span>
+            <i class="icon-caret-down"></i>
+            <div class="dropdown hidden">
+                <div class="row">
+                    <h3>Color</h3>
+                    <span class="color yellow active" title="Yellow" data-color-code="#FFFF00"></span>
+                    <span class='color red' title='Red' data-color-code='#FF0000'></span>
+                    <span class='color blue' title='Blue' data-color-code='#0000FF'></span>
+                    <span class='color green' title='Green' data-color-code='#008000'></span>
+                    <span class='color purple' title='Purple' data-color-code='#800080'></span>
+                    <span class='color brown' title='Brown' data-color-code='#A52A2A'></span>
+                    <span class='color black' title='Black' data-color-code='#000000'></span>
+                    <span class='color white' title='White' data-color-code='#ffffff'></span>
+                    <hr/>
+                </div>
+                <div class="row">
+                    <h3>Size</h3>
+                    <input data-tool="highlighter" type="range" step="1" min="1" max="30" value="10" data-option="size" /><span class="range-value">10</span>
+                    <hr>
+                </div>
+                <div class="row">
+                    <h3>Transparency</h3>
+                    <input data-tool="highlighter" type="range" step="5" min="0" max="100" value="60" data-option="transparency" /><span class="range-value">60%</span>
+                    <hr>
+                </div>
+                <div class="row">
+                    <h3>Highlighting Assist</h3>
+                    <input type="checkbox" data-tool="highlighter" data-option="highlighting-assist"/><span class="tool-label">Draw only Straight Lines</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="option-col">
+        <div class="option-container" title="Clear All">
+            <i class="icon-close"></i><span class="tool-label">&nbsp;Clear</span>
+        </div>
+        <div id="toolbar-alignment" class="option-container" title="Change Toolbar Position" data-has-dropdown="true">
+            <i class="icon-menu"></i><span class="tool-label">&nbsp;Menu Position</span>
+            <i class="icon-caret-down"></i>
+            <div class="dropdown hidden">
+                <div class="dropdown-item top">
+                    <i class="icon-align-top"></i><span class="tool-label">&nbsp;Align Top</span>
+                </div>
+                <div class="dropdown-item bottom">
+                    <i class="icon-align-bottom"></i><span class="tool-label">&nbsp;Align Bottom</span>
+                </div>
+            </div>
+        </div>
+        <div id="close-toolbar" class="option-container" title="Close Toolbar">
+            <i id="cancel" class="icon-close"></i>
+        </div>
+    </div>
+</div>
+</body>
+</html>
