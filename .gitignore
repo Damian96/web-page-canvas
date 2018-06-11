@@ -1,17 +1,8 @@
-# Ignore VSCode Settings
-/.vscode/*.*
-
-# Ignore Builded App
+# Ignore Builded Extension
 /build/
-<<<<<<< HEAD
-=======
 
 # Ignore VSCode Workspace Settings
 /.vscode/
->>>>>>> develop_highlighter
-
-# Ignore package-lock.json
-package-lock.json
 
 # Logs
 logs

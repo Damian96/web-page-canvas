@@ -35,13 +35,13 @@ class webPageCanvasPopup {
         this.tabClickHandler.call(this, document.querySelector(".tab-title[data-panel-id='library']"));
         this.updateSlideshow();
 
-        if(!this.isProperPage) {
+        if (!this.isProperPage) {
             document.querySelector('#switcher button.on').disabled = true;
         }
     }
 
     reload(attributes) {
-        for(let key in attributes) {
+        for (let key in attributes) {
             this[key] = attributes[key];
         }
         this.attachHandlers();
@@ -53,18 +53,18 @@ class webPageCanvasPopup {
 
         let switcher = document.getElementById('switcher');
 
-        if(this.activePanel.id == 'library')
+        if (!this.activePanel.id.localeCompare('library'))
             this.tabClickHandler.call(this, document.querySelector(".tab-title.panel[data-panel-id='library']"));
-        else if(this.activePanel.id == 'options')
+        else if (!this.activePanel.id.localeCompare('options'))
             this.tabClickHandler.call(this, document.querySelector(".tab-title.panel[data-panel-id='options']"));
 
-        if(this.overlayOpen) {
+        if (this.overlayOpen) {
 
             switcher.classList.remove('off');
             switcher.classList.add('on');
             document.getElementById('save').disabled = false;
 
-            if(this.lastCanvas != null)
+            if (this.lastCanvas != null)
                 document.getElementById('restore').disabled = false;
         } else {
 
@@ -80,19 +80,21 @@ class webPageCanvasPopup {
 
         chrome.storage.local.get(this.STORAGEAREAKEY, function(items) {
 
-            if(items[this.STORAGEAREAKEY] != null && items[this.STORAGEAREAKEY].length > this.localSnapshots.length) {
+            if (items[this.STORAGEAREAKEY] != null && items[this.STORAGEAREAKEY].length > this.localSnapshots.length) {
 
-                this.localSnapshots =  items[this.STORAGEAREAKEY];
+                this.localSnapshots = items[this.STORAGEAREAKEY];
                 this.reloadSlideshowWithLocalSnapshots();
 
-            } else if(this.localSnapshots.length > 0) {
+            } else if (this.localSnapshots.length > 0) {
                 this.reloadSlideshowWithLocalSnapshots();
-                chrome.storage.local.set({[this.STORAGEAREAKEY]: this.localSnapshots});
+                chrome.storage.local.set({
+                    [this.STORAGEAREAKEY]: this.localSnapshots
+                });
             } else {
                 this.clearSlideshow();
             }
 
-            if(this.localSnapshots.length == null)
+            if (this.localSnapshots.length == null)
                 document.getElementById('clear-screenshots').disabled = true;
             else
                 document.getElementById('clear-screenshots').disabled = false;
@@ -140,25 +142,25 @@ class webPageCanvasPopup {
         clearScreenshots.addEventListener('click', this.clearScreenshotsClickHandler.bind(this, clearScreenshots));
         restore.addEventListener('click', this.restoreClickHandler.bind(this, restore));
 
-        for(let element of document.querySelectorAll('.tab-title')) {
+        for (let element of document.querySelectorAll('.tab-title')) {
             element.addEventListener('click', this.tabClickHandler.bind(this, element));
         }
 
-        for(let element of document.querySelectorAll('.tab-content .color')) {
+        for (let element of document.querySelectorAll('.tab-content .color')) {
             element.addEventListener('click', this.colorClickHandler.bind(this, element));
         }
 
-        for(let element of document.querySelectorAll('#slideshow > .screenshot-actions > div')) {
+        for (let element of document.querySelectorAll('#slideshow > .screenshot-actions > div')) {
             element.addEventListener('click', this.screenshotActionClickHandler.bind(this, element));
         }
 
-        for(let element of document.querySelectorAll('#slideshow > .screenshot-navigation > i')) {
+        for (let element of document.querySelectorAll('#slideshow > .screenshot-navigation > i')) {
             element.addEventListener('click', this.screenshotNavigationClickHandler.bind(this, element));
         }
     }
 
     disableMenu() {
-        for(let element of document.querySelectorAll('#switcher button')) {
+        for (let element of document.querySelectorAll('#switcher button')) {
             element.disabled = true;
         }
     }
@@ -176,28 +178,28 @@ class webPageCanvasPopup {
 
     switcherClickHandler(element, sendMessageToTab = true) {
 
-        if(element.classList.contains('off')) {
+        if (element.classList.contains('off')) {
 
             this.overlayOpen = true;
 
-            chrome.tabs.sendMessage(this.tabID, {message: 'init-canvas'});
+            chrome.tabs.sendMessage(this.tabID, { message: 'init-canvas' });
 
             element.classList.remove('off');
             element.classList.add('on');
             document.getElementById('save').disabled = false;
 
-            if(this.lastCanvas != null)
+            if (this.lastCanvas != null)
                 document.getElementById('restore').disabled = false;
 
-        } else if(element.classList.contains('on')) {
+        } else if (element.classList.contains('on')) {
 
             this.overlayOpen = false;
 
-            if(sendMessageToTab) {
+            if (sendMessageToTab) {
 
                 chrome.tabs.sendMessage(this.tabID, { message: 'close-canvas' }, function(response) {
 
-                    if(response != null && response.hasOwnProperty('data') != null)
+                    if (response != null && response.hasOwnProperty('data') != null)
                         this.lastCanvas = response.data;
 
                 }.bind(this));
@@ -215,14 +217,14 @@ class webPageCanvasPopup {
     }
 
     restoreClickHandler(element) {
-        if(this.lastCanvas != null)
-            chrome.tabs.sendMessage(this.tabID, {message: 'restore-canvas', data: this.lastCanvas});
-            element.disabled = true;
+        if (this.lastCanvas != null)
+            chrome.tabs.sendMessage(this.tabID, { message: 'restore-canvas', data: this.lastCanvas });
+        element.disabled = true;
     }
 
     clearClickHandler() {
-        if(this.overlayOpen) {
-            chrome.tabs.sendMessage(this.tabID, {message: 'clear-canvas'});
+        if (this.overlayOpen) {
+            chrome.tabs.sendMessage(this.tabID, { message: 'clear-canvas' });
         }
     }
 
@@ -231,19 +233,19 @@ class webPageCanvasPopup {
         let slideshow = document.getElementById('slideshow'),
             slideImage = document.getElementById('slide-image');
 
-        if(slideshow.className == '' && slideImage.src != null) {
-            if(element.classList.contains('download-screenshot'))
+        if (!slideshow.className && slideImage.src != null) {
+            if (element.classList.contains('download-screenshot'))
                 this.insertDownload(slideImage.src);
-            else if(element.classList.contains('delete-screenshot')) {
+            else if (element.classList.contains('delete-screenshot')) {
                 chrome.storage.local.get(this.STORAGEAREAKEY, function(slideImage, slideshow, items) {
 
                     let data = items[this.STORAGEAREAKEY];
 
-                    if(typeof data == 'object' && data.length > 0) {
+                    if (!(typeof data).localeCompare('object') && data.length > 0) {
 
                         data.splice(slideImage.dataset.storageIndex, 1);
 
-                        if(data.length > 0) {
+                        if (data.length > 0) {
 
                             this.localSnapshots = data;
                             this.reloadSlideshowWithLocalSnapshots();
@@ -254,7 +256,9 @@ class webPageCanvasPopup {
 
                         }
 
-                        chrome.storage.local.set({ [this.STORAGEAREAKEY]: data });
+                        chrome.storage.local.set({
+                            [this.STORAGEAREAKEY]: data
+                        });
 
                     }
 
@@ -271,15 +275,15 @@ class webPageCanvasPopup {
             currentScreenshotNumber = document.getElementById('current-screenshot-number'),
             newImageIndex;
 
-        if(element.title == 'Previous') {
-            if((currentImageIndex - 1) < 0)
+        if (!element.title.localeCompare('Previous')) {
+            if ((currentImageIndex - 1) < 0)
                 newImageIndex = this.localSnapshots.length - 1;
             else
                 newImageIndex = currentImageIndex - 1;
 
         } else {
 
-            if((currentImageIndex + 1) >= this.localSnapshots.length)
+            if ((currentImageIndex + 1) >= this.localSnapshots.length)
                 newImageIndex = 0;
             else
                 newImageIndex = currentImageIndex + 1;
@@ -295,9 +299,9 @@ class webPageCanvasPopup {
 
         this.tabClickHandler.call(this, document.querySelector(".tab-title[data-panel-id='library'"));
 
-        chrome.tabs.sendMessage(this.tabID, {message: 'save-canvas'}, function(response) {
+        chrome.tabs.sendMessage(this.tabID, { message: 'save-canvas' }, function(response) {
 
-            if(response != null && response.hasOwnProperty('message') && response.hasOwnProperty('data') && (response.message == 'saved')) {
+            if (response != null && response.hasOwnProperty('message') && response.hasOwnProperty('data') && !response.message.localeCompare('saved')) {
 
                 this.insertImage(response.data).then(function() {
 
@@ -313,7 +317,7 @@ class webPageCanvasPopup {
 
     tabClickHandler(element) {
 
-        if(!element.classList.contains('active')) {
+        if (!element.classList.contains('active')) {
 
             document.querySelector('.tab-title.active').classList.remove('active');
             document.querySelector('.tab-content.active').classList.remove('active');
@@ -324,9 +328,9 @@ class webPageCanvasPopup {
 
             document.querySelector(".tab-content[data-panel-id='" + id + "']").classList.add('active');
 
-            if(id == 'library') {
+            if (!id.localeCompare('library')) {
 
-                if(this.localSnapshots.length > 0)
+                if (this.localSnapshots.length > 0)
                     this.reloadSlideshowWithLocalSnapshots();
                 else
                     this.clearSlideshow();
@@ -341,9 +345,11 @@ class webPageCanvasPopup {
 
     clearScreenshotsClickHandler() {
 
-        if(this.localSnapshots.length > 0) {
+        if (this.localSnapshots.length > 0) {
 
-            chrome.storage.local.set({[this.STORAGEAREAKEY]: null});
+            chrome.storage.local.set({
+                [this.STORAGEAREAKEY]: null
+            });
             this.localSnapshots = {};
             this.reloadSlideshowWithLocalSnapshots();
 
@@ -355,7 +361,7 @@ class webPageCanvasPopup {
         let id = this.changeToCamelCase(newId);
         this.activeTool = {
             id: id,
-            htmlId: id == 'paintBrush' ? 'paint-brush' : id,
+            htmlId: !id.localeCompare('paintBrush') ? 'paint-brush' : id,
             options: this.toolsOptions[id]
         };
         this.updatePageActiveTool();
@@ -373,7 +379,7 @@ class webPageCanvasPopup {
 
     colorClickHandler(element) {
 
-        if(element.classList.contains('color') && !element.classList.contains('active')) {
+        if (element.classList.contains('color') && !element.classList.contains('active')) {
 
             let tabContent = element.parentElement.parentElement,
                 toolId = tabContent.dataset.toolId,
@@ -382,7 +388,7 @@ class webPageCanvasPopup {
             this.disableAllColors(toolId);
             element.classList.add('active');
 
-            if(toolId == 'paint-brush') {
+            if (!toolId.localeCompare('paint-brush')) {
                 this.toolsOptions.paintBrush.color = element.dataset.colorCode;
             }
 
@@ -398,15 +404,15 @@ class webPageCanvasPopup {
         let toolId = element.dataset.toolId,
             value = parseFloat(element.value);
         element.nextElementSibling.innerHTML = value + 'px';
-        if(toolId == 'paint-brush')
+        if (!toolId.localeCompare('paint-brush'))
             this.toolsOptions.paintBrush.size = value;
-        else if(toolId == 'eraser')
+        else if (!toolId.localeCompare('eraser'))
             this.toolsOptions.eraser.size = value;
         this.changeActiveTool(toolId);
     }
 
     disableAllColors(toolId) {
-        for(let element of document.querySelectorAll(".tab-content[data-tool-id='" + toolId + "']" + " .color.active")) {
+        for (let element of document.querySelectorAll(".tab-content[data-tool-id='" + toolId + "']" + " .color.active")) {
             element.classList.remove('active');
         }
     }
@@ -417,7 +423,7 @@ class webPageCanvasPopup {
      */
     changeToCamelCase(string) {
         let hyphenIndex = string.includes('-');
-        if(hyphenIndex) {
+        if (hyphenIndex) {
             let strParts = string.split('-');
             return strParts[0] + strParts[1].charAt(0).toUpperCase() + strParts[1].substr(1, strParts[1].length);
         }
@@ -433,12 +439,12 @@ class webPageCanvasPopup {
             loader = document.getElementById('passed-bar'),
             percent = document.getElementById('loader-percent');
 
-        if(!slideshow.classList.contains('loading')) {
+        if (!slideshow.classList.contains('loading')) {
 
             slideshow.className = 'loading';
 
         }
-        if(targetW >= 100) {
+        if (targetW >= 100) {
 
             loader.style.width = '100%';
             percent.innerHTML = '100';
@@ -455,14 +461,16 @@ class webPageCanvasPopup {
     insertImage(newImageSrc) {
         return new Promise((resolve) => {
             chrome.storage.local.get(this.STORAGEAREAKEY, function(newImageSrc, items) {
-                if(items[this.STORAGEAREAKEY] != null) {
+                if (items[this.STORAGEAREAKEY] != null) {
                     this.localSnapshots = items[this.STORAGEAREAKEY].concat([newImageSrc]);
                 } else {
                     this.localSnapshots = new Array(newImageSrc);
                 }
                 let imageBlobURL = this.b64ToBlobURL(newImageSrc);
 
-                chrome.storage.local.set({ [this.STORAGEAREAKEY]:  this.localSnapshots }, function(imageBlobURL) {
+                chrome.storage.local.set({
+                    [this.STORAGEAREAKEY]: this.localSnapshots
+                }, function(imageBlobURL) {
 
                     let slideImage = document.getElementById('slide-image'),
                         currentScreenshotNumber = document.getElementById('current-screenshot-number'),
@@ -510,7 +518,7 @@ window.onload = function() {
     chrome.tabs.getSelected(null, function(tab) {
         webPageCanvas.tabID = tab.id;
 
-        if(tab.url.includes('file:///') || tab.url.includes('chrome://') || tab.url.includes('chrome-extension://') || tab.url.includes('.pdf') || tab.url.includes('.png') || tab.url.includes('.jpg') || tab.url.includes('.gif') || tab.url.includes('.jpeg') || tab.url.includes('.JPEG') || tab.url.includes('.PNG') || tab.url.includes('.svg') || tab.url.includes('data:image/')) {
+        if (tab.url.includes('file:///') || tab.url.includes('chrome://') || tab.url.includes('chrome-extension://') || tab.url.includes('.pdf') || tab.url.includes('.png') || tab.url.includes('.jpg') || tab.url.includes('.gif') || tab.url.includes('.jpeg') || tab.url.includes('.JPEG') || tab.url.includes('.PNG') || tab.url.includes('.svg') || tab.url.includes('data:image/')) {
             webPageCanvas.isProperPage = false;
             webPageCanvas.disableMenu();
             webPageCanvas.init();
@@ -520,13 +528,13 @@ window.onload = function() {
                 tabID: webPageCanvas.tabID
             }, function(response) {
 
-                if(response != null && response.hasOwnProperty('message')) {
+                if (response != null && response.hasOwnProperty('message')) {
 
-                    if(response.message == 'do-it-yourself') {
+                    if (response.message.localeCompare('do-it-yourself')) {
 
                         webPageCanvas.init();
 
-                    } else if(response.message == 'sending-popup-object-data' && response.hasOwnProperty('data')) {
+                    } else if (!response.message.localeCompare('sending-popup-object-data') && response.hasOwnProperty('data')) {
 
                         webPageCanvas.reload(response.data);
 
@@ -542,18 +550,17 @@ window.onload = function() {
 
 chrome.runtime.onMessage.addListener(function(request) {
 
-    if(request == null) {
+    if (request == null) {
         return;
     }
 
-    if(request.hasOwnProperty('message') && request.hasOwnProperty('data')) {
+    if (request.hasOwnProperty('message') && request.hasOwnProperty('data')) {
 
-        if(request.message == 'update-snapshot-process')
+        if (request.message.localeCompare('update-snapshot-process'))
             webPageCanvas.animateLoader(request.data);
 
-    } else if(request.hasOwnProperty('message') && request.message == 'manually-closed-canvas') {
+    } else if (request.hasOwnProperty('message') && request.message.localeCompare('manually-closed-canvas')) {
         webPageCanvas.switcherClickHandler.call(webPageCanvas, document.getElementById('switcher'));
     }
-
 
 });

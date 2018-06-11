@@ -5,7 +5,7 @@ var webPageCanvas;
 /**
  * @class
  * @classdesc The main frontend plugin class. Used for creating the Drawing Mode layout. Implements the drawing function code.
- * @prop {Object} activeToolInfo The object with all the information about the currently active tool.
+ * @prop {Object.<string, Object>} activeToolInfo The object with all the information about the currently active tool.
  * @prop {Object} tabID The chrome ID of the current tab.
  * @prop {Object.<string, number>} snapshots Contains the generated snapshots and their position on the final image.
  */
@@ -45,16 +45,16 @@ class WebPageCanvas {
     }
 
     attachHandlers() {
-        for(let element of document.querySelectorAll(".tool-container, .option-container")) {
+        for (let element of document.querySelectorAll(".tool-container, .option-container")) {
             element.addEventListener('click', this.onToolClickHandler.bind(this, element));
         }
-        for(let element of document.querySelectorAll('span.color[data-color-code]')) {
+        for (let element of document.querySelectorAll('span.color[data-color-code]')) {
             element.addEventListener('click', this.colorClickHandler.bind(this, element));
         }
-        for(let element of document.querySelectorAll('#toolbar-alignment .dropdown-item')) {
+        for (let element of document.querySelectorAll('#toolbar-alignment .dropdown-item')) {
             element.addEventListener('click', this.alignClickHandler.bind(this, element));
         }
-        for(let element of document.querySelectorAll(".dropdown input[type='range']")) {
+        for (let element of document.querySelectorAll(".dropdown input[type='range']")) {
             element.addEventListener('change', this.sizeChangeHandler.bind(this, element));
         }
         document.getElementById("close-toolbar").addEventListener('click', this.destroy.bind(this));
@@ -78,8 +78,8 @@ class WebPageCanvas {
 
     handleElements(show) {
 
-        for(let element of document.getElementsByClassName('web-page-canvas')) {
-            if(show) {
+        for (let element of document.getElementsByClassName('web-page-canvas')) {
+            if (show) {
                 element.classList.remove('hidden');
             } else {
                 element.classList.add('hidden');
@@ -100,8 +100,8 @@ class WebPageCanvas {
                     pageHeight: this.getMaxHeight()
                 }
             }, function(response) {
-                if(response != null && response.hasOwnProperty('data')) {
-                    if(response.hasOwnProperty('error')) {
+                if (response != null && response.hasOwnProperty('data')) {
+                    if (response.hasOwnProperty('error')) {
                         reject(response.error);
                     } else {
                         resolve(response.data);
@@ -114,20 +114,26 @@ class WebPageCanvas {
 
     }
 
+    /**
+     * 
+     * @param {Object} snapshots 
+     */
     loadImages(snapshots) {
 
         this.snapshots = snapshots;
 
         return new Promise((resolve) => {
 
-            for(let snapshot of this.snapshots) {
+            var onImgLoad = function (img, x, y) {
+                this.finalCanvas.context.drawImage(img, x, y);
+                if (++this.imagesLoaded == this.snapshots.length)
+                    resolve(this.finalCanvas.element.toDataURL('image/png'));
+            };
+
+            for (let snapshot of this.snapshots) {
                 let img = new Image();
 
-                img.onload = function(img, x, y) {
-                    this.finalCanvas.context.drawImage(img, x, y);
-                    if(++this.imagesLoaded == this.snapshots.length)
-                        resolve(this.finalCanvas.element.toDataURL('image/png'));
-                }.bind(this, img, snapshot.x, snapshot.y);
+                img.onload = onImgLoad.bind(this, img, snapshot.x, snapshot.y);
 
                 img.src = snapshot.src;
                 this.canvasImages.push(img);
@@ -137,13 +143,13 @@ class WebPageCanvas {
 
     onToolClickHandler(tool, event) {
 
-        if(tool.dataset.hasDropdown) {
-            for(let child of tool.children) {
+        if (tool.dataset.hasDropdown) {
+            for (let child of tool.children) {
 
-                if(child.classList.contains('dropdown') && child.classList.contains('hidden')) {
+                if (child.classList.contains('dropdown') && child.classList.contains('hidden')) {
 
                     let activeDropdown = document.querySelector('.dropdown:not(.hidden)');
-                    if(activeDropdown != null) {
+                    if (activeDropdown != null) {
                         activeDropdown.classList.add('hidden');
                     }
 
@@ -152,9 +158,9 @@ class WebPageCanvas {
 
                         child.classList.add('hidden');
 
-                    }.bind(this, child), {once: true});
+                    }.bind(this, child), { once: true });
 
-                } else if(child.classList.contains('dropdown') && !child.classList.contains('hidden') && (event.path.indexOf(tool) == 0 || event.path.indexOf(tool) == 1)) {
+                } else if (child.classList.contains('dropdown') && !child.classList.contains('hidden') && (event.path.indexOf(tool) == 0 || event.path.indexOf(tool) == 1)) {
 
                     child.classList.add('hidden');
 
@@ -163,17 +169,17 @@ class WebPageCanvas {
             }
         } else {
             let activeDropdown = document.querySelector('.dropdown:not(.hidden)');
-            if(activeDropdown != null) {
+            if (activeDropdown != null) {
                 activeDropdown.classList.add('hidden');
             }
         }
 
         this.resetCanvasTools();
 
-        if(tool.classList.contains('tool-container') && !tool.classList.contains('active')) {
+        if (tool.classList.contains('tool-container') && !tool.classList.contains('active')) {
 
             let activeTool = document.querySelector('.tool-container.active');
-            if(activeTool != null) {
+            if (activeTool != null) {
                 activeTool.classList.remove('active');
             }
 
@@ -181,19 +187,19 @@ class WebPageCanvas {
 
             let selector = ".tool-container[title='" + tool.title + "']";
 
-            if(tool.title == "Paint Brush") {
+            if (!tool.title.localeCompare("Paint Brush")) {
 
                 this.activeToolInfo.id = 'paintBrush';
                 this.activeToolInfo.htmlID = 'paint-brush';
                 this.sizeChangeHandler.call(this, document.querySelector(selector + " input[type='range']"));
                 this.activeToolInfo.options.color = document.querySelector(selector + " span.color.active").dataset.colorCode;
 
-            } else if(tool.title == 'Eraser') {
+            } else if (!tool.title.localeCompare('Eraser')) {
 
                 this.activeToolInfo.id = this.activeToolInfo.htmlID = 'eraser';
                 this.sizeChangeHandler.call(this, document.querySelector(selector + " input[type='range']"));
 
-            } else if(tool.title == 'Highlighter') {
+            } else if (!tool.title.localeCompare('Highlighter')) {
 
                 this.activeToolInfo.id = this.activeToolInfo.htmlID = 'highlighter';
                 this.sizeChangeHandler.call(this, document.querySelector(selector + " input[type='range'][data-option='size']"));
@@ -208,14 +214,12 @@ class WebPageCanvas {
 
     onToolOptionChangeHandler(element) {
 
-        if((this.activeToolInfo.id  == 'highlighter') && (element.dataset.tool == 'highlighter') && (element.dataset.option == 'highlighting-assist')) {
+        if (!this.activeToolInfo.id.localeCompare('highlighter') && !element.dataset.tool.localeCompare('highlighter') && !element.dataset.option.localeCompare('highlighting-assist')) {
 
-            if(element.checked)
+            if (element.checked)
                 this.activeToolInfo.options.assist = true;
-            else {
+            else
                 this.activeToolInfo.options.assist = this.canvas.startingClickY = false;
-            }
-
 
         }
 
@@ -225,10 +229,10 @@ class WebPageCanvas {
 
         let toolbar = document.getElementById('toolbar');
 
-        if(element.classList.contains('top')) {
+        if (element.classList.contains('top')) {
             toolbar.classList.add('aligned-top');
             toolbar.classList.remove('aligned-bottom');
-        } else if(element.classList.contains('bottom')) {
+        } else if (element.classList.contains('bottom')) {
             toolbar.classList.add('aligned-bottom');
             toolbar.classList.remove('aligned-top');
         }
@@ -236,7 +240,7 @@ class WebPageCanvas {
     }
 
     sizeChangeHandler(element) {
-        if(element.dataset.tool == 'highlighter' && element.dataset.option == 'transparency') {
+        if (!element.dataset.tool.localeCompare('highlighter') && !element.dataset.option.localeCompare('transparency')) {
             this.activeToolInfo.options.opacity = (100 - parseInt(element.value)) / 100;
             element.nextElementSibling.innerText = element.value + '%';
         } else {
@@ -250,37 +254,37 @@ class WebPageCanvas {
         let toolTitle = element.parentElement.parentElement.parentElement.title;
         let toolSelector = ".tool-container[title='" + toolTitle + "']";
 
-        if(!element.classList.contains('active')) {
+        if (!element.classList.contains('active')) {
             document.querySelector(toolSelector + ' span.color.active[data-color-code]').classList.remove('active');
             element.classList.add('active');
 
             let icon,
                 color = element.dataset.colorCode;
 
-            if(toolTitle == 'Paint Brush')
+            if (!toolTitle.localeCompare('Paint Brush'))
                 icon = document.querySelector(".icon-paint-brush");
-            else if(toolTitle == 'Highlighter')
+            else if (!toolTitle.localeCompare('Highlighter'))
                 icon = document.querySelector(".icon-highlighter");
-            else if((toolTitle != 'Paint Brush' && toolTitle != 'Highlighter') || !color) {
+            else if (toolTitle.localeCompare('Paint Brush') != 0 && toolTitle.localeCompare('Highlighter') != 0 || !color) {
                 return;
             }
 
-            if(element.title == 'Black') {
+            if (!element.title.localeCompare('Black')) {
                 icon.classList.add('black');
                 icon.classList.remove('green');
                 icon.classList.remove('purple');
                 icon.classList.remove('brown');
-            } else if(element.title == 'Green') {
+            } else if (!element.title.localeCompare('Green')) {
                 icon.classList.add('green');
                 icon.classList.remove('black');
                 icon.classList.remove('purple');
                 icon.classList.remove('brown');
-            } else if(element.title == 'Purple') {
+            } else if (!element.title.localeCompare('Purple')) {
                 icon.classList.add('purple');
                 icon.classList.remove('black');
                 icon.classList.remove('green');
                 icon.classList.remove('brown');
-            } else if(element.title == 'Brown') {
+            } else if (!element.title.localeCompare('Brown')) {
                 icon.classList.add('brown');
                 icon.classList.remove('black');
                 icon.classList.remove('green');
@@ -300,7 +304,7 @@ class WebPageCanvas {
     }
 
     initCanvas() {
-        this.canvas.element = document.querySelector('canvas');
+        this.canvas.element = document.querySelector('canvas.web-page-canvas');
         this.canvas.context = this.canvas.element.getContext('2d');
 
         this.canvas.context.fillCircle = function(x, y, radius, fillColor) {
@@ -318,11 +322,14 @@ class WebPageCanvas {
 
         this.canvas.element.onmousemove = function(e) {
 
-            if(this.canvas.isDrawing) {
+            if (this.canvas.isDrawing) {
 
-                this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, this.activeToolInfo.id == 'eraser' ? false : this.activeToolInfo.options.color);
+                this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, !this.activeToolInfo.id.localeCompare('eraser') ? false : this.activeToolInfo.options.color);
 
-                this.activeToolInfo.id == ('eraser' ? this.erase() : this.draw());
+                if (!this.activeToolInfo.id.localeCompare('eraser'))
+                    this.erase();
+                else
+                    this.draw();
 
             }
 
@@ -331,9 +338,9 @@ class WebPageCanvas {
         this.canvas.element.onmousedown = function(e) {
 
             this.canvas.isDrawing = true;
-            this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, this.activeToolInfo.id == 'eraser' ? false : this.activeToolInfo.options.color);
+            this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, !this.activeToolInfo.id.localeCompare('eraser') ? false : this.activeToolInfo.options.color);
 
-            if(this.activeToolInfo.id == 'highlighter' && this.activeToolInfo.options.assist)
+            if (!this.activeToolInfo.id.localeCompare('highlighter') && this.activeToolInfo.options.assist)
                 this.canvas.startingClickY = e.offsetY;
 
         }.bind(this);
@@ -362,19 +369,19 @@ class WebPageCanvas {
         this.canvas.clickDrag.push(dragging);
         this.canvas.clickTool.push(toolId);
         this.canvas.clickSize.push(size);
-        if(color) {
+        if (color) {
             this.canvas.clickColor.push(color);
         }
     }
 
     draw() {
 
-        if(!this.hasDrawings) this.hasDrawings = true;
+        if (!this.hasDrawings) this.hasDrawings = true;
         this.canvas.context.globalCompositeOperation = 'source-over';
 
-        for(let i = 0; i < this.canvas.clickX.length; i++) {
+        for (let i = 0; i < this.canvas.clickX.length; i++) {
 
-            if(this.canvas.clickTool[i] == 'highlighter') {
+            if (!this.canvas.clickTool[i].localeCompare('highlighter')) {
                 this.canvas.context.lineJoin = 'mitter';
                 this.canvas.context.globalAlpha = this.activeToolInfo.options.opacity;
             } else {
@@ -384,9 +391,9 @@ class WebPageCanvas {
 
             this.canvas.context.beginPath();
 
-            if((this.canvas.clickX.indexOf(this.canvas.clickX[i - 1]) == this.canvas.clickY.indexOf(this.canvas.clickY[i - 1]) && this.canvas.clickX.indexOf(this.canvas.clickX[i - 1]) == (i - 1)) || (this.canvas.clickX.indexOf(this.canvas.clickX[i]) == this.canvas.clickY.indexOf(this.canvas.clickY[i]) && this.canvas.clickX.indexOf(this.canvas.clickX[i]) == i)) {
+            if ((this.canvas.clickX.indexOf(this.canvas.clickX[i - 1]) == this.canvas.clickY.indexOf(this.canvas.clickY[i - 1]) && this.canvas.clickX.indexOf(this.canvas.clickX[i - 1]) == (i - 1)) || (this.canvas.clickX.indexOf(this.canvas.clickX[i]) == this.canvas.clickY.indexOf(this.canvas.clickY[i]) && this.canvas.clickX.indexOf(this.canvas.clickX[i]) == i)) {
 
-                if(this.canvas.clickDrag[i] && i) {
+                if (this.canvas.clickDrag[i] && i) {
 
                     this.canvas.context.moveTo(this.canvas.clickX[i - 1], !this.canvas.startingClickY ? this.canvas.clickY[i - 1] : this.canvas.startingClickY);
                     this.canvas.clickX.splice(i - 1, 1);
@@ -406,7 +413,7 @@ class WebPageCanvas {
             this.canvas.context.closePath();
             this.canvas.context.lineWidth = this.canvas.clickSize[i];
 
-            if(this.canvas.clickColor[i] && (this.canvas.context.strokeStyle = this.canvas.clickColor[i])) {
+            if (this.canvas.clickColor[i] && (this.canvas.context.strokeStyle = this.canvas.clickColor[i])) {
                 this.canvas.context.stroke();
             }
         }
@@ -415,11 +422,11 @@ class WebPageCanvas {
 
     erase() {
         this.canvas.context.globalCompositeOperation = 'destination-out';
-        for(var i = 0; i < this.canvas.clickX.length; i++) {
+        for (var i = 0; i < this.canvas.clickX.length; i++) {
             this.canvas.context.beginPath();
             this.canvas.context.lineJoin = 'round';
             this.canvas.context.lineWidth = this.canvas.clickSize[i];
-            if(this.canvas.clickDrag[i] && i){
+            if (this.canvas.clickDrag[i] && i) {
                 this.canvas.context.moveTo(this.canvas.clickX[i - 1], this.canvas.clickY[i - 1]);
                 this.canvas.clickX.splice(i - 1, 1);
                 this.canvas.clickY.splice(i - 1, 1);
@@ -440,9 +447,9 @@ class WebPageCanvas {
             let request = new XMLHttpRequest();
 
             request.onload = function() {
-                if(request.responseType == 'document')
+                 if (request.readyState == 4 && request.status == 200 && !request.responseType.localeCompare('document'))
                     this.contentDocument = request.responseXML;
-                    resolve('success');
+                resolve('success');
             }.bind(this);
 
             request.open('GET', chrome.runtime.getURL('/web-resources/html/web-page-canvas.html'));
@@ -456,11 +463,11 @@ class WebPageCanvas {
      * Inserts all of the retrieved HTML in the current document.
      */
     insertHTML() {
-        if(this.contentDocument != null) {
+        if (this.contentDocument != null) {
             this.insertedStyleSheets = true;
-            for(let styleSheet of this.contentDocument.querySelectorAll(("head > link"))) {
+            for (let styleSheet of this.contentDocument.querySelectorAll(("head > link"))) {
 
-                if(styleSheet.href.indexOf('http') == -1) {
+                if (styleSheet.href.indexOf('http') == -1) {
                     let href = styleSheet.getAttribute('href');
                     styleSheet.setAttribute('href', chrome.runtime.getURL(href));
                 }
@@ -474,16 +481,28 @@ class WebPageCanvas {
         }
     }
 
+    /**
+     * Retrieves the maximum height of the current window
+     * @returns {number} The maximum height
+     */
     getMaxHeight() {
         return Math.max(window.innerHeight, document.body.offsetHeight, document.body.scrollHeight, document.body.clientHeight, document.documentElement.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight);
     }
 
+    /**
+     * Retrieves the maximum width of the current window
+     * @returns {number} The maximum width
+     */
     getMaxWidth() {
         return Math.max(window.innerWidth, document.body.offsetWidth, document.body.scrollLeft);
     }
 
+    /**
+     * Adjusts the canvas to the current window
+     * @returns {void}
+     */
     adjustCanvas() {
-        if(this.canvas.hasOwnProperty('element')) {
+        if (this.canvas.hasOwnProperty('element') && this.canvas.element != null) {
             this.canvas.element.width = document.body.offsetWidth;
             this.canvas.element.height = document.documentElement.scrollHeight;
         }
@@ -517,11 +536,11 @@ class WebPageCanvas {
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
-    if(request != null && request.hasOwnProperty('message') && !request.hasOwnProperty('data')) {
+    if (request != null && request.hasOwnProperty('message') && !request.hasOwnProperty('data')) {
 
-        if(request.message == 'init-canvas') {
+        if (!request.message.localeCompare('init-canvas')) {
 
-            if(webPageCanvas == null) {
+            if (webPageCanvas == null) {
 
                 webPageCanvas = new WebPageCanvas();
                 webPageCanvas.getContentDocument()
@@ -530,56 +549,53 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                         webPageCanvas.attachHandlers();
                         webPageCanvas.initCanvas();
                         window.onresize = webPageCanvas.adjustCanvas();
+                        webPageCanvas.adjustCanvas();
                     });
 
-            } else if(webPageCanvas != null) {
-
+            } else if (webPageCanvas != null)
                 webPageCanvas.handleElements(true);
 
-            }
-
-        } else if(request.message == 'close-canvas') {
+        } else if (!request.message.localeCompare('close-canvas')) {
 
             webPageCanvas.handleElements(false);
 
-            if(webPageCanvas.hasDrawings) {
-                sendResponse({data: webPageCanvas.canvas.element.toDataURL()});
-            } else {
+            if (webPageCanvas.hasDrawings)
+                sendResponse({ data: webPageCanvas.canvas.element.toDataURL() });
+            else
                 sendResponse(null);
-            }
 
-        } else if(request.message == 'save-canvas') {
+        } else if (!request.message.localeCompare('save-canvas')) {
 
             document.getElementById('toolbar').classList.add('hidden');
             webPageCanvas.scrollToTop(0);
-			webPageCanvas.saveCanvas().then(function(snapshots) {
-				if(typeof snapshots == 'object') {
-					webPageCanvas.loadImages(snapshots).then(function(finalImage) {
+            webPageCanvas.saveCanvas().then(function(snapshots) {
+                if (!(typeof snapshots).localeCompare('object')) {
+                    webPageCanvas.loadImages(snapshots).then(function(finalImage) {
 
                         document.getElementById('toolbar').classList.remove('hidden');
-						sendResponse({message: 'saved', data: finalImage});
+                        sendResponse({ message: 'saved', data: finalImage });
 
-					});
-				}
+                    });
+                }
 
-				webPageCanvas.scrollToTop(500);
+                webPageCanvas.scrollToTop(500);
 
-			}).catch(function() {
-				webPageCanvas.scrollToTop(0);
-			});
+            }).catch(function() {
+                webPageCanvas.scrollToTop(0);
+            });
 
-        } else if(request.message == 'resize-canvas')
+        } else if (!request.message.localeCompare('resize-canvas'))
             webPageCanvas.adjustCanvas();
-        else if(request.message == 'scroll-top') {
+        else if (!request.message.localeCompare('scroll-top')) {
 
-			window.scrollTo(0, window.scrollY + window.innerHeight);
-            sendResponse({message: 'Scrolled'});
+            window.scrollTo(0, window.scrollY + window.innerHeight);
+            sendResponse({ message: 'Scrolled' });
 
-		}
+        }
 
-    } else if(request != null && request.hasOwnProperty('message') && request.hasOwnProperty('data')) {
+    } else if (request != null && request.hasOwnProperty('message') && request.hasOwnProperty('data')) {
 
-        if(request.message == 'restore-canvas') {
+        if (!request.message.localeCompare('restore-canvas')) {
             webPageCanvas.restoreCanvas(request.data);
         }
 
