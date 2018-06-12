@@ -19,3 +19,5 @@ A chrome extension that helps you draw on your current webpage.
 	- Fixes toolbar alignment bug.
 * v1.0.6
 	- Adds highlighting assist option.
+* v1.0.7
+	- Fixes Bugs

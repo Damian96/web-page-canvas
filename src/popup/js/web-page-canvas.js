@@ -25,7 +25,6 @@ class webPageCanvasPopup {
         };
         this.localSnapshots = [];
         this.isProperPage = true;
-        this.scriptInserted = false;
         this.STORAGEAREAKEY = 'webPageCanvas_screenshots_array';
     }
 
@@ -76,6 +75,10 @@ class webPageCanvasPopup {
 
     }
 
+    storePopupObject() {
+        background.popupObjects[webPageCanvas.tabID] = this;
+    }
+
     updateSlideshow() {
 
         chrome.storage.local.get(this.STORAGEAREAKEY, function(items) {
@@ -99,6 +102,7 @@ class webPageCanvasPopup {
             else
                 document.getElementById('clear-screenshots').disabled = false;
 
+            this.storePopupObject();
         }.bind(this));
 
     }
@@ -116,6 +120,7 @@ class webPageCanvasPopup {
         currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : this.localSnapshots.length;
         totalScreenshotNumber.innerText = this.localSnapshots.length;
 
+        this.storePopupObject();
     }
 
     clearSlideshow() {
@@ -129,6 +134,7 @@ class webPageCanvasPopup {
         slideImage.src = slideImage.dataset.storageIndex = currentScreenshotNumber.innerText = totalScreenshotNumber.innerText = '';
         this.localSnapshots = {};
 
+        this.storePopupObject();
     }
 
     attachHandlers() {
@@ -157,6 +163,8 @@ class webPageCanvasPopup {
         for (let element of document.querySelectorAll('#slideshow > .screenshot-navigation > i')) {
             element.addEventListener('click', this.screenshotNavigationClickHandler.bind(this, element));
         }
+
+        this.storePopupObject();
     }
 
     disableMenu() {
@@ -213,7 +221,7 @@ class webPageCanvasPopup {
 
         }
 
-
+        this.storePopupObject();
     }
 
     restoreClickHandler(element) {
@@ -261,7 +269,8 @@ class webPageCanvasPopup {
                         });
 
                     }
-
+                
+                this.storePopupObject();
                 }.bind(this, slideImage, slideshow));
             }
         }
@@ -341,6 +350,8 @@ class webPageCanvasPopup {
             this.activePanel.htmlId = id;
         }
 
+        this.storePopupObject();
+
     }
 
     clearScreenshotsClickHandler() {
@@ -355,6 +366,7 @@ class webPageCanvasPopup {
 
         }
 
+        this.storePopupObject();
     }
 
     changeActiveTool(newId) {
@@ -375,6 +387,7 @@ class webPageCanvasPopup {
                 tabID: this.tabID
             }
         });
+        this.storePopupObject();
     }
 
     colorClickHandler(element) {
@@ -509,10 +522,6 @@ class webPageCanvasPopup {
 
 webPageCanvas = new webPageCanvasPopup();
 
-window.onunload = function() {
-    background.popupObjects[webPageCanvas.tabID] = webPageCanvas;
-};
-
 window.onload = function() {
 
     chrome.tabs.getSelected(null, function(tab) {
@@ -530,7 +539,7 @@ window.onload = function() {
 
                 if (response != null && response.hasOwnProperty('message')) {
 
-                    if (response.message.localeCompare('do-it-yourself')) {
+                    if (!response.message.localeCompare('do-it-yourself')) {
 
                         webPageCanvas.init();
 
@@ -556,10 +565,10 @@ chrome.runtime.onMessage.addListener(function(request) {
 
     if (request.hasOwnProperty('message') && request.hasOwnProperty('data')) {
 
-        if (request.message.localeCompare('update-snapshot-process'))
+        if (!request.message.localeCompare('update-snapshot-process'))
             webPageCanvas.animateLoader(request.data);
 
-    } else if (request.hasOwnProperty('message') && request.message.localeCompare('manually-closed-canvas')) {
+    } else if (request.hasOwnProperty('message') && !request.message.localeCompare('manually-closed-canvas')) {
         webPageCanvas.switcherClickHandler.call(webPageCanvas, document.getElementById('switcher'));
     }
 

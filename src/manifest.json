@@ -3,7 +3,7 @@
     "name": "Web Page Canvas",
     "short_name": "Web Canvas",
     "description": "An extension that lets you draw on live web pages.",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "icons": {
         "16": "images/draw-16.png",
         "48": "images/draw-48.png",
@@ -31,7 +31,7 @@
             "file://*/*"
         ],
         "js": [
-            "content-scripts/js/web-page-canvas.js"
+            "content-scripts/web-page-canvas.js"
         ]
     }],
     "permissions": [

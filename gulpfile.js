@@ -14,7 +14,7 @@ var paths = {
     ],
     js: [
         'src/background/*.js',
-        'src/content-scripts/js/web-page-canvas.js',
+        'src/content-scripts/web-page-canvas.js',
         'src/popup/js/*.js',
     ],
     other: [

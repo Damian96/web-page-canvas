@@ -1,10 +1,9 @@
 /* globals chrome */
 
-var popupObjects = [],
+var popupObjects = {},
     removePopupObject = function(tabID) {
         if(popupObjects[tabID] != null)
             popupObjects[tabID].overlayOpen = false;
-            popupObjects[tabID].scriptInserted = false;
     },
     sendResizeMessage = function (tabID) {
         if(popupObjects[tabID] != null)
@@ -14,8 +13,8 @@ var popupObjects = [],
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
-    if(request.hasOwnProperty('message')) {
-        if(sender.hasOwnProperty('tab')) {
+    if(request.hasOwnProperty('message') && typeof request.message === 'string') {
+        if(sender.hasOwnProperty('tab')) { // message is from content script
             if(request.message == 'get-tool-info')
                 sendResponse(popupObjects[sender.tab.id]);
             else if(request.message == 'manually-closed-canvas')
@@ -26,14 +25,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 if(request.data != null) {
                     popupObjects[sender.tab.id].lastCanvas = request.data;
                 }
-                chrome.tabs.executeScript(sender.tab.id, {
-                    code: "document.querySelector('iframe[src^=\"chrome-extension\"]').remove();"
-                });
                 popupObjects[sender.tab.id].overlayOpen = false;
             }
-        } else {
-            if(request.message == 'init-object' && request.hasOwnProperty('tabID')) {
-                if(popupObjects[request.tabID] != null) {
+        } else { // message is from popup
+            if(!request.message.localeCompare('init-object') && request.hasOwnProperty('tabID')) {
+                if(popupObjects.hasOwnProperty(request.tabID)) {
                     sendResponse({message: 'sending-popup-object-data', data: popupObjects[request.tabID]});
                 } else {
                     sendResponse({message: 'do-it-yourself'});

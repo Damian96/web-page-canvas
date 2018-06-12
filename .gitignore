@@ -1,5 +1,6 @@
 # Ignore Builded Extension
 /build/
+*.zip
 
 # Ignore VSCode Workspace Settings
 /.vscode/

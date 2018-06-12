@@ -18,14 +18,14 @@ body {
     margin-right: 0 !important;
 }
 
-canvas {
+canvas.web-page-canvas {
     position: absolute;
     z-index: 10000000;
     top: 0;
     left: 0;
 }
 
-#toolbar {
+#toolbar.web-page-canvas {
     background: linear-gradient(rgb(20, 20, 20), rgb(60, 60, 60));
     position: fixed;
     z-index: 10000001;
