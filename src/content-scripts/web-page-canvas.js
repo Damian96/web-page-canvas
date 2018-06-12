@@ -5,14 +5,14 @@ var webPageCanvas;
 /**
  * @class
  * @classdesc The main frontend plugin class. Used for creating the Drawing Mode layout. Implements the drawing function code.
- * @prop {Object.<string, Object>} activeToolInfo The object with all the information about the currently active tool.
+ * @prop {Object.<string, Object>} activeTool The object with all the information about the currently active tool.
  * @prop {Object} tabID The chrome ID of the current tab.
  * @prop {Object.<string, number>} snapshots Contains the generated snapshots and their position on the final image.
  */
 class WebPageCanvas {
 
     constructor() {
-        this.activeToolInfo = {
+        this.activeTool = {
             id: 'paintBrush',
             htmlID: 'paint-brush',
             options: {
@@ -41,24 +41,22 @@ class WebPageCanvas {
         };
         this.finalCanvas.context = this.finalCanvas.element.getContext('2d');
         this.contentDocument = null;
-        this.insertedStyleSheets = false;
     }
 
     attachHandlers() {
+        // Tool, option
         for (let element of document.querySelectorAll(".tool-container, .option-container")) {
-            element.addEventListener('click', this.onToolClickHandler.bind(this, element));
+            element.addEventListener('click', this.onToolClickHandler.bind(this));
         }
-        for (let element of document.querySelectorAll('span.color[data-color-code]')) {
-            element.addEventListener('click', this.colorClickHandler.bind(this, element));
-        }
-        for (let element of document.querySelectorAll('#toolbar-alignment .dropdown-item')) {
-            element.addEventListener('click', this.alignClickHandler.bind(this, element));
-        }
+        // Color picker
+        document.querySelector("#toolbar.web-page-canvas input[type='color']").addEventListener('change', this.colorChangeHandler.bind(this));
         for (let element of document.querySelectorAll(".dropdown input[type='range']")) {
-            element.addEventListener('change', this.sizeChangeHandler.bind(this, element));
+            element.addEventListener('change', this.sizeChangeHandler.bind(this));
         }
+        // Close Toolbar
         document.getElementById("close-toolbar").addEventListener('click', this.destroy.bind(this));
-        document.querySelector("input[type='checkbox'][data-tool='highlighter']").addEventListener('change', this.onToolOptionChangeHandler.bind(this, document.querySelector("input[type='checkbox'][data-tool='highlighter']")));
+
+        document.querySelector("input[type='checkbox'][data-tool='highlighter']").addEventListener('change', this.onToolOptionChangeHandler.bind(this));
     }
 
     resetFinalCanvas() {
@@ -141,11 +139,12 @@ class WebPageCanvas {
         });
     }
 
-    onToolClickHandler(tool, event) {
+    onToolClickHandler(event) {
 
-        if (tool.dataset.hasDropdown) {
-            for (let child of tool.children) {
+        if (event.currentTarget.dataset.hasDropdown) { // Toolbar option has dropdown menu
+            for (let child of event.currentTarget.children) {
 
+                // Is dropdown menu and is hidden
                 if (child.classList.contains('dropdown') && child.classList.contains('hidden')) {
 
                     let activeDropdown = document.querySelector('.dropdown:not(.hidden)');
@@ -160,51 +159,63 @@ class WebPageCanvas {
 
                     }.bind(this, child), { once: true });
 
-                } else if (child.classList.contains('dropdown') && !child.classList.contains('hidden') && (event.path.indexOf(tool) == 0 || event.path.indexOf(tool) == 1)) {
+                } else if (child.classList.contains('dropdown') && !child.classList.contains('hidden')) { // Is dropdown, is not hidden
 
-                    child.classList.add('hidden');
+                    if (event.path.indexOf(event.currentTarget) <= 1) // Toolbar option is clicked
+                        child.classList.add('hidden');
+                    else if (!event.currentTarget.id.localeCompare('toolbar-alignment') && child.firstElementChild.classList.contains('dropdown-item')) { // Alignment option clicked
+                        for (var i = 0; i < event.path.length - 4; i++) {
+                            if (event.path[i].classList.contains('dropdown-item')) {
+                                var toolbar = document.getElementById('toolbar');
+                                if (event.path[i].classList.contains('top')) {
+                                    toolbar.className = 'web-page-canvas aligned-top';
+                                } else if (event.path[i].classList.contains('bottom')) {
+                                    toolbar.className = 'web-page-canvas aligned-bottom';
+                                }
+                                break;
+                            }
+                        }
+                    }
 
                 }
 
             }
-        } else {
+        } else { // Tool is button
             let activeDropdown = document.querySelector('.dropdown:not(.hidden)');
             if (activeDropdown != null) {
-                activeDropdown.classList.add('hidden');
+                activeDropdown.classList.add('hidden'); // hide active dropdown
             }
         }
 
         this.resetCanvasTools();
 
-        if (tool.classList.contains('tool-container') && !tool.classList.contains('active')) {
+        if (event.currentTarget.classList.contains('tool-container') && !event.currentTarget.classList.contains('active')) {
 
             let activeTool = document.querySelector('.tool-container.active');
             if (activeTool != null) {
                 activeTool.classList.remove('active');
             }
 
-            tool.classList.add('active');
+            event.currentTarget.classList.add('active');
 
-            let selector = ".tool-container[title='" + tool.title + "']";
+            let selector = ".tool-container[title='" + event.currentTarget.title + "']";
 
-            if (!tool.title.localeCompare("Paint Brush")) {
+            if (!event.currentTarget.title.localeCompare("Paint Brush")) {
 
-                this.activeToolInfo.id = 'paintBrush';
-                this.activeToolInfo.htmlID = 'paint-brush';
-                this.sizeChangeHandler.call(this, document.querySelector(selector + " input[type='range']"));
-                this.activeToolInfo.options.color = document.querySelector(selector + " span.color.active").dataset.colorCode;
+                this.activeTool.id = 'paintBrush';
+                this.activeTool.htmlID = 'paint-brush';
 
-            } else if (!tool.title.localeCompare('Eraser')) {
+            } else if (!event.currentTarget.title.localeCompare('Eraser')) {
 
-                this.activeToolInfo.id = this.activeToolInfo.htmlID = 'eraser';
-                this.sizeChangeHandler.call(this, document.querySelector(selector + " input[type='range']"));
+                this.activeTool.id = 'eraser';
+                this.activeTool.htmlID = 'eraser';
 
-            } else if (!tool.title.localeCompare('Highlighter')) {
+            } else if (!event.currentTarget.title.localeCompare('Highlighter')) {
 
-                this.activeToolInfo.id = this.activeToolInfo.htmlID = 'highlighter';
-                this.sizeChangeHandler.call(this, document.querySelector(selector + " input[type='range'][data-option='size']"));
-                this.sizeChangeHandler.call(this, document.querySelector(selector + " input[type='range'][data-option='transparency']"));
-                this.activeToolInfo.options.color = document.querySelector(selector + " span.color.active").dataset.colorCode;
+                this.activeTool.id = 'highlighter';
+                this.activeTool.htmlID = 'highlighter';
+                var value = document.querySelector(selector + " input[type='range'][data-option='transparency']").value;
+                this.activeTool.options.opacity = (100 - value) / 100;
 
             }
 
@@ -212,95 +223,84 @@ class WebPageCanvas {
 
     }
 
-    onToolOptionChangeHandler(element) {
+    onToolOptionChangeHandler(event) {
 
-        if (!this.activeToolInfo.id.localeCompare('highlighter') && !element.dataset.tool.localeCompare('highlighter') && !element.dataset.option.localeCompare('highlighting-assist')) {
+        if (!this.activeTool.id.localeCompare('highlighter') && !event.target.dataset.tool.localeCompare('highlighter') && !event.target.dataset.option.localeCompare('highlighting-assist')) {
 
-            if (element.checked)
-                this.activeToolInfo.options.assist = true;
+            if (event.target.checked)
+                this.activeTool.options.assist = true;
             else
-                this.activeToolInfo.options.assist = this.canvas.startingClickY = false;
+                this.activeTool.options.assist = this.canvas.startingClickY = false;
 
         }
 
     }
 
-    alignClickHandler(element) {
-
-        let toolbar = document.getElementById('toolbar');
-
-        if (element.classList.contains('top')) {
-            toolbar.classList.add('aligned-top');
-            toolbar.classList.remove('aligned-bottom');
-        } else if (element.classList.contains('bottom')) {
-            toolbar.classList.add('aligned-bottom');
-            toolbar.classList.remove('aligned-top');
-        }
-
-    }
-
-    sizeChangeHandler(element) {
-        if (!element.dataset.tool.localeCompare('highlighter') && !element.dataset.option.localeCompare('transparency')) {
-            this.activeToolInfo.options.opacity = (100 - parseInt(element.value)) / 100;
-            element.nextElementSibling.innerText = element.value + '%';
+    sizeChangeHandler(event) {
+        if (!event.target.dataset.tool.localeCompare('highlighter') && !event.target.dataset.option.localeCompare('transparency')) {
+            this.activeTool.options.opacity = (100 - parseInt(event.target.value)) / 100;
+            event.target.nextElementSibling.innerText = event.target.value + '%';
         } else {
-            element.nextElementSibling.innerText = element.value;
-            this.activeToolInfo.options.size = parseInt(element.value);
+            event.target.nextElementSibling.innerText = event.target.value;
+            this.activeTool.options.size = parseInt(event.target.value);
         }
     }
 
-    colorClickHandler(element) {
+    // colorClickHandler(event) {
 
-        let toolTitle = element.parentElement.parentElement.parentElement.title;
-        let toolSelector = ".tool-container[title='" + toolTitle + "']";
+    //     let toolTitle = element.parentElement.parentElement.parentElement.title;
+    //     let toolSelector = ".tool-container[title='" + toolTitle + "']";
 
-        if (!element.classList.contains('active')) {
-            document.querySelector(toolSelector + ' span.color.active[data-color-code]').classList.remove('active');
-            element.classList.add('active');
+    //     if (!element.classList.contains('active')) {
+    //         document.querySelector(toolSelector + ' span.color.active[data-color-code]').classList.remove('active');
+    //         element.classList.add('active');
 
-            let icon,
-                color = element.dataset.colorCode;
+    //         let icon,
+    //             color = element.dataset.colorCode;
 
-            if (!toolTitle.localeCompare('Paint Brush'))
-                icon = document.querySelector(".icon-paint-brush");
-            else if (!toolTitle.localeCompare('Highlighter'))
-                icon = document.querySelector(".icon-highlighter");
-            else if (toolTitle.localeCompare('Paint Brush') != 0 && toolTitle.localeCompare('Highlighter') != 0 || !color) {
-                return;
-            }
+    //         if (!toolTitle.localeCompare('Paint Brush'))
+    //             icon = document.querySelector(".icon-paint-brush");
+    //         else if (!toolTitle.localeCompare('Highlighter'))
+    //             icon = document.querySelector(".icon-highlighter");
+    //         else if (toolTitle.localeCompare('Paint Brush') != 0 && toolTitle.localeCompare('Highlighter') != 0 || !color) {
+    //             return;
+    //         }
 
-            if (!element.title.localeCompare('Black')) {
-                icon.classList.add('black');
-                icon.classList.remove('green');
-                icon.classList.remove('purple');
-                icon.classList.remove('brown');
-            } else if (!element.title.localeCompare('Green')) {
-                icon.classList.add('green');
-                icon.classList.remove('black');
-                icon.classList.remove('purple');
-                icon.classList.remove('brown');
-            } else if (!element.title.localeCompare('Purple')) {
-                icon.classList.add('purple');
-                icon.classList.remove('black');
-                icon.classList.remove('green');
-                icon.classList.remove('brown');
-            } else if (!element.title.localeCompare('Brown')) {
-                icon.classList.add('brown');
-                icon.classList.remove('black');
-                icon.classList.remove('green');
-                icon.classList.remove('purple');
-            } else {
-                icon.style.color = element.dataset.colorCode;
-                icon.classList.remove('black');
-                icon.classList.remove('green');
-                icon.classList.remove('purple');
-                icon.classList.remove('brown');
-            }
+    //         if (!element.title.localeCompare('Black')) {
+    //             icon.classList.add('black');
+    //             icon.classList.remove('green');
+    //             icon.classList.remove('purple');
+    //             icon.classList.remove('brown');
+    //         } else if (!element.title.localeCompare('Green')) {
+    //             icon.classList.add('green');
+    //             icon.classList.remove('black');
+    //             icon.classList.remove('purple');
+    //             icon.classList.remove('brown');
+    //         } else if (!element.title.localeCompare('Purple')) {
+    //             icon.classList.add('purple');
+    //             icon.classList.remove('black');
+    //             icon.classList.remove('green');
+    //             icon.classList.remove('brown');
+    //         } else if (!element.title.localeCompare('Brown')) {
+    //             icon.classList.add('brown');
+    //             icon.classList.remove('black');
+    //             icon.classList.remove('green');
+    //             icon.classList.remove('purple');
+    //         } else {
+    //             icon.style.color = element.dataset.colorCode;
+    //             icon.classList.remove('black');
+    //             icon.classList.remove('green');
+    //             icon.classList.remove('purple');
+    //             icon.classList.remove('brown');
+    //         }
 
-            this.activeToolInfo.options.color = color;
+    //         this.activeTool.options.color = color;
 
-        }
+    //     }
 
+    colorChangeHandler(event) {
+        if (this.activeTool.id !== 'eraser')
+            this.activeTool.options.color = event.target.value;
     }
 
     initCanvas() {
@@ -324,9 +324,9 @@ class WebPageCanvas {
 
             if (this.canvas.isDrawing) {
 
-                this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, !this.activeToolInfo.id.localeCompare('eraser') ? false : this.activeToolInfo.options.color);
+                this.addClick(e.offsetX, e.offsetY, true, this.activeTool.id, this.activeTool.options.size, !this.activeTool.id.localeCompare('eraser') ? false : this.activeTool.options.color);
 
-                if (!this.activeToolInfo.id.localeCompare('eraser'))
+                if (!this.activeTool.id.localeCompare('eraser'))
                     this.erase();
                 else
                     this.draw();
@@ -338,9 +338,9 @@ class WebPageCanvas {
         this.canvas.element.onmousedown = function(e) {
 
             this.canvas.isDrawing = true;
-            this.addClick(e.offsetX, e.offsetY, true, this.activeToolInfo.id, this.activeToolInfo.options.size, !this.activeToolInfo.id.localeCompare('eraser') ? false : this.activeToolInfo.options.color);
+            this.addClick(e.offsetX, e.offsetY, true, this.activeTool.id, this.activeTool.options.size, !this.activeTool.id.localeCompare('eraser') ? false : this.activeTool.options.color);
 
-            if (!this.activeToolInfo.id.localeCompare('highlighter') && this.activeToolInfo.options.assist)
+            if (!this.activeTool.id.localeCompare('highlighter') && this.activeTool.options.assist)
                 this.canvas.startingClickY = e.offsetY;
 
         }.bind(this);
@@ -383,7 +383,7 @@ class WebPageCanvas {
 
             if (!this.canvas.clickTool[i].localeCompare('highlighter')) {
                 this.canvas.context.lineJoin = 'mitter';
-                this.canvas.context.globalAlpha = this.activeToolInfo.options.opacity;
+                this.canvas.context.globalAlpha = this.activeTool.options.opacity;
             } else {
                 this.canvas.context.lineJoin = 'round';
                 this.canvas.context.globalAlpha = 1;
@@ -463,22 +463,31 @@ class WebPageCanvas {
      * Inserts all of the retrieved HTML in the current document.
      */
     insertHTML() {
-        if (this.contentDocument != null) {
-            this.insertedStyleSheets = true;
-            for (let styleSheet of this.contentDocument.querySelectorAll(("head > link"))) {
+        if (this.contentDocument == null) {
+            return false;
+        }
 
-                if (styleSheet.href.indexOf('http') == -1) {
-                    let href = styleSheet.getAttribute('href');
-                    styleSheet.setAttribute('href', chrome.runtime.getURL(href));
-                }
+        return new Promise((resolve) => {
 
+            var styles = this.contentDocument.querySelectorAll("head > link");
+            var styleLoaded = 0;
+            var styleOnLoad = function () {
+                if (++styleLoaded == styles.length)
+                    resolve('success');
+            };
+
+            for (let styleSheet of styles) {
+
+                let href = styleSheet.getAttribute('href');
+                styleSheet.className = 'web-page-canvas';
+                styleSheet.onload = styleOnLoad;
+                styleSheet.setAttribute('href', chrome.runtime.getURL(href));
                 document.head.appendChild(styleSheet);
 
             }
 
             document.body.innerHTML += this.contentDocument.body.innerHTML;
-
-        }
+        });
     }
 
     /**
@@ -486,7 +495,7 @@ class WebPageCanvas {
      * @returns {number} The maximum height
      */
     getMaxHeight() {
-        return Math.max(window.innerHeight, document.body.offsetHeight, document.body.scrollHeight, document.body.clientHeight, document.documentElement.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight);
+        return Math.max(window.innerHeight, document.body.offsetHeight, document.body.scrollHeight, document.body.clientHeight, document.documentElement.offsetHeight, document.documentElement.clientHeight);
     }
 
     /**
@@ -494,7 +503,7 @@ class WebPageCanvas {
      * @returns {number} The maximum width
      */
     getMaxWidth() {
-        return Math.max(window.innerWidth, document.body.offsetWidth, document.body.scrollLeft);
+        return window.innerWidth - 17;
     }
 
     /**
@@ -503,8 +512,8 @@ class WebPageCanvas {
      */
     adjustCanvas() {
         if (this.canvas.hasOwnProperty('element') && this.canvas.element != null) {
-            this.canvas.element.width = document.body.offsetWidth;
-            this.canvas.element.height = document.documentElement.scrollHeight;
+            this.canvas.element.width = this.getMaxWidth();
+            this.canvas.element.height = this.getMaxHeight();
         }
     }
 
@@ -545,11 +554,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 webPageCanvas = new WebPageCanvas();
                 webPageCanvas.getContentDocument()
                     .then(function() {
-                        webPageCanvas.insertHTML();
-                        webPageCanvas.attachHandlers();
-                        webPageCanvas.initCanvas();
-                        window.onresize = webPageCanvas.adjustCanvas();
-                        webPageCanvas.adjustCanvas();
+                        webPageCanvas.insertHTML()
+                            .then(function() {
+                                webPageCanvas.attachHandlers();
+                                webPageCanvas.initCanvas();
+                                webPageCanvas.adjustCanvas();
+                                window.onresize = webPageCanvas.adjustCanvas.bind(webPageCanvas);
+                            });                      
                     });
 
             } else if (webPageCanvas != null)
