@@ -2,22 +2,21 @@
 <html>
 	<head>
 		<meta charset="UTF-8"/>
-		<link rel="stylesheet" href="web-resources/css/web-page-canvas.css" type="text/css"/>
-		<link rel="stylesheet" href="web-resources/icons/icons.css" type="text/css"/>
+		<link rel="stylesheet" href="web-resources/css/web-page-canvas.css"/>
 	</head>
 	<body>
 <canvas class="web-page-canvas"></canvas>
-<div id="toolbar" class="aligned-top web-page-canvas">
+<div id="toolbar" class="aligned-top web-page-canvas closed">
     <div id="tool-col">
         <div class="tool-container active" title="Paint Brush">
-            <i class="icon-paint-brush"></i><span class="tool-label">&nbsp;Paint Brush</span>
+            <i class="fa fa-paint-brush"></i><span class="tool-label">&nbsp;Paint Brush</span>
         </div>
         <div class="tool-container" title="Eraser">
-            <i class="icon-eraser"></i><span class="tool-label">&nbsp;Eraser</span>
+            <i class="fa fa-eraser"></i><span class="tool-label">&nbsp;Eraser</span>
         </div>
         <div class="tool-container" title="Highlighter" data-has-dropdown="true">
-            <i class="icon-highlighter"></i><span class="tool-label">&nbsp;Highlighter</span>
-            <i class="icon-caret-down"></i>
+            <i class="fa fa-pencil-alt"></i><span class="tool-label">&nbsp;Highlighter</span>
+            <i class="fa fa-caret-down"></i>
             <div class="dropdown hidden">
                 <div class="row">
                     <h3>Transparency</h3>
@@ -31,8 +30,8 @@
             </div>
         </div>
         <div class="tool-container" title="Options" data-has-dropdown="true">
-            <i class="icon-cog"></i><span class="tool-label">&nbsp;Options</span>
-            <i class="icon-caret-down"></i>
+            <i class="fa fa-cog"></i><span class="tool-label">&nbsp;Options</span>
+            <i class="fa fa-caret-down"></i>
             <div class="dropdown hidden">
                 <div class="row">
                     <h3>Color</h3>
@@ -50,11 +49,11 @@
     </div>
     <div id="option-col">
         <div class="option-container" title="Clear All">
-            <i class="icon-close"></i><span class="tool-label">&nbsp;Clear</span>
+            <i class="fa fa-times"></i><span class="tool-label">&nbsp;Clear</span>
         </div>
         <div id="toolbar-alignment" class="option-container" title="Change Toolbar Position" data-has-dropdown="true">
-            <i class="icon-menu"></i><span class="tool-label">&nbsp;Alignment</span>
-            <i class="icon-caret-down"></i>
+            <i class="fa fa-bars"></i><span class="tool-label">&nbsp;Alignment</span>
+            <i class="fa fa-caret-down"></i>
             <div class="dropdown hidden">
                 <div class="dropdown-item top">
                     <i class="icon-align-top"></i><span class="tool-label">&nbsp;Align Top</span>
@@ -65,7 +64,7 @@
             </div>
         </div>
         <div id="close-toolbar" class="option-container" title="Close Toolbar">
-            <i id="cancel" class="icon-close"></i>
+            <i id="cancel" class="fa fa-times-circle"></i>
         </div>
     </div>
 </div>

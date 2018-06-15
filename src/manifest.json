@@ -24,16 +24,6 @@
         ],
         "persistent": false
     },
-    "content_scripts": [{
-        "matches": [
-            "http://*/*",
-            "https://*/*",
-            "file://*/*"
-        ],
-        "js": [
-            "content-scripts/web-page-canvas.js"
-        ]
-    }],
     "permissions": [
         "<all_urls>",
         "tabs",
@@ -44,8 +34,8 @@
     ],
     "web_accessible_resources": [
         "images/*.png",
-        "web-resources/*/*",
-        "web-resources/icons/fonts/*"
+        "content-scripts/*",
+        "web-resources/*/*"
     ],
     "offline_enabled": true,
     "homepage_url": "http://dgiankakis.it-studies.gr/index.php/en/component/spsimpleportfolio/item/20-web-page-canvas-extension-en"

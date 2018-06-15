@@ -1,15 +1,18 @@
-/* globals chrome */
+/* globals chrome, InvalidPageError */
 
 var background = chrome.extension.getBackgroundPage(),
+    patterns = {
+        fileOrChrome: /^(file:\/\/|chrome:\/\/|chrome-extension:\/\/).+$/igm,
+        validPage: /\.(?:html|htm|php|asp)$/igm,
+    },
     webPageCanvas;
 
 /**
- * @class
- * @classdesc The main popup plugin class.
+ * @class The main popup plugin class.
  * @prop {boolean} overlayOpen A flag of whether the webpage canvas is open.
  * @prop {Object.<string, number>} toolsOptions The object with all the information of all available tools.
  * @prop {Object.<string, number>} activeTool The object with all the information about the currently active tool.
- * @prop {number} tabID The chrome ID of the current tab.
+ * @prop {Tab} tab The chrome's Tab object of the current tab.
  * @prop {boolean} isProperPage If the current webpage is proper for opening the extension.
  */
 class webPageCanvasPopup {
@@ -17,39 +20,40 @@ class webPageCanvasPopup {
     /**
      * @constructor
      */
-    constructor() {
+    constructor(tab) {
         this.overlayOpen = false;
         this.activePanel = {
             id: 'library',
             htmlID: 'library'
         };
+        this.tab = tab;
         this.localSnapshots = [];
         this.isProperPage = true;
         this.STORAGEAREAKEY = 'webPageCanvas_screenshots_array';
-    }
 
-    init() {
-
-        this.attachHandlers();
-        this.tabClickHandler.call(this, document.querySelector(".tab-title[data-panel-id='library']"));
-        this.updateSlideshow();
-
-        if (!this.isProperPage) {
-            document.querySelector('#switcher button.on').disabled = true;
+        if (patterns.validPage.test(this.tab.url) && !patterns.fileOrChrome.test(this.tab.url)) {
+            this.attachHandlers();
+            this.tabClickHandler.call(this, document.querySelector(".tab-title[data-panel-id='" + this.activePanel.htmlID + "']"));
+        } else {
+            webPageCanvas.isProperPage = false;
+            webPageCanvas.disableMenu();
+            throw new InvalidPageError('Cannot execute plug-in here');
         }
     }
 
-    reload(attributes) {
+    refresh(attributes) {
         for (let key in attributes) {
             this[key] = attributes[key];
         }
         this.attachHandlers();
-        this.reloadValues();
-        this.updateSlideshow();
+        this.refreshPopup();
+        this.getStorageSnapshots()
+            .then(function() {
+                this.refreshSlideshow();
+            }.bind(this));
     }
 
-    reloadValues() {
-
+    refreshPopup() {
         let switcher = document.getElementById('switcher');
 
         if (!this.activePanel.id.localeCompare('library'))
@@ -72,73 +76,90 @@ class webPageCanvasPopup {
             document.getElementById('save').disabled = true;
 
         }
-
     }
 
+    /**
+     * @method void
+     */
     storePopupObject() {
         background.popupObjects[webPageCanvas.tabID] = this;
     }
 
-    updateSlideshow() {
+    /**
+     * Retrieves the library slides from the chrome's storage area.
+     * @returns {Promise} Resolving the slides if they exist, else rejecting.
+     */
+    getStorageSnapshots() {
+        return new Promise((resolve, reject) => function() {
+            chrome.storage.local.get(this.STORAGEAREAKEY, function(items) {
+                if (items[this.STORAGEAREAKEY] != null)
+                    resolve(items[this.STORAGEAREAKEY]);
+                else
+                    reject();
+            }.bind(this));
+        });
+    }
 
-        chrome.storage.local.get(this.STORAGEAREAKEY, function(items) {
-
-            if (items[this.STORAGEAREAKEY] != null && items[this.STORAGEAREAKEY].length > this.localSnapshots.length) {
-
-                this.localSnapshots = items[this.STORAGEAREAKEY];
-                this.reloadSlideshowWithLocalSnapshots();
-
-            } else if (this.localSnapshots.length > 0) {
-                this.reloadSlideshowWithLocalSnapshots();
-                chrome.storage.local.set({
-                    [this.STORAGEAREAKEY]: this.localSnapshots
+    /**
+     * @method Promise Retrieves the chrome's storage area snapshots and stores them in the object.
+     */
+    refreshSnapshots() {
+        return new Promise((resolve) => function() {
+            this.getStorageSnapshots()
+                .then(function(snapshots) {
+                    this.localSnapshots = snapshots;
+                    resolve();
                 });
-            } else {
-                this.clearSlideshow();
-            }
-
-            if (this.localSnapshots.length == null)
-                document.getElementById('clear-screenshots').disabled = true;
-            else
-                document.getElementById('clear-screenshots').disabled = false;
-
-            this.storePopupObject();
-        }.bind(this));
-
+        });
     }
 
-    reloadSlideshowWithLocalSnapshots() {
+    /**
+     * @method Promise the local snapshots in chrome's local storage.
+     */
+    setSnapshots(snapshots) {
+        return new Promise((resolve) => function() {
+            chrome.storage.local.set({
+                [this.STORAGEAREAKEY]: snapshots
+            }, function() {
+                resolve();
+            });
+        });
+    }
 
+    /**
+     * @method void Refreshes the snapshots slideshow
+     */
+    refreshSlideshow() {
         let slideshow = document.getElementById('slideshow'),
             slideImage = document.getElementById('slide-image'),
             currentScreenshotNumber = document.getElementById('current-screenshot-number'),
             totalScreenshotNumber = document.getElementById('total-screenshot-number');
 
-        slideshow.className = '';
-        slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1]);
-        slideImage.dataset.storageIndex = this.localSnapshots.length - 1;
-        currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : this.localSnapshots.length;
-        totalScreenshotNumber.innerText = this.localSnapshots.length;
-
-        this.storePopupObject();
+        if (this.localSnapshots.length > 0) {
+            slideshow.className = '';
+            slideImage.src = this.b64ToBlobURL(this.localSnapshots[this.localSnapshots.length - 1]);
+            slideImage.dataset.storageIndex = this.localSnapshots.length - 1;
+            currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : this.localSnapshots.length;
+            totalScreenshotNumber.innerText = this.localSnapshots.length;
+        } else {
+            slideshow.className = 'empty';
+            slideImage.src = slideImage.dataset.storageIndex = currentScreenshotNumber.innerText = totalScreenshotNumber.innerText = '';
+            this.localSnapshots = {};
+        }
     }
 
-    clearSlideshow() {
-
-        let slideshow = document.getElementById('slideshow'),
-            slideImage = document.getElementById('slide-image'),
-            currentScreenshotNumber = document.getElementById('current-screenshot-number'),
-            totalScreenshotNumber = document.getElementById('total-screenshot-number');
-
-        slideshow.className = 'empty';
-        slideImage.src = slideImage.dataset.storageIndex = currentScreenshotNumber.innerText = totalScreenshotNumber.innerText = '';
-        this.localSnapshots = {};
-
-        this.storePopupObject();
+    /**
+     * @method void Deletes the snapshot, with the specified index
+     * @param {number} index The index
+     */
+    deleteSnapshot(index) {
+        this.localSnapshots.splice(index, 1);
     }
 
+    /**
+     * @method void Attaches all the handlers to the document
+     */
     attachHandlers() {
-
         let switcher = document.getElementById('switcher'),
             clearScreenshots = document.getElementById('clear-screenshots'),
             restore = document.getElementById('restore');
@@ -147,6 +168,10 @@ class webPageCanvasPopup {
         switcher.addEventListener('click', this.switcherClickHandler.bind(this, switcher));
         clearScreenshots.addEventListener('click', this.clearScreenshotsClickHandler.bind(this, clearScreenshots));
         restore.addEventListener('click', this.restoreClickHandler.bind(this, restore));
+
+        document.getElementById('about').onclick = function() {
+            chrome.tabs.create({url: chrome.extension.getURL('about/about.html')});
+        };
 
         for (let element of document.querySelectorAll('.tab-title')) {
             element.addEventListener('click', this.tabClickHandler.bind(this, element));
@@ -167,12 +192,19 @@ class webPageCanvasPopup {
         this.storePopupObject();
     }
 
+    /**
+     * @method void Disables all the popup's menu buttons
+     */
     disableMenu() {
         for (let element of document.querySelectorAll('#switcher button')) {
             element.disabled = true;
         }
     }
 
+    /**
+     * Inserts a download, with the specified url as a target
+     * @param {string} file The url of the file to be downloaded
+     */
     insertDownload(file) {
         let date = new Date();
 
@@ -184,6 +216,11 @@ class webPageCanvasPopup {
 
     }
 
+    /**
+     * @method void Handles all clicks to the switcher buttons
+     * @param {HTMLElement} element 
+     * @param {boolean} sendMessageToTab 
+     */
     switcherClickHandler(element, sendMessageToTab = true) {
 
         if (element.classList.contains('off')) {
@@ -191,6 +228,8 @@ class webPageCanvasPopup {
             this.overlayOpen = true;
 
             chrome.tabs.sendMessage(this.tabID, { message: 'init-canvas' });
+
+            chrome.tabs.executeScript()
 
             element.classList.remove('off');
             element.classList.add('on');
@@ -224,62 +263,52 @@ class webPageCanvasPopup {
         this.storePopupObject();
     }
 
+    /**
+     * @method void
+     * @param {HTMLElement} element 
+     */
     restoreClickHandler(element) {
         if (this.lastCanvas != null)
             chrome.tabs.sendMessage(this.tabID, { message: 'restore-canvas', data: this.lastCanvas });
         element.disabled = true;
     }
 
+    /**
+     * @method void
+     */
     clearClickHandler() {
         if (this.overlayOpen) {
             chrome.tabs.sendMessage(this.tabID, { message: 'clear-canvas' });
         }
     }
 
+    /**
+     * @method void
+     * @param {HTMLElement} element 
+     */
     screenshotActionClickHandler(element) {
-
         let slideshow = document.getElementById('slideshow'),
             slideImage = document.getElementById('slide-image');
 
         if (!slideshow.className && slideImage.src != null) {
-            if (element.classList.contains('download-screenshot'))
+            if (element.classList.contains('download-screenshot')) // download snapshot btn is clicked
                 this.insertDownload(slideImage.src);
-            else if (element.classList.contains('delete-screenshot')) {
-                chrome.storage.local.get(this.STORAGEAREAKEY, function(slideImage, slideshow, items) {
-
-                    let data = items[this.STORAGEAREAKEY];
-
-                    if (!(typeof data).localeCompare('object') && data.length > 0) {
-
-                        data.splice(slideImage.dataset.storageIndex, 1);
-
-                        if (data.length > 0) {
-
-                            this.localSnapshots = data;
-                            this.reloadSlideshowWithLocalSnapshots();
-
-                        } else {
-
-                            this.clearSlideshow();
-
-                        }
-
-                        chrome.storage.local.set({
-                            [this.STORAGEAREAKEY]: data
-                        });
-
-                    }
-                
-                this.storePopupObject();
-                }.bind(this, slideImage, slideshow));
+            else if (element.classList.contains('delete-screenshot')) { // delete snapshot btn is clicked
+                this.deleteSnapshot(slideImage.dataset.storageIndex);
+                this.refreshSnapshots()
+                    .then(function() {
+                        this.refreshSlideshow();
+                    }.bind(this));
             }
         }
-
     }
 
+    /**
+     * @method void
+     * @param {HTMLElement} element 
+     */
     screenshotNavigationClickHandler(element) {
-
-        let currentImageIndex = parseInt(document.getElementById('slide-image').dataset.storageIndex),
+        let currentImageIndex = parseInt(document.getElementById('slide-image')         .dataset.storageIndex),
             slideImage = document.getElementById('slide-image'),
             currentScreenshotNumber = document.getElementById('current-screenshot-number'),
             newImageIndex;
@@ -289,14 +318,11 @@ class webPageCanvasPopup {
                 newImageIndex = this.localSnapshots.length - 1;
             else
                 newImageIndex = currentImageIndex - 1;
-
         } else {
-
             if ((currentImageIndex + 1) >= this.localSnapshots.length)
                 newImageIndex = 0;
             else
                 newImageIndex = currentImageIndex + 1;
-
         }
 
         slideImage.dataset.storageIndex = newImageIndex;
@@ -304,205 +330,108 @@ class webPageCanvasPopup {
         slideImage.src = this.b64ToBlobURL(this.localSnapshots[newImageIndex]);
     }
 
-    saveClickHandler() {
 
+    /**
+     * @method void
+     */
+    saveClickHandler() {
         this.tabClickHandler.call(this, document.querySelector(".tab-title[data-panel-id='library'"));
 
         chrome.tabs.sendMessage(this.tabID, { message: 'save-canvas' }, function(response) {
 
             if (response != null && response.hasOwnProperty('message') && response.hasOwnProperty('data') && !response.message.localeCompare('saved')) {
-
-                this.insertImage(response.data).then(function() {
-
-                    this.updateSlideshow();
-
-                }.bind(this));
-
+                this.addSnapshot(response.data);
             }
 
         }.bind(this));
-
     }
 
+    /**
+     * @method void
+     * @param {HTMLElement} element The tab container element
+     */
     tabClickHandler(element) {
-
         if (!element.classList.contains('active')) {
+            let id = element.dataset.panelId;
 
             document.querySelector('.tab-title.active').classList.remove('active');
             document.querySelector('.tab-content.active').classList.remove('active');
 
             element.classList.add('active');
 
-            let id = element.dataset.panelId;
-
             document.querySelector(".tab-content[data-panel-id='" + id + "']").classList.add('active');
 
             if (!id.localeCompare('library')) {
-
-                if (this.localSnapshots.length > 0)
-                    this.reloadSlideshowWithLocalSnapshots();
-                else
-                    this.clearSlideshow();
-
+                this.refreshSnapshots()
+                    .then(function() {
+                        this.refreshSlideshow();
+                    }.bind(this));
             }
-
+                
             this.activePanel.id = id;
             this.activePanel.htmlId = id;
         }
 
         this.storePopupObject();
-
-    }
-
-    clearScreenshotsClickHandler() {
-
-        if (this.localSnapshots.length > 0) {
-
-            chrome.storage.local.set({
-                [this.STORAGEAREAKEY]: null
-            });
-            this.localSnapshots = {};
-            this.reloadSlideshowWithLocalSnapshots();
-
-        }
-
-        this.storePopupObject();
-    }
-
-    changeActiveTool(newId) {
-        let id = this.changeToCamelCase(newId);
-        this.activeTool = {
-            id: id,
-            htmlId: !id.localeCompare('paintBrush') ? 'paint-brush' : id,
-            options: this.toolsOptions[id]
-        };
-        this.updatePageActiveTool();
-    }
-
-    updatePageActiveTool() {
-        chrome.tabs.sendMessage(this.tabID, {
-            message: 'update-info',
-            data: {
-                tool: this.activeTool,
-                tabID: this.tabID
-            }
-        });
-        this.storePopupObject();
-    }
-
-    colorClickHandler(element) {
-
-        if (element.classList.contains('color') && !element.classList.contains('active')) {
-
-            let tabContent = element.parentElement.parentElement,
-                toolId = tabContent.dataset.toolId,
-                colorName = element.title.toLowerCase();
-
-            this.disableAllColors(toolId);
-            element.classList.add('active');
-
-            if (!toolId.localeCompare('paint-brush')) {
-                this.toolsOptions.paintBrush.color = element.dataset.colorCode;
-            }
-
-            tabContent.dataset.toolColor = colorName;
-            document.querySelector(".tab-title[data-tool-id='" + toolId + "']").dataset.toolColor = colorName;
-            this.changeActiveTool(toolId);
-
-        }
-
-    }
-
-    sizeHandler(element) {
-        let toolId = element.dataset.toolId,
-            value = parseFloat(element.value);
-        element.nextElementSibling.innerHTML = value + 'px';
-        if (!toolId.localeCompare('paint-brush'))
-            this.toolsOptions.paintBrush.size = value;
-        else if (!toolId.localeCompare('eraser'))
-            this.toolsOptions.eraser.size = value;
-        this.changeActiveTool(toolId);
-    }
-
-    disableAllColors(toolId) {
-        for (let element of document.querySelectorAll(".tab-content[data-tool-id='" + toolId + "']" + " .color.active")) {
-            element.classList.remove('active');
-        }
     }
 
     /**
-     * @param {string} string
-     * @description Changes the given string to a camel case string by removing the hyphens between.
+     * @method void
      */
-    changeToCamelCase(string) {
-        let hyphenIndex = string.includes('-');
-        if (hyphenIndex) {
-            let strParts = string.split('-');
-            return strParts[0] + strParts[1].charAt(0).toUpperCase() + strParts[1].substr(1, strParts[1].length);
-        }
-        return string;
+    clearScreenshotsClickHandler() {
+        this.setSnapshots(null);
+        this.localSnapshots = {};
+        this.refreshSlideshow();
+
+        this.storePopupObject();
     }
 
     /**
+     * @method void
      * @param {number} targetW The target width percentage at which to animate the loader.
      */
     animateLoader(targetW) {
-
         let slideshow = document.getElementById('slideshow'),
             loader = document.getElementById('passed-bar'),
             percent = document.getElementById('loader-percent');
 
         if (!slideshow.classList.contains('loading')) {
-
             slideshow.className = 'loading';
-
         }
         if (targetW >= 100) {
-
             loader.style.width = '100%';
             percent.innerHTML = '100';
-
         } else {
-
             loader.style.width = targetW + '%';
             percent.innerHTML = parseInt(targetW);
-
         }
-
     }
 
-    insertImage(newImageSrc) {
+    /**
+     * @method void
+     * @param {string} snapshotSrc 
+     */
+    addSnapshot(snapshotSrc) {
         return new Promise((resolve) => {
-            chrome.storage.local.get(this.STORAGEAREAKEY, function(newImageSrc, items) {
-                if (items[this.STORAGEAREAKEY] != null) {
-                    this.localSnapshots = items[this.STORAGEAREAKEY].concat([newImageSrc]);
-                } else {
-                    this.localSnapshots = new Array(newImageSrc);
-                }
-                let imageBlobURL = this.b64ToBlobURL(newImageSrc);
-
-                chrome.storage.local.set({
-                    [this.STORAGEAREAKEY]: this.localSnapshots
-                }, function(imageBlobURL) {
-
-                    let slideImage = document.getElementById('slide-image'),
-                        currentScreenshotNumber = document.getElementById('current-screenshot-number'),
-                        totalScreenshotNumber = document.getElementById('total-screenshot-number');
-
-                    slideImage.src = imageBlobURL;
-                    slideImage.dataset.storageIndex = this.localSnapshots.length - 1;
-                    currentScreenshotNumber.innerText = (this.localSnapshots.length - 1) == 0 ? 1 : this.localSnapshots.length;
-                    totalScreenshotNumber.innerText = this.localSnapshots.length;
-
-                    resolve('success');
-                }.bind(this, imageBlobURL));
-
-            }.bind(this, newImageSrc));
+            this.getStorageSnapshots()
+                .then(function(snapshots) {
+                    this.localSnapshots = snapshots.concat([snapshotSrc]);
+                })
+                .catch(function() {
+                    this.localSnapshots = new Array(snapshotSrc);
+                })
+                .finally(function() {
+                    this.setSnapshots(this.localSnapshots)
+                        .then(function() {
+                            this.refreshSlideshow();
+                            resolve();
+                        }.bind(this));
+                });
         });
     }
 
     /**
-     * Converts an b64 uri to blob
+     * @method string Converts an b64 uri to blob
      * @param {string} dataURL The original string.
      */
     b64ToBlobURL(dataURL) {
@@ -520,45 +449,21 @@ class webPageCanvasPopup {
     }
 }
 
-webPageCanvas = new webPageCanvasPopup();
-
 window.onload = function() {
-
     chrome.tabs.getSelected(null, function(tab) {
-        webPageCanvas.tabID = tab.id;
-
-        if (tab.url.includes('file:///') || tab.url.includes('chrome://') || tab.url.includes('chrome-extension://') || tab.url.includes('.pdf') || tab.url.includes('.png') || tab.url.includes('.jpg') || tab.url.includes('.gif') || tab.url.includes('.jpeg') || tab.url.includes('.JPEG') || tab.url.includes('.PNG') || tab.url.includes('.svg') || tab.url.includes('data:image/')) {
-            webPageCanvas.isProperPage = false;
-            webPageCanvas.disableMenu();
-            webPageCanvas.init();
-        } else {
-            chrome.runtime.sendMessage({
-                message: 'init-object',
-                tabID: webPageCanvas.tabID
-            }, function(response) {
-
-                if (response != null && response.hasOwnProperty('message')) {
-
-                    if (!response.message.localeCompare('do-it-yourself')) {
-
-                        webPageCanvas.init();
-
-                    } else if (!response.message.localeCompare('sending-popup-object-data') && response.hasOwnProperty('data')) {
-
-                        webPageCanvas.reload(response.data);
-
-                    }
-                }
-
-            });
+        if (background.popupObjects[tab.id] != null) { // popup object exists
+            webPageCanvas = background.popupObjects[tab.id];
+        } else { // popup object does not exist
+            try {
+                webPageCanvas = new webPageCanvasPopup(tab);
+            } catch(error) {
+                console.error(error);
+            }
         }
-
     });
-
 };
 
 chrome.runtime.onMessage.addListener(function(request) {
-
     if (request == null) {
         return;
     }
@@ -571,5 +476,4 @@ chrome.runtime.onMessage.addListener(function(request) {
     } else if (request.hasOwnProperty('message') && !request.message.localeCompare('manually-closed-canvas')) {
         webPageCanvas.switcherClickHandler.call(webPageCanvas, document.getElementById('switcher'));
     }
-
 });

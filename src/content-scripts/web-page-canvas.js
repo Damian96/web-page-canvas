@@ -74,13 +74,22 @@ class WebPageCanvas {
         });
     }
 
-    handleElements(show) {
+    handleElements(add) {
 
-        for (let element of document.getElementsByClassName('web-page-canvas')) {
-            if (show) {
-                element.classList.remove('hidden');
-            } else {
-                element.classList.add('hidden');
+        if (add) {
+            this.injectCSS()
+                .then(function() {
+                    this.injectHTML()
+                        .then(function() {
+                            webPageCanvas.attachHandlers();
+                            webPageCanvas.initCanvas();
+                            webPageCanvas.adjustCanvas();
+                            window.onresize = webPageCanvas.adjustCanvas.bind(webPageCanvas);
+                        });
+                });
+        } else {
+            for(let element of document.querySelectorAll('.web-page-canvas')) {
+                element.remove();
             }
         }
 
@@ -159,6 +168,8 @@ class WebPageCanvas {
 
                     }.bind(this, child), { once: true });
 
+                    break;
+
                 } else if (child.classList.contains('dropdown') && !child.classList.contains('hidden')) { // Is dropdown, is not hidden
 
                     if (event.path.indexOf(event.currentTarget) <= 1) // Toolbar option is clicked
@@ -176,6 +187,7 @@ class WebPageCanvas {
                             }
                         }
                     }
+                    break;
 
                 }
 
@@ -449,7 +461,7 @@ class WebPageCanvas {
             request.onload = function() {
                  if (request.readyState == 4 && request.status == 200 && !request.responseType.localeCompare('document'))
                     this.contentDocument = request.responseXML;
-                resolve('success');
+                resolve();
             }.bind(this);
 
             request.open('GET', chrome.runtime.getURL('/web-resources/html/web-page-canvas.html'));
@@ -460,25 +472,27 @@ class WebPageCanvas {
     }
 
     /**
-     * Inserts all of the retrieved HTML in the current document.
+     * Injects all stylsheets on the document
+     * @returns {Promise} when all the stylesheets are loaded
      */
-    insertHTML() {
+    injectCSS() {
         if (this.contentDocument == null) {
             return false;
         }
 
         return new Promise((resolve) => {
 
-            var styles = this.contentDocument.querySelectorAll("head > link");
+            var styles = this.contentDocument.querySelectorAll("head > link[rel='stylesheet']");
             var styleLoaded = 0;
             var styleOnLoad = function () {
                 if (++styleLoaded == styles.length)
-                    resolve('success');
+                    resolve();
             };
 
             for (let styleSheet of styles) {
 
                 let href = styleSheet.getAttribute('href');
+                let sheet = styleSheet.cloneNode(true);
                 styleSheet.className = 'web-page-canvas';
                 styleSheet.onload = styleOnLoad;
                 styleSheet.setAttribute('href', chrome.runtime.getURL(href));
@@ -486,8 +500,23 @@ class WebPageCanvas {
 
             }
 
-            document.body.innerHTML += this.contentDocument.body.innerHTML;
         });
+    }
+
+    /**
+     * Injects the HTML on the document.
+     */
+    injectHTML() {
+        document.body.innerHTML += this.contentDocument.body.innerHTML;
+        setTimeout(this.animateToolbar, 500);
+    }
+
+    animateToolbar() {
+        document.getElementById('toolbar').addEventListener('transitionend', function(event) {
+            event.target.classList.remove('animated');
+        }, {once: true});
+        document.getElementById('toolbar').classList.remove('closed');
+        document.getElementById('toolbar').classList.add('animated');
     }
 
     /**
@@ -554,8 +583,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 webPageCanvas = new WebPageCanvas();
                 webPageCanvas.getContentDocument()
                     .then(function() {
-                        webPageCanvas.insertHTML()
+                        webPageCanvas.injectCSS()
                             .then(function() {
+                                webPageCanvas.injectHTML();
                                 webPageCanvas.attachHandlers();
                                 webPageCanvas.initCanvas();
                                 webPageCanvas.adjustCanvas();

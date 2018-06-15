@@ -1,7 +1,10 @@
+@import url("https://use.fontawesome.com/releases/v5.0.13/css/all.css");
+
 body {
     min-width: 100%;
     min-height: 100%;
     margin: 0;
+    -webkit-user-select: none;
 }
 
 .web-page-canvas {
@@ -25,25 +28,40 @@ canvas.web-page-canvas {
     left: 0;
 }
 
+#toolbar.web-page-canvas.closed {
+    max-height: 0;
+    overflow: hidden;
+}
+
 #toolbar.web-page-canvas {
-    background: linear-gradient(rgb(20, 20, 20), rgb(60, 60, 60));
+    background: linear-gradient(rgb(54, 54, 54), rgb(112, 112, 112));
     position: fixed;
     z-index: 10000001;
     user-select: none;
     transform: translate(-50%, 0);
     width: -webkit-max-content;
-    height: -webkit-max-content;
     max-width: 80%;
     left: 50%;
 }
 
+#toolbar.web-page-canvas.animated {
+    max-height: 33px;
+    overflow-y: hidden;
+    transition-property: all;
+    transition-duration: 1s;
+    transition-delay: 1s;
+    transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+}
+
 #toolbar.web-page-canvas.aligned-top {
     border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
     top: 0
 }
 
 #toolbar.web-page-canvas.aligned-bottom {
     border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
     bottom: 0
 }
 
@@ -80,15 +98,12 @@ canvas.web-page-canvas {
     font-size: 18px;
 }
 
-#toolbar.web-page-canvas .icon-eraser,
-#toolbar.web-page-canvas .icon-menu,
-#toolbar.web-page-canvas .icon-highlighter,
-#toolbar.web-page-canvas .icon-cog {
+#toolbar.web-page-canvas .tool-container .fa,
+#toolbar.web-page-canvas .option-container .fa {
     font-size: 17px;
 }
 
-#toolbar.web-page-canvas .icon-highlighter {
-    font-weight: bolder;
+#toolbar.web-page-canvas .fa-pencil-alt {
     color: #FFFF00;
 }
 
@@ -97,55 +112,42 @@ canvas.web-page-canvas {
     color: #d2d2d2;
 }
 
-#toolbar.web-page-canvas .icon-paint-brush {
-    color: #FF0000;
+#toolbar.web-page-canvas .fa-paint-brush {
+    color: #00FF00;
 }
 
-#toolbar.web-page-canvas .icon-paint-brush,
-#toolbar.web-page-canvas .icon-floppy-disk {
+#toolbar.web-page-canvas .fa-paint-brush,
+#toolbar.web-page-canvas .fa-floppy-disk {
     font-size: 15px;
 }
 
-#toolbar.web-page-canvas .icon-paint-brush,
-#toolbar.web-page-canvas .icon-highlighter {
-    padding: 3px;
-}
-
-#toolbar.web-page-canvas .icon-eraser {
-    position: relative;
-    top: 2px;
+#toolbar.web-page-canvas .fa-eraser {
     color: #A52A2A;
 }
 
-#toolbar.web-page-canvas .icon-menu {
-    position: relative;
-    top: 1px;
+#toolbar.web-page-canvas .fa-bars {
     color: #87ceeb;
 }
 
-#toolbar.web-page-canvas .icon-cog {
+#toolbar.web-page-canvas .fa-cog {
     color: #0000ff;
 }
 
 #toolbar.web-page-canvas #cancel {
-    font-size: 17px;
+    font-size: 19px;
     position: relative;
     top: 50%;
     padding: 1px 2px 2px 1px;
     color: #FF0000;
-    font-weight: bolder;
-    background-color: #fff;
+    font-weight: bold;
     border-radius: 50%;
 }
 
-#toolbar.web-page-canvas .icon-close {
-    font-size: 20px;
-    color: #FFA500;
-    position: relative;
-    top: 2px;
+#toolbar.web-page-canvas .fa-times {
+    color: #FF0000;
 }
 
-#toolbar.web-page-canvas [data-has-dropdown='true'] .icon-caret-down {
+#toolbar.web-page-canvas [data-has-dropdown='true'] .fa-caret-down {
     color: #fff;
     font-size: 19px;
 }
@@ -160,10 +162,6 @@ canvas.web-page-canvas {
 #toolbar.web-page-canvas .tool-container:not(:first-child),
 #toolbar.web-page-canvas .option-container {
     margin-left: -4px;
-}
-
-#toolbar.web-page-canvas .icon-floppy-disk {
-    color: #0000FF
 }
 
 #toolbar.web-page-canvas .dropdown:not(.hidden) {
@@ -216,9 +214,7 @@ canvas.web-page-canvas {
     color: #000 !important;
 }
 
-#toolbar.web-page-canvas .tool-container[title="Paint Brush"] .dropdown,
-#toolbar.web-page-canvas .tool-container[title="Eraser"] .dropdown,
-#toolbar.web-page-canvas .tool-container[title="Highlighter"] .dropdown {
+#toolbar.web-page-canvas .tool-container .dropdown {
     padding: 0 5px;
 }
 

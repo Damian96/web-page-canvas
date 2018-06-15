@@ -1,3 +1,5 @@
+@import url("https://use.fontawesome.com/releases/v5.0.13/css/all.css");
+
 html,
 body {
     width: 500px;
@@ -106,7 +108,7 @@ body {
 }
 
 .tab-title.active {
-    background-color: #cfcfcf;
+    background-color: #DDDDDD;
     z-index: 2;
 }
 
@@ -401,4 +403,10 @@ body {
 #clear-screenshots {
     cursor: pointer;
     padding: 10px;
+}
+
+.tab-content[data-panel-id='options'] .fa-info {
+    color: blue;
+    font-size: 16px;
+    padding: 5px;
 }

@@ -27,14 +27,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 }
                 popupObjects[sender.tab.id].overlayOpen = false;
             }
-        } else { // message is from popup
-            if(!request.message.localeCompare('init-object') && request.hasOwnProperty('tabID')) {
-                if(popupObjects.hasOwnProperty(request.tabID)) {
-                    sendResponse({message: 'sending-popup-object-data', data: popupObjects[request.tabID]});
-                } else {
-                    sendResponse({message: 'do-it-yourself'});
-                }
-            }
         }
     }
     return true;
