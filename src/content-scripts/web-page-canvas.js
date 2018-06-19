@@ -108,7 +108,7 @@ if (typeof WebPageCanvas === 'undefined') {
             this.canvasImages = [];
             this.imagesLoaded = 0;
             this.finalCanvas.element.width = this.getMaxWidth();
-            this.finalCanvas.element.height = this.getMaxHeight();
+            this.finalCanvas.element.height = document.documentElement.offsetHeight;
             this.finalCanvas.context.clearRect(0, 0, this.finalCanvas.element.width, this.finalCanvas.element.height);
         }
 
@@ -145,8 +145,8 @@ if (typeof WebPageCanvas === 'undefined') {
                 chrome.runtime.sendMessage({
                     message: 'take-snapshot',
                     data: {
-                        windowHeight: window.innerHeight,
-                        pageHeight: this.getMaxHeight()
+                        windowHeight: this.getMaxHeight(),
+                        pageHeight: document.documentElement.scrollHeight
                     }
                 }, function(response) {
                     if (response != null && response.hasOwnProperty('data')) {
@@ -619,10 +619,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if (!request.message.localeCompare('resize-canvas'))
             webPageCanvas.adjustCanvas();
         else if (!request.message.localeCompare('scroll-top')) {
-
             window.scrollTo(0, window.scrollY + window.innerHeight);
             sendResponse({ message: 'Scrolled' });
-
         }
 
     } else if (request != null && request.hasOwnProperty('message') && request.hasOwnProperty('data')) {

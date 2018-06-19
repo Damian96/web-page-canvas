@@ -198,25 +198,25 @@ class Library {
         slideImage.src = this.b64ToBlobURL(this.snapshots[newImageIndex]);
     }
 
-    /**
-     * @method void
-     * @param {number} targetW The target width percentage at which to animate the loader.
-     */
-    animateLoader(targetW) {
-        let loader = document.getElementById('passed-bar'),
-            percent = document.getElementById('loader-percent');
+    // /**
+    //  * @method void
+    //  * @param {number} targetW The target width percentage at which to animate the loader.
+    //  */
+    // animateLoader(targetW) {
+    //     let loader = document.getElementById('passed-bar'),
+    //         percent = document.getElementById('loader-percent');
 
-        if (!this.elements.slideshow.classList.contains('loading')) {
-            this.elements.slideshow.className = 'loading';
-        }
-        if (targetW >= 100) {
-            loader.style.width = '100%';
-            percent.innerHTML = '100';
-        } else {
-            loader.style.width = targetW + '%';
-            percent.innerHTML = parseInt(targetW);
-        }
-    }
+    //     if (!this.elements.slideshow.classList.contains('loading')) {
+    //         this.elements.slideshow.className = 'loading';
+    //     }
+    //     if (targetW >= 100) {
+    //         loader.style.width = '100%';
+    //         percent.innerHTML = '100';
+    //     } else {
+    //         loader.style.width = targetW + '%';
+    //         percent.innerHTML = parseInt(targetW);
+    //     }
+    // }
 
     /**
      * @method string Converts an b64 uri to blob

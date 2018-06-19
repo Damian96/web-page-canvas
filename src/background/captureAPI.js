@@ -65,7 +65,7 @@ class CaptureAPI {
                 reject('invalid takeSnapshot parameters given!');
             }
 
-            if(this.maxSnapshots > 20 || this.pageHeight > 4000) {
+            if(this.maxSnapshots > 20 || this.pageHeight > 15000) {
                 reject('too tall page to take snapshot');
             }
 
@@ -78,10 +78,10 @@ class CaptureAPI {
                             chrome.tabs.sendMessage(this.tabID, {message: 'scroll-top'},
                                 function(onSuccess, thisArg, param1, response) {
                                     if(response.message == 'Scrolled') {
-                                        chrome.runtime.sendMessage({
-                                            message: 'update-snapshot-process',
-                                            data: this.snapshots.length * 100 / this.maxSnapshots
-                                        });
+                                        // chrome.runtime.sendMessage({
+                                        //     message: 'update-snapshot-process',
+                                        //     data: this.snapshots.length * 100 / this.maxSnapshots
+                                        // });
                                         this.takeSnapshot.call(this, onSuccess, thisArg, param1);
                                     }
                                 }.bind(this, onSuccess, thisArg, param1));
