@@ -1,0 +1,37 @@
+<!Doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="../css/library.css" type="text/css"/>
+    <link rel="stylesheet" href="../../web-resources/css/font-awesome.min.css" type="text/css"/>
+</head>
+<body class="library">
+    <a id="back-to-home" href="home.html">
+        <i class="fa fa-arrow-left"></i> <span>Back to home</span>
+    </a>
+    <div class="row">
+        <div id="slideshow" class="empty">
+            <img id="slide-image"/>
+            <span class='save-message'>Draw and Save a page<br/>to add it to the Library</span>
+            <div class="row screenshot-navigation">
+                <i class="fa fa-arrow-left" title="Previous"></i>
+                <i class="fa fa-arrow-right" title="Next"></i>
+            </div>
+            <div class="row screenshot-actions">
+                <div class="download-screenshot" title="Download Screenshot"><i class="fa fa-save"></i>&nbsp;<span>Download</span></div>
+                <div class="delete-screenshot" title="Delete Screenshot"><i class="fa fa-trash"></i>&nbsp;<span>Delete</span></div>
+            </div>
+            <div class="row screenshot-number-notification">
+                <span id="current-screenshot-number">0</span> of <span id="total-screenshot-number">0</span>
+            </div>
+            <div class="row image-loader">
+                <div id="loader-caption">
+                    Saving&nbsp;<span id='loader-percent'></span>%&nbsp;of&nbsp;image.
+                </div>
+                <div id="loader-bar"><div id='passed-bar'></div></div>
+            </div>
+        </div>
+    </div>
+    <!-- Javascript -->
+    <script src="../js/library.js" type="text/javascript"></script>
+</body>
+</html>

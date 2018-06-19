@@ -1,5 +1,3 @@
-@import url("https://use.fontawesome.com/releases/v5.0.13/css/all.css");
-
 body {
     min-width: 100%;
     min-height: 100%;
@@ -11,7 +9,8 @@ body {
     font-family: 'Tahoma', 'serif';
 }
 
-#toolbar.web-page-canvas .hidden {
+#toolbar.web-page-canvas .hidden,
+.web-page-canvas.hidden {
     display: none;
 }
 
@@ -199,6 +198,10 @@ canvas.web-page-canvas {
     background-color: #d2d2d2;
 }
 
+#toolbar.web-page-canvas .dropdown .row {
+    padding: 0 5px;
+}
+
 #toolbar.web-page-canvas .dropdown .row,
 #toolbar.web-page-canvas .dropdown h3,
 #toolbar.web-page-canvas .dropdown hr {
@@ -215,7 +218,7 @@ canvas.web-page-canvas {
 }
 
 #toolbar.web-page-canvas .tool-container .dropdown {
-    padding: 0 5px;
+    padding: 0 10px;
 }
 
 #toolbar.web-page-canvas .tool-container[title="Eraser"] .dropdown {
@@ -235,8 +238,8 @@ canvas.web-page-canvas {
 }
 
 #toolbar.web-page-canvas .dropdown hr {
-    margin-left: -5px;
-    margin-right: -5px;
+    margin-left: -15px;
+    margin-right: -15px;
 }
 
 #toolbar.web-page-canvas .dropdown input[type="checkbox"] {

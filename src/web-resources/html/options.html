@@ -1,0 +1,83 @@
+<!Doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="../css/options.css" type="text/css"/>
+    <link rel="stylesheet" href="../css/font-awesome.min.css" type="text/css"/>
+    <!-- Javascript -->
+    <script type="text/javascript" src="../js/jquery-slim.min.js"></script>
+</head>
+<body class="options">
+    <div id="wrapper">
+        <h1>
+            <i class="fa fa-cog"></i>
+            Web Page Canvas Options
+        </h1>
+        <div id="options" class="row" novalidate autocomplete="off">
+            <div class="row form-group">
+                <div class="form-col">
+                    <label for="brushColor">
+                        <i class="fa fa-paint-brush"></i>
+                        Default Size
+                    </label>
+                </div>
+                <div class="form-col">
+                    <input type="number" name="size" min="1" max="30" value="5"/>
+                </div>
+            </div>
+            <hr>
+            <div class="row form-group">
+                <div class="form-col">
+                    <label for="brushColor">
+                        <i class="fa fa-paint-brush"></i>
+                        Default Paint Brush Color
+                    </label>
+                </div>
+                <div class="form-col">
+                    <input type="color" name="brushColor"/>
+                </div>
+            </div>
+            <hr>
+            <div class="row form-group">
+                <div class="form-col">
+                    <label for="highlighterColor">
+                        <i class="fa fa-pencil-alt"></i>
+                        Default Highlighter Color
+                    </label>
+                </div>
+                <div class="form-col">
+                    <input type="color" name="highlighterColor"/>
+                </div>
+            </div>
+            <hr>
+            <div class="row form-group">
+                <div class="form-col">
+                    <label for="maxStorage">
+                        <i class="fa fa-hdd"></i>
+                        Maximum Storage Space
+                    </label>
+                </div>
+                <div class="form-col">
+                    <input type="number" min="10" name="maxStorage" value="10"/>
+                    MB
+                </div>
+            </div>
+            <hr>
+            <div class="row form-group">
+                <div class="form-col">
+                    <label for="clearSnapshots">
+                        <i class="fa fa-trash-alt"></i>
+                        Clear Snapshots
+                    </label>
+                </div>
+                <div class="form-col">
+                    <input type="checkbox" name="clearSnapshots"/>
+                </div>
+            </div>
+            <hr>
+            <button type="button">Save</button>
+        </div>
+    </div>
+    <!-- Javascript -->
+    <script src="../js/options.js" type="text/javascript"></script>
+</body>
+</html>

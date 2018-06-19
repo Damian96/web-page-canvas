@@ -1,0 +1,33 @@
+<!Doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="../css/home.css" type="text/css"/>
+    <link rel="stylesheet" href="../../web-resources/css/font-awesome.min.css" type="text/css"/>
+</head>
+<body class="home">
+    <div class="row title" data-action-id="close">
+        <i class="fa fa-times" data-state="open"></i>
+        <i class="fa fa-check" data-state="close"></i>
+        <i class="fa fa-times" data-state="disabled"></i>
+        <span class="title-text" data-state="open">Canvas Open</span>
+        <span class="title-text" data-state="close">Open</span>
+        <span class="title-text" data-state="disabled">Invalid Page</span>
+    </div>
+    <a class="row title" data-action-id="library" href="library.html">
+        <i class="fa fa-book"></i>
+        <span class="title-text">Library</span>
+    </a>
+    <a class="row title" data-action-id="options" target="_blank" href="../../web-resources/html/options.html">
+        <i class="fa fa-cog"></i>
+        <span class="title-text">Options</span>
+    </a>
+    <a class="row title" data-action-id="about" target="_blank" href="../../about/about.html">
+        <i class="fa fa-info"></i>
+        <span class="title-text">About</span>
+    </a>
+
+    <!-- Javascript -->
+    <script src="../js/invalid-page-error.js" type="text/javascript"></script>
+    <script src="../js/home.js" type="text/javascript"></script>
+</body>
+</html>

@@ -15,7 +15,7 @@
             "32": "images/draw-32.png"
         },
         "default_title": "Annotate Page",
-        "default_popup": "/popup/html/web-page-canvas.html"
+        "default_popup": "/popup/html/home.html"
     },
     "background": {
         "scripts": [

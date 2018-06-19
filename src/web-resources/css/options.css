@@ -1,0 +1,101 @@
+body,
+html {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    background-color: blue;
+    font-family: 'Tahoma', 'serif';
+    font-size: 18px;
+}
+
+.row {
+    display: block;
+}
+
+.hidden {
+    display: none;
+}
+
+h1 {
+    text-align: center;
+}
+
+h1 > .fa-cog {
+    color: gray;
+}
+
+#wrapper {
+	width: 80%;
+	margin: auto;
+	background-color: #fff;
+	min-height: 100%;
+	padding: 10px;
+}
+
+#options .form-group {
+    padding: 10px;
+}
+
+#options .form-group .form-col {
+    width: 50%;
+    display: inline-block;
+    margin-right: -4px;
+    text-align: center;
+}
+
+#options label {
+    font-size: 1.1em;
+}
+
+#options label i {
+    visibility: hidden;
+}
+
+#options .form-group:hover label > i {
+    visibility: visible;
+}
+
+#options label i {
+    font-size: 0.9em;
+}
+
+#options label > .fa-trash-alt {
+    color: red;
+}
+
+#options label > .fa-paint-brush {
+    color: green;
+}
+
+#options label > .fa-pencil-alt {
+    color: yellow;
+}
+
+#options label > .fa-hdd {
+    color: darkgray;
+}
+
+#options input,
+#options button {
+    cursor: pointer;
+}
+
+#options input,
+#options button,
+#options textarea {
+    font-size: 1.2em;
+}
+
+#options input[type="checkbox"] {
+    transform: scale(1.5, 1.5);
+    position: relative;
+    left: 5px;
+    top: 5px;
+}
+
+#options hr {
+    margin: 0 -10px 0 -10px;
+}
