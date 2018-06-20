@@ -27,7 +27,8 @@ a.title > .title-text {
     color: black !important;
 }
 
-.title > .fa {
+.title > .fa,
+.title > .fa-layers > .fa {
     font-size: 0.8em;
     transform: translate(0, -10%);
     padding: 0 0 0 5px;
@@ -102,4 +103,17 @@ a.title > .title-text {
 .title[data-action-id="close"] .title-text[data-state="close"] {
     color: black;
     font-weight: bold;
+}
+
+.title[data-action-id="library"][data-new-snapshots="0"] > .fa-layers {
+    display: none;
+}
+
+.title[data-action-id="library"]:not([data-new-snapshots="0"]) > .fa-book {
+    display: none;
+}
+
+.title[data-action-id="library"]:not([data-new-snapshots="0"]) .fa-layers-counter  {
+    font-size: 0.5em;
+    position: absolute;
 }

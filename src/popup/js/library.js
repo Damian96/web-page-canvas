@@ -1,6 +1,7 @@
 /* globals chrome */
 
-var library;
+var library,
+    background = chrome.extension.getBackgroundPage();
 
 /**
  * @class The library plugin page class
@@ -21,11 +22,14 @@ class Library {
             slideImage: document.getElementById('slide-image')
         };
 
+        background.unseenSnapshots = 0;
+
         this.refreshSnapshots()
             .then(function() {
                 this.refreshSlideshow();
             }.bind(this));
         this.attachHandlers();
+        this.checkMemoryLimit();
     }
 
     /**
@@ -39,6 +43,17 @@ class Library {
         for (let element of document.querySelectorAll('#slideshow > .screenshot-navigation > i')) { // screenshot navigation
             element.addEventListener('click', this.screenshotNavigationClickHandler.bind(this, element));
         }
+    }
+
+    /**
+     * @method
+     */
+    checkMemoryLimit() {
+        chrome.storage.local.get(background.memoryLimitExceededKey, function (items) {
+            if (typeof items[background.memoryLimitExceededKey] !== 'undefined' && items[background.memoryLimitExceededKey]) {
+                
+            }
+        });
     }
 
     /**
@@ -197,26 +212,6 @@ class Library {
         currentScreenshotNumber.innerText = newImageIndex + 1;
         slideImage.src = this.b64ToBlobURL(this.snapshots[newImageIndex]);
     }
-
-    // /**
-    //  * @method void
-    //  * @param {number} targetW The target width percentage at which to animate the loader.
-    //  */
-    // animateLoader(targetW) {
-    //     let loader = document.getElementById('passed-bar'),
-    //         percent = document.getElementById('loader-percent');
-
-    //     if (!this.elements.slideshow.classList.contains('loading')) {
-    //         this.elements.slideshow.className = 'loading';
-    //     }
-    //     if (targetW >= 100) {
-    //         loader.style.width = '100%';
-    //         percent.innerHTML = '100';
-    //     } else {
-    //         loader.style.width = targetW + '%';
-    //         percent.innerHTML = parseInt(targetW);
-    //     }
-    // }
 
     /**
      * @method string Converts an b64 uri to blob

@@ -23,7 +23,7 @@ class CaptureAPI {
         this.pageHeight = pageHeight;
         this.maxSnapshots = 0;
         this.snapshots = [];
-        this.snapshotInterval = 1000;
+        this.snapshotInterval = 500;
     }
 
     /**
@@ -58,8 +58,7 @@ class CaptureAPI {
      */
     takeSnapshot(onSuccess, thisArg, param1) {
         return new Promise((resolve, reject) => {
-            var remaining = this.maxSnapshots - this.snapshots.length,
-                percentage = this.maxSnapshots * 100 / this.snapshots.length;
+            var remaining = this.maxSnapshots - this.snapshots.length;
 
             if(typeof onSuccess !== 'function') {
                 reject('invalid takeSnapshot parameters given!');
@@ -78,10 +77,6 @@ class CaptureAPI {
                             chrome.tabs.sendMessage(this.tabID, {message: 'scroll-top'},
                                 function(onSuccess, thisArg, param1, response) {
                                     if(response.message == 'Scrolled') {
-                                        // chrome.runtime.sendMessage({
-                                        //     message: 'update-snapshot-process',
-                                        //     data: this.snapshots.length * 100 / this.maxSnapshots
-                                        // });
                                         this.takeSnapshot.call(this, onSuccess, thisArg, param1);
                                     }
                                 }.bind(this, onSuccess, thisArg, param1));

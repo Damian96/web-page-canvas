@@ -8,21 +8,20 @@ var package = require('./package');
 var paths = {
     css: [
         'src/about/*.css',
-        'src/web-resources/css/*.css',
-        'src/popup/css/*.css',
-        'src/web-resources/icons/*.css',
+        'src/web-resources/css/*',
+        'src/popup/css/*'
     ],
     js: [
         'src/background/*.js',
+        'src/web-resources/*.js',
         'src/content-scripts/web-page-canvas.js',
         'src/popup/js/*.js',
     ],
     other: [
         'src/images/*',
         'src/about/about.html',
-        'src/web-resources/icons/fonts/*',
-        'src/popup/html/web-page-canvas.html',
-        'src/web-resources/html/web-page-canvas.html',
+        'src/web-resources/*/*',
+        'src/popup/html/*.html',
         'src/manifest.json'
     ]
 };

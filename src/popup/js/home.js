@@ -21,6 +21,7 @@ class Popup {
         this.isCanvasOpen = background.isCanvasOpen.hasOwnProperty(tab.id);
         this.tab = tab;
 
+        this.checkNewSnapshots();
         if (!patterns.fileOrChrome.test(this.tab.url)) {
             this.isValidpage = true;
             this.attachHandlers();
@@ -62,7 +63,17 @@ class Popup {
      * @method void Disables all the popup's menu buttons
      */
     disableMenu() {
-        document.querySelector(".title[data-action-id='open']").setAttribute('data-action-id', 'disabled');
+        document.querySelector("div.title:first-of-type").setAttribute('data-action-id', 'disabled');
+    }
+
+    /**
+     * @method
+     */
+    checkNewSnapshots() {
+        if (background.unseenSnapshots > 0) {
+            document.querySelector(".title[data-action-id='library']").setAttribute('data-new-snapshots', background.unseenSnapshots);
+            document.querySelector(".title[data-action-id='library'] .fa-layers-counter").innerText = background.unseenSnapshots;
+        }
     }
 
     /**
@@ -90,29 +101,6 @@ class Popup {
                 resolve(result);
             }.bind(this));
         }.bind(this));
-    }
-
-    /**
-     * @method void Handles all clicks to the switcher buttons
-     * @param {HTMLElement} element 
-     * @param {boolean} sendMessageToTab 
-     */
-    switcherClickHandler(element) {
-        if (element.getAttribute('data-action-id') === 'open') {
-            this.overlayOpen = true;
-            this.insertContentScript();
-        } else if (element.getAttribute('data-action-id') === 'close') {
-            this.overlayOpen = false;
-        
-            // chrome.tabs.sendMessage(this.tab.id, { message: 'close-canvas' }, function(response) {
-
-            //     if (response != null && response.hasOwnProperty('data') != null)
-            //         this.lastCanvas = response.data;
-
-            // }.bind(this));
-        }
-    
-        this.storePopupObject();
     }
 
     /**
@@ -223,27 +211,6 @@ class Popup {
     }
 
     /**
-     * @method void
-     * @param {number} targetW The target width percentage at which to animate the loader.
-     */
-    animateLoader(targetW) {
-        let slideshow = document.getElementById('slideshow'),
-            loader = document.getElementById('passed-bar'),
-            percent = document.getElementById('loader-percent');
-
-        if (!slideshow.classList.contains('loading')) {
-            slideshow.className = 'loading';
-        }
-        if (targetW >= 100) {
-            loader.style.width = '100%';
-            percent.innerHTML = '100';
-        } else {
-            loader.style.width = targetW + '%';
-            percent.innerHTML = parseInt(targetW);
-        }
-    }
-
-    /**
      * @method string Converts an b64 uri to blob
      * @param {string} dataURL The original string.
      */
@@ -266,19 +233,17 @@ window.onload = function() {
     chrome.tabs.getSelected(null, function(tab) {
         try {
             popup = new Popup(tab);
+            if (!background.isCanvasOpen[popup.tab.id] || background.isCanvasOpen[popup.tab.id] == null)
+                popup.insertContentScript();
         } catch(error) {
             console.error(error);
         }
-        if (!background.isCanvasOpen[popup.tab.id] || background.isCanvasOpen[popup.tab.id] == null)
-            popup.insertContentScript();
     });
 };
 
 chrome.runtime.onMessage.addListener(function(request) {
     if (request.hasOwnProperty('message') && request.hasOwnProperty('data')) {
-        if (!request.message.localeCompare('update-snapshot-process'))
-            popup.animateLoader(request.data);
-        else if (!request.message.localeCompare('manually-closed-canvas')) {
+        if (!request.message.localeCompare('manually-closed-canvas')) {
             popup.switcherClickHandler.call(popup, document.getElementById('switcher'));
             popup.lastCanvas = request.data;
         }

@@ -1,18 +1,17 @@
 /* globals chrome */
 /**
- * @TODO
- * implement save button
+ * @TODO:
  * implement undo button
+ * implement save area
  */
 
 if (typeof WebPageCanvas === 'undefined') {
 
     /**
-     * @class
-     * @classdesc The main frontend plugin class. Used for creating the Drawing Mode layout. Implements the drawing function code.
-     * @prop {Object.<string, Object>} activeTool The object with all the information about the currently active tool.
-     * @prop {Object} tabID The chrome ID of the current tab.
-     * @prop {Object.<string, number>} snapshots Contains the generated snapshots and their position on the final image.
+     * @class The main frontend plugin class. Used for creating the Drawing Mode layout. Implements the drawing function code
+     * @prop {Object.<string, Object>} activeTool The object with all the information about the currently active tool
+     * @prop {Object} tabID The chrome ID of the current tab
+     * @prop {Object.<string, number>} snapshots Contains the generated snapshots and their position on the final image
      */
     class WebPageCanvas {
 
@@ -20,8 +19,8 @@ if (typeof WebPageCanvas === 'undefined') {
 
             this.options = {
                 size: 5,
-                brushColor: '#FFFFF00',
-                highlighterColor: '#FFFFF00',
+                brushColor: '#FFFF00',
+                highlighterColor: '#FFFF00',
             };
 
             this.activeTool = {
@@ -44,7 +43,8 @@ if (typeof WebPageCanvas === 'undefined') {
                     };
                     this.activeTool.options.color = this.options.brushColor;
                     this.activeTool.options.size = this.options.size;
-                }.bind(this));
+                }.bind(this))
+                .catch(() => {});
 
             this.canvas = {
                 clickX: [],
@@ -108,7 +108,7 @@ if (typeof WebPageCanvas === 'undefined') {
             this.canvasImages = [];
             this.imagesLoaded = 0;
             this.finalCanvas.element.width = this.getMaxWidth();
-            this.finalCanvas.element.height = document.documentElement.offsetHeight;
+            this.finalCanvas.element.height = this.getPageHeight();
             this.finalCanvas.context.clearRect(0, 0, this.finalCanvas.element.width, this.finalCanvas.element.height);
         }
 
@@ -145,8 +145,8 @@ if (typeof WebPageCanvas === 'undefined') {
                 chrome.runtime.sendMessage({
                     message: 'take-snapshot',
                     data: {
-                        windowHeight: this.getMaxHeight(),
-                        pageHeight: document.documentElement.scrollHeight
+                        windowHeight: this.getWindowHeight(),
+                        pageHeight: this.getPageHeight()
                     }
                 }, function(response) {
                     if (response != null && response.hasOwnProperty('data')) {
@@ -250,7 +250,6 @@ if (typeof WebPageCanvas === 'undefined') {
                              * @param {Array} snapshots The collection of snapshots
                              */
                             function(snapshots) {
-                                console.log(typeof snapshots);
                                 if ((typeof snapshots) === 'object') {
                                     this.loadImages(snapshots).then(
                                     /**
@@ -261,7 +260,7 @@ if (typeof WebPageCanvas === 'undefined') {
                                             message: 'add-snapshot',
                                             data: finalImage
                                         });
-                                        document.getElementById('toolbar').classList.remove('hidden');
+                                        document.querySelector('#toolbar.web-page-canvas').classList.remove('hidden');
                                     });
                                 }
 
@@ -557,8 +556,12 @@ if (typeof WebPageCanvas === 'undefined') {
          * Retrieves the maximum height of the current window
          * @returns {number} The maximum height
          */
-        getMaxHeight() {
+        getWindowHeight() {
             return Math.max(window.outerHeight, window.innerHeight);
+        }
+
+        getPageHeight() {
+            return document.documentElement.scrollHeight;
         }
 
         /**
@@ -576,7 +579,7 @@ if (typeof WebPageCanvas === 'undefined') {
         adjustCanvas() {
             if (this.canvas.hasOwnProperty('element') && this.canvas.element != null) {
                 this.canvas.element.width = this.getMaxWidth();
-                this.canvas.element.height = this.getMaxHeight();
+                this.canvas.element.height = this.getPageHeight();
             }
         }
 

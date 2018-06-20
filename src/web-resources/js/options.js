@@ -1,7 +1,4 @@
 /* globals chrome, $, jQuery */
-/**
- * @TODO implement size option
- */
 var options;
 
 /**
@@ -35,16 +32,17 @@ class Options {
         this.getOptions()
             .then(function(options) {
                 $.each(options, function(key, value) {
-                    if (key === 'size') {
+                    if (key === 'size' && parseInt(value) > 0) {
                         this.fields[key].val(value);
                     } else if ((key === 'brushColor' || key === 'highlighterColor') && value) {
                         this.fields[key].val(value);
-                    } else if (key === 'maxStorage' && value > 10) {
+                    } else if (key === 'maxStorage' && parseInt(value) > 10) {
                         this.fields.maxStorage.val(value);
                     }
-                }.bind(this))
+                }.bind(this));
             }.bind(this))
             .catch((error) => {
+                console.error(error);
                 return;  
             });
     }
@@ -88,7 +86,7 @@ class Options {
      * @method Promise the local snapshots in chrome's local storage.
      */
     clearSnapshots() {
-        return new Promise((resolve) => function() {
+        return new Promise(function (resolve) {
             chrome.storage.local.set({
                 [this.storageKeys.snapshots]: null
             }, function() {

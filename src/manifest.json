@@ -25,7 +25,6 @@
         "persistent": false
     },
     "permissions": [
-        "<all_urls>",
         "tabs",
         "activeTab",
         "storage",
