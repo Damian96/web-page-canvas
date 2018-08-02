@@ -23,7 +23,7 @@ class CaptureAPI {
         this.pageHeight = pageHeight;
         this.maxSnapshots = 0;
         this.snapshots = [];
-        this.snapshotInterval = 500;
+        this.snapshotInterval = 1000;
     }
 
     /**
@@ -58,7 +58,7 @@ class CaptureAPI {
      */
     takeSnapshot(onSuccess, thisArg, param1) {
         return new Promise((resolve, reject) => {
-            var remaining = this.maxSnapshots - this.snapshots.length;
+            let remaining = this.maxSnapshots - this.snapshots.length;
 
             if(typeof onSuccess !== 'function') {
                 reject('invalid takeSnapshot parameters given!');
@@ -76,8 +76,12 @@ class CaptureAPI {
                             this.snapshots.push(dataUrl);
                             chrome.tabs.sendMessage(this.tabID, {message: 'scroll-top'},
                                 function(onSuccess, thisArg, param1, response) {
-                                    if(response.message == 'Scrolled') {
+                                    if(response.message == 'scrolled') {
                                         this.takeSnapshot.call(this, onSuccess, thisArg, param1);
+                                        chrome.runtime.sendMessage({
+                                            message: 'update-snapshot-process',
+                                            data: this.snapshots.length * 100 / this.maxSnapshots
+                                        });
                                     }
                                 }.bind(this, onSuccess, thisArg, param1));
                         }.bind(this, onSuccess, thisArg, param1));
@@ -90,8 +94,8 @@ class CaptureAPI {
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if(request.message == 'take-snapshot' && request.data != null) {
-        if((sender.tab.id != null) && (request.data.windowHeight != null) && (request.data.pageHeight != null)) {
+    if(request.message == 'take-snapshot' && request.hasOwnProperty('data')) {
+        if(sender.tab.hasOwnProperty('id') && request.data.hasOwnProperty('windowHeight') && request.data.hasOwnProperty('pageHeight')) {
             captureObjects[sender.tab.id] = new CaptureAPI(sender.tab.id,
                 request.data.windowHeight,
                 request.data.pageHeight);
@@ -99,13 +103,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             captureObjects[sender.tab.id].takeSnapshot(function(sendResponse, snapshots) {
                 var result = [],
                     captureObject = captureObjects[sender.tab.id];
-                for(let i = 0; i < snapshots.length; i++) {
+                for (let i = 0; i < snapshots.length; i++) {
                     let y = 0,
                         lastSnapshot = snapshots.length - 1;
 
-                    if(i < lastSnapshot || (i == lastSnapshot && captureObject.maxSnapshots % 1 == 0)) {
+                    if (i < lastSnapshot || lastSnapshot == 0 || (i == lastSnapshot && captureObject.maxSnapshots % 1 == 0)) {
                         y = i * captureObject.windowHeight;
-                    } else if(i == lastSnapshot && captureObject.maxSnapshots % 1 != 0) {
+                    } else if (i == lastSnapshot && captureObject.maxSnapshots % 1 != 0) {
                         // make y the countered height
                         y = i * captureObject.windowHeight;
                         // remove the difference
@@ -118,13 +122,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                         y: y
                     });
                 }
-                sendResponse({data: result});
+                sendResponse({ data: result });
                 return true;
             }, null, sendResponse)
-            .then(function(functionRes) {
-            })
             .catch(function(error) {
-                sendResponse({data: null, error: error});
+                sendResponse({ data: null, error: error });
             });
             return true;
         }

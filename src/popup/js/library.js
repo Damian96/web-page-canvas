@@ -16,7 +16,10 @@ class Library {
      */
     constructor() {
         this.snapshots = [];
-        this.STORAGEAREAKEY = 'webPageCanvas_snapshots';
+        this.storageKeys = {
+            snapshots: 'webPageCanvas_snapshots',
+            options: 'webPageCanvas_options'
+        };
         this.elements = {
             slideshow: document.getElementById('slideshow'),
             slideImage: document.getElementById('slide-image')
@@ -24,12 +27,21 @@ class Library {
 
         background.unseenSnapshots = 0;
 
-        this.refreshSnapshots()
+        if (window.location.search.includes('save=1') && window.location.search.includes('tabID=')) {
+            let offset = window.location.search.indexOf('tabID=') + 6;
+            let tabID = window.location.search.substr(offset, window.location.search.length - offset);
+            this.refreshSnapshots()
+                .then(function() {
+                    this.save(tabID);
+                }.bind(this));
+        } else {
+            this.refreshSnapshots()
             .then(function() {
                 this.refreshSlideshow();
             }.bind(this));
-        this.attachHandlers();
+        }
         this.checkMemoryLimit();
+        this.attachHandlers();
     }
 
     /**
@@ -43,17 +55,59 @@ class Library {
         for (let element of document.querySelectorAll('#slideshow > .screenshot-navigation > i')) { // screenshot navigation
             element.addEventListener('click', this.screenshotNavigationClickHandler.bind(this, element));
         }
+
+        document.querySelector("#memory-limit > i.fa-exclamation-circle").addEventListener('click', function () {
+            window.open(chrome.extension.getURL('/web-resources/html/options.html'));
+        });
     }
 
     /**
-     * @method
+     * @method Promise
+     * @returns {string}
+     */
+    getStorageMBytes() {
+        return new Promise(function (resolve) {
+            chrome.storage.local.getBytesInUse(null, function(bytes) {
+                resolve(parseFloat(bytes / 1000000).toFixed(1));
+            });
+        });
+    };
+
+    /**
+     * @method void
+     * @returns {null}
      */
     checkMemoryLimit() {
-        chrome.storage.local.get(background.memoryLimitExceededKey, function (items) {
-            if (typeof items[background.memoryLimitExceededKey] !== 'undefined' && items[background.memoryLimitExceededKey]) {
-                
-            }
-        });
+        this.getStorageMBytes()
+            .then(function(mb) {
+                document.querySelector("#total-memory").innerText = mb;
+                this.getMaxStorageOption()
+                    .then(function (max) {
+                        if (mb > max) {
+                            document.querySelector("#memory-limit").dataset.warning = "1";
+                        }
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    });
+            }.bind(this));
+    }
+
+    /**
+     * @method Promise Retrieves the options from chrome's storage area
+     * @returns {number}
+     */
+    getMaxStorageOption() {
+        return new Promise(function (resolve, reject) {
+            chrome.storage.local.get(this.storageKeys.options, function (items) {
+                if ((typeof items[this.storageKeys.options]) !== 'string')
+                    reject("Error while retrieving plug-in options");
+                else {
+                    let options = JSON.parse(items[this.storageKeys.options]);
+                    resolve(parseInt(options.maxStorage));
+                }
+            }.bind(this));
+        }.bind(this));
     }
 
     /**
@@ -62,9 +116,10 @@ class Library {
      */
     getStorageSnapshots() {
         return new Promise(function (resolve, reject) {
-            chrome.storage.local.get(this.STORAGEAREAKEY, function(items) {
-                if (items[this.STORAGEAREAKEY] != null)
-                    resolve(items[this.STORAGEAREAKEY]);
+            chrome.storage.local.get(this.storageKeys.snapshots, function(items) {
+                console.log(items[this.storageKeys.snapshots]);
+                if (items[this.storageKeys.snapshots] != null)
+                    resolve(items[this.storageKeys.snapshots]);
                 else
                     reject();
             }.bind(this));
@@ -80,7 +135,10 @@ class Library {
                 .then(function(snapshots) {
                     this.snapshots = snapshots;
                     resolve();
-                }.bind(this));
+                }.bind(this))
+                .catch((error) => {
+                    console.error(error);
+                });
         }.bind(this));
     }
 
@@ -90,10 +148,11 @@ class Library {
     setSnapshots(snapshots) {
         return new Promise(function (resolve) {
             chrome.storage.local.set({
-                [this.STORAGEAREAKEY]: snapshots
+                [this.storageKeys.snapshots]: snapshots
             }, function() {
+                this.snapshots = snapshots;
                 resolve();
-            });
+            }.bind(this));
         }.bind(this));
     }
 
@@ -106,7 +165,7 @@ class Library {
 
         if (this.snapshots.length > 0) {
             this.elements.slideshow.className = '';
-            this.elements.slideImage.src = this.b64ToBlobURL(this.snapshots[this.snapshots.length - 1]);
+            this.setSlideImage(this.snapshots.length - 1);
             this.elements.slideImage.dataset.storageIndex = this.snapshots.length - 1;
             currentScreenshotNumber.innerText = (this.snapshots.length - 1) == 0 ? 1 : this.snapshots.length;
             totalScreenshotNumber.innerText = this.snapshots.length;
@@ -115,6 +174,22 @@ class Library {
             this.elements.slideImage.src = this.elements.slideImage.dataset.storageIndex = currentScreenshotNumber.innerText = totalScreenshotNumber.innerText = '';
             this.snapshots = [];
         }
+    }
+    
+    setSlideImage(index) {
+        if (this.snapshots[index] == null) {
+            return
+        }
+        let canvas = this.HTMLStringToElement(this.snapshots[index]);
+        canvas.toBlob(function (blob) {
+            let url = URL.createObjectURL(blob);
+
+            this.elements.slideImage.onload = function() {
+                URL.revokeObjectURL(url);
+            };
+
+            this.elements.slideImage.src = url;
+        }.bind(this));
     }
 
     /**
@@ -133,19 +208,20 @@ class Library {
     
     /**
      * @method void
-     * @param {string} snapshotSrc 
+     * @param {HTMLCanvasElement} snapshot 
      */
-    addSnapshot(snapshotSrc) {
+    addSnapshot(snapshot) {
         return new Promise(function (resolve) {
             this.getStorageSnapshots()
                 .then(function(snapshots) {
-                    this.snapshots = snapshots.concat([snapshotSrc]);
+                    this.setSnapshots(snapshots.concat([snapshot]))
+                        .then(function() {
+                            this.refreshSlideshow();
+                            resolve();
+                        }.bind(this));
                 }.bind(this))
                 .catch(function() {
-                    this.snapshots = new Array(snapshotSrc);
-                }.bind(this))
-                .finally(function() {
-                    this.setSnapshots(this.snapshots)
+                    this.setSnapshots([snapshot])
                         .then(function() {
                             this.refreshSlideshow();
                             resolve();
@@ -155,7 +231,7 @@ class Library {
     }
 
     /**
-     * Inserts a download, with the specified url as a target
+     * @method void Inserts a download, with the specified url as a target
      * @param {string} file The url of the file to be downloaded
      */
     insertDownload(file) {
@@ -163,7 +239,7 @@ class Library {
 
         chrome.downloads.download({
             url: file,
-            filename: ('Web-Page-Drawing_' + date.getTime() + '.png'),
+            filename: ('Web-Page-Drawing_' + date.getTime() + '.webp'),
             saveAs: true
         });
     }
@@ -210,25 +286,44 @@ class Library {
 
         slideImage.dataset.storageIndex = newImageIndex;
         currentScreenshotNumber.innerText = newImageIndex + 1;
-        slideImage.src = this.b64ToBlobURL(this.snapshots[newImageIndex]);
+        slideImage.src = this.setSlideImage(newImageIndex);
     }
 
     /**
-     * @method string Converts an b64 uri to blob
-     * @param {string} dataURL The original string.
+     * @method void
+     * @param {number} tabID
      */
-    b64ToBlobURL(dataURL) {
-        // Decode the dataURL
-        let binary = atob(dataURL.split(',')[1]);
-        // Create 8-bit unsigned array
-        let array = [];
-        for (var i = 0; i < binary.length; i++) {
-            array.push(binary.charCodeAt(i));
-        }
-        // Return our Blob object
-        let blob = new Blob([new Uint8Array(array)], { type: 'image/png' });
+    save(tabID) {
+        document.getElementById('slideshow').className = 'loading';
+        chrome.tabs.sendMessage(parseInt(tabID), {message: 'save-canvas'}, null, function (response) {
+            if (response.hasOwnProperty('message') && response.message === 'saved') {
+                console.log(response.data);
+                this.addSnapshot(response.data);
+            } else {
+                this.refreshSlideshow();
+            }
+        }.bind(this));
+    }
 
-        return URL.createObjectURL(blob);
+    /**
+     * @method void
+     * @param {number} targetW The target width percentage at which to animate the loader.
+     */
+    animateLoader(targetW) {
+        let slideshow = document.getElementById('slideshow'),
+            loader = document.getElementById('passed-bar'),
+            percent = document.getElementById('loader-percent');
+
+        if (!slideshow.classList.contains('loading')) {
+            slideshow.className = 'loading';
+        }
+        if (targetW >= 100) {
+            loader.style.width = '100%';
+            percent.innerHTML = '100';
+        } else {
+            loader.style.width = targetW + '%';
+            percent.innerHTML = parseInt(targetW);
+        }
     }
 }
 

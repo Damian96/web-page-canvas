@@ -3,6 +3,7 @@
  * @TODO:
  * implement undo button
  * implement save area
+ * remove highlighting assist option but keep the code
  */
 
 if (typeof WebPageCanvas === 'undefined') {
@@ -121,31 +122,34 @@ if (typeof WebPageCanvas === 'undefined') {
 
         handleElements(add) {
 
-            if (add) {
-                this.injectCSS()
-                    .then(function() {
-                        this.injectHTML();
-                        this.initCanvas();
-                        this.attachHandlers();
-                        this.adjustCanvas();
-                        window.onresize = this.adjustCanvas.bind(this);
-                    }.bind(this));
-            } else {
-                for(let element of document.querySelectorAll('.web-page-canvas')) {
-                    element.remove();
+            return new Promise(function (resolve) {
+                if (add) {
+                    this.injectCSS()
+                        .then(function() {
+                            this.injectHTML();
+                            this.initCanvas();
+                            this.attachHandlers();
+                            this.adjustCanvas();
+                            resolve();
+                        }.bind(this));
+                } else {
+                    for(let element of document.querySelectorAll('.web-page-canvas')) {
+                        element.remove();
+                    }
+                    resolve();
                 }
-            }
-
+            }.bind(this));
         }
 
         saveCanvas() {
             this.resetFinalCanvas();
-            window.scrollTo(0, 0);
+            this.scrollToTop(0);
+            document.querySelector("#toolbar.web-page-canvas").classList.add('hidden');
             return new Promise((resolve, reject) => {
                 chrome.runtime.sendMessage({
                     message: 'take-snapshot',
                     data: {
-                        windowHeight: this.getWindowHeight(),
+                        windowHeight: window.innerHeight,
                         pageHeight: this.getPageHeight()
                     }
                 }, function(response) {
@@ -174,9 +178,10 @@ if (typeof WebPageCanvas === 'undefined') {
 
                 var onImgLoad = function (img, x, y) {
                     this.finalCanvas.context.drawImage(img, x, y);
-                    if (++this.imagesLoaded == this.snapshots.length)
-                        resolve(this.finalCanvas.element.toDataURL('image/png'));
-                };
+                    if (++this.imagesLoaded == this.snapshots.length) {
+                        resolve(this.finalCanvas.toDataURL('image/webp', 0.25));
+                    }
+                }.bind(this);
 
                 for (let snapshot of this.snapshots) {
                     let img = new Image();
@@ -203,10 +208,8 @@ if (typeof WebPageCanvas === 'undefined') {
                         }
 
                         child.classList.remove('hidden');
-                        this.canvas.element.addEventListener('click', function() {
-
+                        this.canvas.element.addEventListener('mouseenter', function() {
                             child.classList.add('hidden');
-
                         }.bind(this, child), { once: true });
 
                         break;
@@ -241,35 +244,7 @@ if (typeof WebPageCanvas === 'undefined') {
                 }
 
                 let action = event.currentTarget.dataset.action;
-                if (action === 'save') {
-                    document.getElementById('toolbar').classList.add('hidden');
-                    this.scrollToTop(0);
-                    this.saveCanvas()
-                        .then(
-                            /**
-                             * @param {Array} snapshots The collection of snapshots
-                             */
-                            function(snapshots) {
-                                if ((typeof snapshots) === 'object') {
-                                    this.loadImages(snapshots).then(
-                                    /**
-                                     * @param {string} finalImage The b64 src of the snapshot
-                                     */
-                                    function(finalImage) {
-                                        chrome.runtime.sendMessage({
-                                            message: 'add-snapshot',
-                                            data: finalImage
-                                        });
-                                        document.querySelector('#toolbar.web-page-canvas').classList.remove('hidden');
-                                    });
-                                }
-
-                                this.scrollToTop(500);
-                            }.bind(this))
-                        .catch(function() {
-                            this.scrollToTop(0);
-                        }.bind(this));
-                } else if (action === 'clear') {
+                if (action === 'clear') {
                     this.canvas.context.clearAll.call(this);
                 } else if (action === 'close') {
                     this.destroy();
@@ -370,7 +345,7 @@ if (typeof WebPageCanvas === 'undefined') {
 
                 if (this.canvas.isDrawing) {
 
-                    this.addClick(e.offsetX, e.offsetY, true, this.activeTool.id, this.options.size, this.activeTool.options.color);
+                    this.addClick(e.offsetX, e.offsetY, true, this.activeTool.id, this.activeTool.options.size, this.activeTool.options.color);
 
                     if (!this.activeTool.id.localeCompare('eraser'))
                         this.erase();
@@ -385,10 +360,12 @@ if (typeof WebPageCanvas === 'undefined') {
 
                 this.canvas.isDrawing = true;
 
-                this.addClick(e.offsetX, e.offsetY, true, this.activeTool.id, this.options.size, this.activeTool.options.color);
-
-                if (!this.activeTool.id.localeCompare('highlighter') && this.activeTool.options.assist)
+                this.addClick(e.offsetX, e.offsetY, true, this.activeTool.id, this.activeTool.options.size, this.activeTool.options.color);
+                if (!this.activeTool.id.localeCompare('highlighter') && this.activeTool.options.assist) {
                     this.canvas.startingClickY = e.offsetY;
+                } else {
+                    this.canvas.startingClickY = false;
+                }
 
             }.bind(this);
             this.canvas.element.onmouseup = function() {
@@ -424,37 +401,27 @@ if (typeof WebPageCanvas === 'undefined') {
         draw() {
 
             if (!this.hasDrawings) this.hasDrawings = true;
-            this.canvas.context.globalCompositeOperation = 'source-over';
-
+  
             for (let i = 0; i < this.canvas.clickX.length; i++) {
 
+                if (!this.canvas.isDrawing)
+                    return;
+
                 if (!this.canvas.clickTool[i].localeCompare('highlighter')) {
+                    this.canvas.context.globalCompositeOperation = 'hard-light';
                     this.canvas.context.lineJoin = 'mitter';
                     this.canvas.context.globalAlpha = this.activeTool.options.opacity;
                 } else {
+                    this.canvas.context.globalCompositeOperation = 'source-over';
                     this.canvas.context.lineJoin = 'round';
                     this.canvas.context.globalAlpha = 1;
                 }
 
                 this.canvas.context.beginPath();
 
-                if ((this.canvas.clickX.indexOf(this.canvas.clickX[i - 1]) == this.canvas.clickY.indexOf(this.canvas.clickY[i - 1]) && this.canvas.clickX.indexOf(this.canvas.clickX[i - 1]) == (i - 1)) || (this.canvas.clickX.indexOf(this.canvas.clickX[i]) == this.canvas.clickY.indexOf(this.canvas.clickY[i]) && this.canvas.clickX.indexOf(this.canvas.clickX[i]) == i)) {
-
-                    if (this.canvas.clickDrag[i] && i) {
-
-                        this.canvas.context.moveTo(this.canvas.clickX[i - 1], !this.canvas.startingClickY ? this.canvas.clickY[i - 1] : this.canvas.startingClickY);
-                        this.canvas.clickX.splice(i - 1, 1);
-                        this.canvas.clickY.splice(i - 1, 1);
-
-                    } else {
-
-                        this.canvas.context.moveTo(this.canvas.clickX[i] - 1, !this.canvas.startingClickY ? this.canvas.clickY[i] : this.canvas.startingClickY);
-                        this.canvas.clickX.splice(i, 1);
-                        this.canvas.clickY.splice(i, 1);
-
-                    }
-
-                }
+                this.canvas.context.moveTo(this.canvas.clickX[i], !this.canvas.startingClickY ?this.canvas.clickY[i] : this.canvas.startingClickY);
+                this.canvas.clickX.splice(i, 1);
+                this.canvas.clickY.splice(i, 1);
 
                 this.canvas.context.lineTo(this.canvas.clickX[i], !this.canvas.startingClickY ? this.canvas.clickY[i] : this.canvas.startingClickY);
                 this.canvas.context.closePath();
@@ -597,8 +564,8 @@ if (typeof WebPageCanvas === 'undefined') {
         }
 
         /**
-         * Scrolls the page to the top.
-         * @param {number} delay - The delay of the scroll in milliseconds.
+         * @method void Scrolls the page to the top
+         * @param {number} delay - The delay of the scroll in milliseconds
          */
         scrollToTop(delay) {
             setTimeout(function() {
@@ -610,29 +577,37 @@ if (typeof WebPageCanvas === 'undefined') {
     var webPageCanvas = new WebPageCanvas();
     webPageCanvas.getContentDocument()
         .then(function() {
-            webPageCanvas.handleElements(true);                   
+            webPageCanvas.handleElements(true);
         });
 }
 
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-
     if (request != null && request.hasOwnProperty('message') && !request.hasOwnProperty('data')) {
-
-        if (!request.message.localeCompare('resize-canvas'))
+        if (!request.message.localeCompare('resize-canvas')) {
             webPageCanvas.adjustCanvas();
-        else if (!request.message.localeCompare('scroll-top')) {
+            return false;
+        } else if (!request.message.localeCompare('scroll-top')) {
             window.scrollTo(0, window.scrollY + window.innerHeight);
-            sendResponse({ message: 'Scrolled' });
+            sendResponse({ message: 'scrolled' });
+        } else if (request.message === 'save-canvas') {
+            webPageCanvas.saveCanvas()
+                .then(function(snapshots) {
+                    if (typeof snapshots === 'object') {
+                        webPageCanvas.loadImages(snapshots)
+                            .then(function(finalImage) {
+                                sendResponse({ message: 'saved', data: finalImage });
+                            });
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
+                .finally(() => {
+                    document.querySelector('#toolbar.web-page-canvas').classList.remove('hidden');
+                    webPageCanvas.scrollToTop(0);
+                });
         }
-
-    } else if (request != null && request.hasOwnProperty('message') && request.hasOwnProperty('data')) {
-
-        if (!request.message.localeCompare('restore-canvas')) {
-            webPageCanvas.restoreCanvas(request.data);
-        }
-
+        return true;
     }
-    return true;
-
 });

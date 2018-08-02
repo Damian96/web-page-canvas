@@ -6,7 +6,7 @@ html {
 }
 
 body {
-    background-color: blue;
+    background-color: #872929;
     font-family: 'Tahoma', 'serif';
     font-size: 18px;
 }
@@ -21,22 +21,72 @@ body {
 
 h1 {
     text-align: center;
+    color: #fff;
 }
 
-h1 > .fa-cog {
-    color: gray;
+input[type="number"] {
+    text-align: center;
+    color: #872929;
+}
+
+div.button {
+    padding: 10px;
+    color: #fff;
+    background-color: #699292;
+    max-width: 75px;
+    max-height: 40px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1em;
+    cursor: pointer;
+}
+
+div.button:hover {
+    -webkit-box-shadow: 0px 0px 10px 5px #81b4b4;
 }
 
 #wrapper {
 	width: 80%;
 	margin: auto;
-	background-color: #fff;
+	background-color: #195151;
 	min-height: 100%;
 	padding: 10px;
 }
 
-#options .form-group {
+
+.form-group,
+.form-section,
+.form-action {
     padding: 10px;
+    color: #fff;
+}
+
+.form-group.disabled {
+    color: graytext !important;
+}
+
+.form-section {
+    margin: 0 0 15px 0;
+}
+
+.section-title > .title-text {
+    font-size: 1.25em;
+    position: relative;
+}
+
+.section-title > .title-text > .border-bottom {
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 50%;
+    height: 2.5px;
+    background-color: #872929;
+}
+
+.section-title .fa-cog,
+.section-title .fa-sliders-h {
+    color: gray;
 }
 
 #options .form-group .form-col {
@@ -54,7 +104,7 @@ h1 > .fa-cog {
     visibility: hidden;
 }
 
-#options .form-group:hover label > i {
+#options .form-group:not(.disabled):hover label > i {
     visibility: visible;
 }
 
@@ -75,7 +125,7 @@ h1 > .fa-cog {
 }
 
 #options label > .fa-hdd {
-    color: darkgray;
+    color: darkblue;
 }
 
 #options input,

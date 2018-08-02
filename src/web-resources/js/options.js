@@ -13,11 +13,15 @@ class Options {
             return new Error("No jQuery included");
 
         this.fields = {
-            size: $("input[name='size']"),
-            brushColor: $("input[name='brushColor']"),
-            highlighterColor: $("input[name='highlighterColor']"),
-            maxStorage: $("input[name='maxStorage']"),
-            clearSnapshots: $("input[name='clearSnapshots']")
+            options: {
+                size: $("input[name='size']"),
+                brushColor: $("input[name='brushColor']"),
+                highlighterColor: $("input[name='highlighterColor']"),
+            },
+            settings: {
+                maxStorage: $("input[name='maxStorage']"),
+                clearSnapshots: $("input[name='clearSnapshots']")
+            }
         };
         this.storageKeys = {
             options: 'webPageCanvas_options',
@@ -25,38 +29,78 @@ class Options {
         };
 
         this.refreshValues();
-        $('#options button').on('click', this.saveClickHandler.bind(this));
+        this.attachHandlers();
+        $('#options div.button').on('click', this.saveClickHandler.bind(this));
+    }
+
+    attachHandlers() {
+        this.fields.settings.clearSnapshots.on('change', this.clearChangeHandler.bind(this));
     }
 
     refreshValues() {
         this.getOptions()
-            .then(function(options) {
+            .then(
+            function(options) {
                 $.each(options, function(key, value) {
                     if (key === 'size' && parseInt(value) > 0) {
-                        this.fields[key].val(value);
+                        this.fields.options.size.val(value);
                     } else if ((key === 'brushColor' || key === 'highlighterColor') && value) {
-                        this.fields[key].val(value);
+                        this.fields.options[key].val(value);
                     } else if (key === 'maxStorage' && parseInt(value) > 10) {
-                        this.fields.maxStorage.val(value);
+                        this.fields.settings.maxStorage.val(value);
                     }
                 }.bind(this));
+                this.getSnapshots()
+                    .catch(function (error) {
+                        console.log(error);
+                        this.fields.settings.clearSnapshots.attr('disabled', true);
+                        this.fields.settings.clearSnapshots.closest('.form-group').addClass('disabled');
+                    }.bind(this));
             }.bind(this))
             .catch((error) => {
-                console.error(error);
+                console.log(error);
                 return;  
             });
     }
 
-    saveClickHandler() {
-        let options = {
-            size: this.fields.size.val(),
-            brushColor: this.fields.brushColor.val(),
-            highlighterColor: this.fields.highlighterColor.val(),
-            maxStorage: this.fields.maxStorage.val()
-        };
-        if (this.fields.clearSnapshots[0].checked)
-            this.clearSnapshots();
-        chrome.storage.local.set({ [this.storageKeys.options]: JSON.stringify(options) });
+    saveClickHandler(event) {
+        let options, prevOptions;
+        this.getOptions()
+            .then(function (options) {
+                prevOptions = options;
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+            .finally(function () {
+                if ($(event.currentTarget).closest('.form-section').is(':first-of-type')) { // options save button clicked
+                    options = {
+                        size: this.fields.options.size.val(),
+                        brushColor: this.fields.options.brushColor.val(),
+                        highlighterColor: this.fields.options.highlighterColor.val(),
+                        maxStorage: prevOptions != null ? prevOptions.maxStorage : 5
+                    };
+                } else { // settings save button clicked
+                    options = {
+                        size: prevOptions != null ? prevOptions.maxStorage : 5,
+                        brushColor: prevOptions != null ? prevOptions.brushColor : '#FFFF00',
+                        highlighterColor: prevOptions != null ? prevOptions.highlighterColor : '#FFFF00',
+                        maxStorage: this.fields.settings.maxStorage.val()
+                    };
+                }
+                chrome.storage.local.set({ [this.storageKeys.options]: JSON.stringify(options) });
+            }.bind(this));
+    }
+
+    clearChangeHandler(event) {
+        if (event.currentTarget.checked) {
+            if (window.confirm('Are you sure?')) {
+                return true;
+            } else {
+                event.currentTarget.checked = false;
+                return false;
+            }
+        }
     }
 
     setOptions(options)  {
@@ -92,6 +136,21 @@ class Options {
             }, function() {
                 resolve();
             });
+        }.bind(this));
+    }
+
+    /**
+     * @method Promise
+     */
+    getSnapshots() {
+        return new Promise(function (resolve, reject) {
+            chrome.storage.local.get(this.storageKeys.snapshots, function (items) {
+                console.log(items);
+                if (typeof items[this.storageKeys.snapshots] !== 'undefined' && items[this.storageKeys.snapshots] != null && items[this.storageKeys.snapshots].length > 0)
+                    resolve(items[this.storageKeys.snapshots]);
+                else
+                    reject('No snapshots');
+            }.bind(this));
         }.bind(this));
     }
 }

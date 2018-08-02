@@ -1,6 +1,6 @@
 html,
 body {
-    margin: 0;
+    margin: 0
 }
 
 body {
@@ -27,10 +27,16 @@ a.title > .title-text {
     color: black !important;
 }
 
-.title > .fa,
+.title > .fa:not(.fa-info),
 .title > .fa-layers > .fa {
     font-size: 0.8em;
     transform: translate(0, -10%);
+    padding: 0 0 0 5px;
+}
+
+.title > .fa-info {
+    font-size: 0.8em;
+    transform: translate(30%, -10%);
     padding: 0 0 0 5px;
 }
 
@@ -45,16 +51,28 @@ a.title > .title-text {
     background: linear-gradient(to bottom, rgba(254,255,233,1) 0%,rgba(224,224,224,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 }
 
-.title:nth-of-type(2n + 1):not([data-action-id="about"]) {
-    border-width: 1px 1px 0 1px;
+.title:first-child {
+    border-top-width: 1px !important;
 }
 
-.title:nth-of-type(2n):not([data-action-id="about"]) {
-    border-width: 1px;
+.title:nth-of-type(2n + 1) {
+    border-width: 0 1px 1px 1px;
+}
+
+.title:nth-of-type(2n) {
+    border-width: 0 1px 1px 1px;
+}
+
+/* .title[data-action-id="save"] {
+    border-bottom-width: 0 !important;
 }
 
 .title[data-action-id="about"] {
     border-width: 0 1px 1px 1px;
+} */
+
+.title .fa-save {
+    color: darkblue;
 }
 
 .title .fa-book {
@@ -62,7 +80,7 @@ a.title > .title-text {
 }
 
 .title .fa-cog {
-    color: gray;
+    color: darkgray;
 }
 
 .title .fa-check {
@@ -71,6 +89,10 @@ a.title > .title-text {
 
 .title .fa-times {
     color: red;
+}
+
+.title .fa-info {
+    color: blue;
 }
 
 .title[data-action-id="open"] [data-state="open"],

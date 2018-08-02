@@ -25,6 +25,7 @@ canvas.web-page-canvas {
     z-index: 10000000;
     top: 0;
     left: 0;
+    cursor: crosshair;
 }
 
 #toolbar.web-page-canvas.closed {
@@ -48,7 +49,7 @@ canvas.web-page-canvas {
     overflow-y: hidden;
     transition-property: all;
     transition-duration: 1s;
-    transition-delay: 1s;
+    transition-delay: .25s;
     transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
 }
 
@@ -176,6 +177,16 @@ canvas.web-page-canvas {
     position: absolute;
     left: 0;
     border-radius: 0 0 5px 5px;
+    cursor: default;
+}
+
+#toolbar.web-page-canvas .dropdown:not(.hidden) input[type="color"],
+#toolbar.web-page-canvas .dropdown:not(.hidden) input[type="checkbox"] {
+    cursor: pointer;
+}
+
+#toolbar.web-page-canvas .dropdown:not(.hidden) input[type="range"] {
+    cursor: w-resize;
 }
 
 #toolbar.web-page-canvas.aligned-top .dropdown {

@@ -9,72 +9,90 @@
 <body class="options">
     <div id="wrapper">
         <h1>
-            <i class="fa fa-cog"></i>
-            Web Page Canvas Options
+            <img src="../../images/draw-32.png"/>
+            Web Page Canvas
         </h1>
-        <div id="options" class="row" novalidate autocomplete="off">
-            <div class="row form-group">
-                <div class="form-col">
-                    <label for="brushColor">
-                        <i class="fa fa-paint-brush"></i>
-                        Default Size
-                    </label>
+        <div id="options" class="row form">
+            <div class="row form-section">
+                <div class="section-title">
+                    <span class="title-text">
+                        <i class="fa fa-sliders-h"></i>
+                        Default Options
+                        <span class="border-bottom"></span>
+                    </span>
                 </div>
-                <div class="form-col">
-                    <input type="number" name="size" min="1" max="30" value="5"/>
+                <div class="row form-group">
+                    <div class="form-col">
+                        <label for="brushColor">
+                            <i class="fa fa-dot-circle"></i>
+                            Size
+                        </label>
+                    </div>
+                    <div class="form-col">
+                        <input type="number" name="size" min="1" max="30" value="5"/>
+                    </div>
                 </div>
-            </div>
-            <hr>
-            <div class="row form-group">
-                <div class="form-col">
-                    <label for="brushColor">
-                        <i class="fa fa-paint-brush"></i>
-                        Default Paint Brush Color
-                    </label>
+                <div class="row form-group">
+                    <div class="form-col">
+                        <label for="brushColor">
+                            <i class="fa fa-paint-brush"></i>
+                            Paint Brush Color
+                        </label>
+                    </div>
+                    <div class="form-col">
+                        <input type="color" name="brushColor"/>
+                    </div>
                 </div>
-                <div class="form-col">
-                    <input type="color" name="brushColor"/>
+                <div class="row form-group">
+                    <div class="form-col">
+                        <label for="highlighterColor">
+                            <i class="fa fa-pencil-alt"></i>
+                            Highlighter Color
+                        </label>
+                    </div>
+                    <div class="form-col">
+                        <input type="color" name="highlighterColor"/>
+                    </div>
                 </div>
-            </div>
-            <hr>
-            <div class="row form-group">
-                <div class="form-col">
-                    <label for="highlighterColor">
-                        <i class="fa fa-pencil-alt"></i>
-                        Default Highlighter Color
-                    </label>
-                </div>
-                <div class="form-col">
-                    <input type="color" name="highlighterColor"/>
-                </div>
-            </div>
-            <hr>
-            <div class="row form-group">
-                <div class="form-col">
-                    <label for="maxStorage">
-                        <i class="fa fa-hdd"></i>
-                        Maximum Storage Space
-                    </label>
-                </div>
-                <div class="form-col">
-                    <input type="number" min="10" name="maxStorage" value="10"/>
-                    MB
+                <div class="row form-action">
+                    <div class="button" title="Save" aria-label="Save">Save</div>
                 </div>
             </div>
-            <hr>
-            <div class="row form-group">
-                <div class="form-col">
-                    <label for="clearSnapshots">
-                        <i class="fa fa-trash-alt"></i>
-                        Clear Snapshots
-                    </label>
+            <div class="row form-section">
+                <div class="section-title">
+                    <span class="title-text">
+                        <i class="fa fa-cog"></i>
+                        Settings
+                        <span class="border-bottom"></span>
+                    </span>
                 </div>
-                <div class="form-col">
-                    <input type="checkbox" name="clearSnapshots"/>
+                <div class="row form-group">
+                    <div class="form-col">
+                        <label for="clearSnapshots">
+                            <i class="fa fa-trash-alt"></i>
+                            Clear Snapshots
+                        </label>
+                    </div>
+                    <div class="form-col">
+                        <input type="checkbox" name="clearSnapshots"/>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="form-col">
+                        <label for="maxStorage">
+                            <i class="fa fa-hdd"></i>
+                            Maximum Storage Memory
+                        </label>
+                    </div>
+                    <div class="form-col">
+                        <input type="number" min="10" name="maxStorage" value="10"/>
+                        MB
+                    </div>
+                </div>
+                <div class="row form-action">
+                    <div class="button" title="Save" aria-label="Save">Save</div>
                 </div>
             </div>
-            <hr>
-            <button type="button">Save</button>
         </div>
     </div>
     <!-- Javascript -->

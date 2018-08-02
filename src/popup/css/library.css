@@ -240,3 +240,19 @@ body {
     min-height: 80%;
     left: 10%;
 }
+
+#memory-limit {
+    position: absolute;
+    bottom: 0;
+    font-size: 0.8em;
+    left: 25px;
+}
+
+#memory-limit[data-warning="0"] > .fa-exclamation-circle {
+    display: none;
+}
+
+#memory-limit[data-warning="1"] > .fa-exclamation-circle {
+    color: red;
+    cursor: pointer;
+}
