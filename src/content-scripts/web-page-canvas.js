@@ -179,7 +179,7 @@ if (typeof WebPageCanvas === 'undefined') {
                 var onImgLoad = function (img, x, y) {
                     this.finalCanvas.context.drawImage(img, x, y);
                     if (++this.imagesLoaded == this.snapshots.length) {
-                        resolve(this.finalCanvas.toDataURL('image/webp', 0.25));
+                        resolve(this.finalCanvas.element.toDataURL('image/webp', 0.25));
                     }
                 }.bind(this);
 
@@ -598,10 +598,10 @@ if (typeof WebPageCanvas === 'undefined') {
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request != null && request.hasOwnProperty('message') && !request.hasOwnProperty('data')) {
-        if (!request.message.localeCompare('resize-canvas')) {
+        if (request.message === 'resize-canvas') {
             webPageCanvas.adjustCanvas();
             return false;
-        } else if (!request.message.localeCompare('scroll-top')) {
+        } else if (request.message === 'scroll-top') {
             window.scrollTo(0, window.scrollY + window.innerHeight);
             sendResponse({ message: 'scrolled' });
         } else if (request.message === 'save-canvas') {
@@ -615,13 +615,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                     }
                 })
                 .catch((error) => {
-                    console.error(error);
+                    console.log(error);
                 })
                 .finally(() => {
                     document.querySelector('#toolbar.web-page-canvas').classList.remove('hidden');
                     webPageCanvas.scrollToTop(0);
                 });
         }
-        return true;
     }
+    return true;
 });
