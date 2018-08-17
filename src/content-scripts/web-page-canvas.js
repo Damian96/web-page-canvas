@@ -278,6 +278,10 @@ if (typeof WebPageCanvas === 'undefined') {
 
                 } else if (!event.currentTarget.title.localeCompare('Highlighter')) {
 
+                    let sizeInput = document.querySelector("input[data-tool='options'][data-option='size']");
+                    sizeInput.value = "23";
+                    this.triggerChange(sizeInput);
+
                     this.activeTool.id = 'highlighter';
                     this.activeTool.htmlID = 'highlighter';
                     document.querySelector("#toolbar.web-page-canvas input[type='color']").value = this.options.highlighterColor;
@@ -571,6 +575,16 @@ if (typeof WebPageCanvas === 'undefined') {
             setTimeout(function() {
                 window.scrollTo(0, 0);
             }, delay);
+        }
+
+        triggerChange(element) {
+            if ("createEvent" in document) {
+                let evt = document.createEvent("HTMLEvents");
+                evt.initEvent("change", false, true);
+                element.dispatchEvent(evt);
+            }
+            else
+                element.fireEvent("onchange");
         }
     }
 
