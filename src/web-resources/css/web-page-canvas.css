@@ -178,6 +178,7 @@ canvas.web-page-canvas {
     left: 0;
     border-radius: 0 0 5px 5px;
     cursor: default;
+    z-index: 10000002;
 }
 
 #toolbar.web-page-canvas .dropdown:not(.hidden) input[type="color"],
@@ -270,4 +271,12 @@ canvas.web-page-canvas {
     top: -4px;
     left: 5px;
     font-size: 18px;
+}
+
+@media screen and (max-width: 1080px) {
+    #toolbar.web-page-canvas #tool-col,
+    #toolbar.web-page-canvas #option-col {
+        display: block;
+        margin: auto;
+    }
 }

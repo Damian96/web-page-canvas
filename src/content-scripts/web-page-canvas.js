@@ -408,7 +408,7 @@ if (typeof WebPageCanvas === 'undefined') {
                     return;
 
                 if (!this.canvas.clickTool[i].localeCompare('highlighter')) {
-                    this.canvas.context.globalCompositeOperation = 'hard-light';
+                    this.canvas.context.globalCompositeOperation = 'screen';
                     this.canvas.context.lineJoin = 'mitter';
                     this.canvas.context.globalAlpha = this.activeTool.options.opacity;
                 } else {
