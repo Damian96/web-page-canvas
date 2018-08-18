@@ -21,3 +21,9 @@ A chrome extension that helps you draw on your current webpage.
 	- Adds highlighting assist option.
 * v1.0.7
 	- Fixes Bugs
+* v1.0.8 - 9
+	- Reconstructs plugin popup
+	- Adds options page
+* v2.0.0
+	- Fixes screenshot saving bug
+	- Improves highlighter tool

@@ -412,8 +412,8 @@ if (typeof WebPageCanvas === 'undefined') {
                     return;
 
                 if (!this.canvas.clickTool[i].localeCompare('highlighter')) {
-                    this.canvas.context.globalCompositeOperation = 'screen';
-                    this.canvas.context.lineJoin = 'mitter';
+                    this.canvas.context.globalCompositeOperation = 'lighten';
+                    this.canvas.context.lineJoin = 'miter';
                     this.canvas.context.globalAlpha = this.activeTool.options.opacity;
                 } else {
                     this.canvas.context.globalCompositeOperation = 'source-over';
@@ -604,7 +604,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         } else if (request.message === 'scroll-top') {
             window.scrollTo(0, window.scrollY + window.innerHeight);
             sendResponse({ message: 'scrolled' });
-        } else if (request.message === 'save-canvas') {
+        } else if (request.message === 'save-canvas') {            
             webPageCanvas.saveCanvas()
                 .then(function(snapshots) {
                     if (typeof snapshots === 'object') {

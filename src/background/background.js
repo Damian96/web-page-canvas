@@ -19,9 +19,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             isCanvasOpen[sender.tab.id] = false;
         else if (request.message === 'add-snapshot' && typeof request.data === 'string') {
             addSnapshot(request.data)
-                .then(() => {
-                    
-                });
+                .then(() => {});
         }
     }
     return true;

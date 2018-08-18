@@ -130,7 +130,7 @@ canvas.web-page-canvas {
 }
 
 #toolbar.web-page-canvas .fa-cog {
-    color: darkgray;
+    color: rgb(128, 128, 64);
 }
 
 #toolbar.web-page-canvas .fa-save {
