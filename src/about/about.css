@@ -34,3 +34,9 @@ p, ul li {
 p {
 	text-align: justify;
 }
+
+#me {
+	border-radius: 5px;
+	width: 100px;
+	height: auto;
+}

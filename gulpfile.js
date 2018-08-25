@@ -18,6 +18,7 @@ var paths = {
         'src/popup/js/*.js',
     ],
     other: [
+        'src/about/me.jpg',
         'src/images/*',
         'src/about/about.html',
         'src/web-resources/*/*',
