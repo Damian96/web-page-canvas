@@ -48,7 +48,7 @@ canvas.web-page-canvas {
     max-height: 33px;
     overflow-y: hidden;
     transition-property: all;
-    transition-duration: 1s;
+    transition-duration: 1.5s;
     transition-delay: .25s;
     transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
 }
@@ -99,7 +99,7 @@ canvas.web-page-canvas {
 }
 
 #toolbar.web-page-canvas .tool-container .fa,
-#toolbar.web-page-canvas .option-container .fa {
+#toolbar.web-page-canvas .option-container .fa:not(.fa-undo) {
     font-size: 17px;
 }
 
@@ -149,6 +149,11 @@ canvas.web-page-canvas {
 
 #toolbar.web-page-canvas .fa-times {
     color: #FF0000;
+}
+
+#toolbar.web-page-canvas .fa-undo {
+    color: #DDDDDD;
+    font-size: 15px;
 }
 
 #toolbar.web-page-canvas [data-has-dropdown='true'] .fa-caret-down {
@@ -279,4 +284,10 @@ canvas.web-page-canvas {
         display: block;
         margin: auto;
     }
+}
+
+div.wpc-hidden {
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
 }

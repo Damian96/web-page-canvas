@@ -68,7 +68,7 @@ class Library {
 				resolve(parseFloat(bytes / 1000000).toFixed(1));
 			});
 		});
-	};
+	}
 
 	/**
 	 * @method void
@@ -174,7 +174,7 @@ class Library {
 	
 	setSlideImage(index) {
 		if (this.snapshots[index] == null) {
-			return
+			return;
 		}
 		this.elements.slideImage.src = this.snapshots[index];
 	}
@@ -285,9 +285,7 @@ class Library {
 		chrome.tabs.sendMessage(parseInt(tabID), {message: 'save-canvas'}, null, function (response) {
 			if (response != null && response.hasOwnProperty('message') && response.message === 'saved') {
 				this.addSnapshot(response.data);
-			}// else if ( response != null ) {
-			//     this.refreshSlideshow();
-			// }
+			}
 			return true;
 		}.bind(this));
 	}

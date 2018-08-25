@@ -17,10 +17,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if(request.hasOwnProperty('message') && sender.hasOwnProperty('tab')) { // message is from content script
         if (request.message === 'manually-closed-canvas')
             isCanvasOpen[sender.tab.id] = false;
-        else if (request.message === 'add-snapshot' && typeof request.data === 'string') {
-            addSnapshot(request.data)
-                .then(() => {});
-        }
     }
     return true;
 });
