@@ -42,11 +42,12 @@ canvas.web-page-canvas {
     transform: translate(-50%, 0);
     width: -webkit-max-content;
     max-width: 80%;
+    min-height: 36px;
     left: 50%;
 }
 
 #toolbar.web-page-canvas.animated {
-    max-height: 33px;
+    max-height: 37px;
     overflow-y: hidden;
     transition-property: all;
     transition-duration: 1.5s;
@@ -72,8 +73,9 @@ canvas.web-page-canvas {
     cursor: context-menu !important;
 }
 
-#toolbar.web-page-canvas .tool-container:not(.active) * {
-    color: graytext !important;
+#toolbar.web-page-canvas .tool-container.active:not([title='Options']) {
+    border-bottom: 4px solid gold;
+    border-bottom-style: inset;
 }
 
 #toolbar.web-page-canvas #tool-col,
@@ -152,7 +154,8 @@ canvas.web-page-canvas {
     color: #FF0000;
 }
 
-#toolbar.web-page-canvas .fa-undo {
+#toolbar.web-page-canvas .fa-undo,
+#toolbar.web-page-canvas .fa-redo {
     color: #DDDDDD;
     font-size: 15px;
 }

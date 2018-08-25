@@ -27,3 +27,8 @@ A chrome extension that helps you draw on your current webpage.
 * v2.0.0
 	- Fixes screenshot saving bug
 	- Improves highlighter tool
+
+# Goals
+* Implement save visible only tab feature
+* Add png snapshot save format, and option
+* Add keyboard shortcuts for tools, and cheatsheet

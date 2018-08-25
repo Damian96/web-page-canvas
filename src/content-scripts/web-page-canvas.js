@@ -66,6 +66,11 @@ if (typeof WebPageCanvas === 'undefined') {
 
 			this.optionsStorageKey = 'webPageCanvas_options';
 			this.contentDocument = null;
+
+			this.history = {
+				collection: [],
+				step: 0
+			};
 		}
 
 		attachHandlers() {
@@ -135,6 +140,7 @@ if (typeof WebPageCanvas === 'undefined') {
 					for(let element of document.querySelectorAll('.web-page-canvas')) {
 						element.remove();
 					}
+					this.history.collection = [], this.history.step = 0;
 					resolve();
 				}
 			}.bind(this));
@@ -247,6 +253,10 @@ if (typeof WebPageCanvas === 'undefined') {
 					this.canvas.context.clearAll();
 				else if (action === 'close')
 					this.close();
+				else if (action === 'undo')
+					this.undo();
+				else if (action === 'redo')
+					this.redo();
 			}
 
 			this.resetCanvasTools();
@@ -348,6 +358,21 @@ if (typeof WebPageCanvas === 'undefined') {
 				this.canvas.context.clearRect(0, 0, this.canvas.element.width, this.canvas.element.height);
 			}.bind(this);
 
+			this.canvas.toImgBlob = function() {
+				return new Promise((resolve, reject) => {
+					this.element.toBlob(function(blob) {
+						let img = document.createElement('img'),
+							url = URL.createObjectURL(blob);
+	
+							img.onload = function() {
+							URL.revokeObjectURL(url);
+							resolve(img);
+						};
+						img.src = url;
+					});
+				});
+			};
+
 			this.canvas.element.onmousemove = function(e) {
 
 				if (this.canvas.isDrawing) {
@@ -388,6 +413,7 @@ if (typeof WebPageCanvas === 'undefined') {
 			this.canvas.element.onmouseup = function() {
 				this.canvas.isDrawing = false;
 				this.resetCanvasTools();
+				this.saveAction();
 			}.bind(this);
 			this.canvas.element.onmouseleave = function() {
 				this.canvas.isDrawing = false;
@@ -399,9 +425,38 @@ if (typeof WebPageCanvas === 'undefined') {
 			this.canvas.clickX = [], this.canvas.clickY = [], this.canvas.startingClickY = false;
 		}
 
+		saveAction() {
+			this.history.step++;
+			if (this.history.step < this.history.collection.length)
+				this.history.collection.length = this.history.step;
+			this.canvas.toImgBlob()
+				.then(function(img) {
+					this.history.collection.push(img);
+				}.bind(this));
+		}
+
 		addClick(x, y) {
 			this.canvas.clickX.push(x);
 			this.canvas.clickY.push(y);
+		}
+
+		undo() {
+			if (this.history.step > 0) {
+				if (this.history.step == this.history.collection.length)
+					this.history.step--;
+
+				this.canvas.context.clearAll();
+				this.canvas.context.drawImage(this.history.collection[--this.history.step], 0, 0, this.canvas.element.width, this.canvas.element.height);
+			} else
+				this.canvas.context.clearAll();
+		}
+
+		redo() {
+			if (this.history.step <= this.history.collection.length - 1) {
+				this.canvas.context.drawImage(this.history.collection[this.history.step++], 0, 0, this.canvas.element.width, this.canvas.element.height);
+				if (this.history.step == 0)
+					this.history.step++;
+			}
 		}
 
 		draw() {
