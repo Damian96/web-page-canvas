@@ -26,6 +26,7 @@ canvas.web-page-canvas {
     top: 0;
     left: 0;
     cursor: crosshair;
+    background: transparent;
 }
 
 #toolbar.web-page-canvas.closed {

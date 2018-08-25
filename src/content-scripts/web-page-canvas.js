@@ -66,7 +66,6 @@ if (typeof WebPageCanvas === 'undefined') {
 
 			this.optionsStorageKey = 'webPageCanvas_options';
 			this.contentDocument = null;
-			this.fixedElements = [];
 		}
 
 		attachHandlers() {
