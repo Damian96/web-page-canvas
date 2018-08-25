@@ -222,6 +222,9 @@ class Library {
 	 * @param {string} file The url of the file to be downloaded
 	 */
 	insertDownload(file) {
+		if (typeof _gaq !== 'undefined')
+			_gaq.push(['_trackEvent', 'Snapshot Download', 'clicked']);
+
 		let date = new Date();
 
 		chrome.downloads.download({

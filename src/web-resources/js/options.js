@@ -64,6 +64,9 @@ class Options {
     }
 
     saveClickHandler(event) {
+        if (typeof _gaq !== 'undefined')
+            _gaq.push(['_trackEvent', 'Options Saved', 'clicked']);
+
         let options, prevOptions;
         this.getOptions()
             .then(function (options) {

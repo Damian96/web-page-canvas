@@ -82,6 +82,8 @@ class Popup {
      * @method void
      */
     saveClickHandler() {
+        if (typeof _gaq !== 'undefined')
+            _gaq.push(['_trackEvent', 'Save Full Page', 'clicked']);
         window.location.replace('library.html?save=1&tabID=' + this.tab.id);
     }
 }
