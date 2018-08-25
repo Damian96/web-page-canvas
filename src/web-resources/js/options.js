@@ -90,6 +90,8 @@ class Options {
                         highlighterColor: prevOptions != null ? prevOptions.highlighterColor : '#FFFF00',
                         maxStorage: this.fields.settings.maxStorage.val()
                     };
+                    if ( $("input[name='clearSnapshots']")[0].checked )
+                        this.clearSnapshots();
                 }
                 chrome.storage.local.set({ [this.storageKeys.options]: JSON.stringify(options) });
             }.bind(this));
@@ -135,7 +137,7 @@ class Options {
     clearSnapshots() {
         return new Promise(function (resolve) {
             chrome.storage.local.set({
-                [this.storageKeys.snapshots]: null
+                [this.storageKeys.snapshots]: []
             }, function() {
                 resolve();
             });
