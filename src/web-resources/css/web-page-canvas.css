@@ -31,12 +31,17 @@ canvas.web-page-canvas {
   min-height: 36px;
   left: 50%; }
   #toolbar.web-page-canvas.animated {
-    max-height: 37px;
     overflow-y: hidden;
     transition-property: all;
     transition-duration: 1.5s;
     transition-delay: .25s;
     transition-timing-function: cubic-bezier(0, 1, 0.5, 1); }
+    @media screen and (max-width: 1080px) {
+      #toolbar.web-page-canvas.animated {
+        max-height: 70px; } }
+    @media screen and (min-width: 1080px) {
+      #toolbar.web-page-canvas.animated {
+        max-height: 37px; } }
   #toolbar.web-page-canvas.aligned-top {
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
@@ -140,7 +145,7 @@ canvas.web-page-canvas {
     #toolbar.web-page-canvas .dropdown:not(.hidden) input[type="range"] {
       cursor: w-resize; }
   #toolbar.web-page-canvas.aligned-top .dropdown {
-    top: 100%;
+    top: 102%;
     box-shadow: -3px 3px 2px #e8e8e8; }
   #toolbar.web-page-canvas.aligned-bottom .dropdown {
     top: 0;
