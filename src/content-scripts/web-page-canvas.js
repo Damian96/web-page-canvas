@@ -6,6 +6,19 @@
 
 if (typeof WebPageCanvas === 'undefined') {
 
+	var webPageCanvas;
+
+	var webPageCanvas_initialize = function() {
+		webPageCanvas = new WebPageCanvas();
+		webPageCanvas.getContentDocument()
+			.then(function() {
+				webPageCanvas.toggleContent(true);
+			})
+			.catch(function() {
+				console.error('Could not load toolbar. Web Page Canvas.');
+			});
+	};
+
 	/**
 	 * @class The main frontend plugin class. Used for creating the Drawing Mode layout. Implements the drawing function code
 	 * @prop {Object.<string, Object>} activeTool The object with all the information about the currently active tool
@@ -56,6 +69,13 @@ if (typeof WebPageCanvas === 'undefined') {
 				startingClickY: false
 			};
 
+			this.history = {
+				collection: [],
+				drawStep: 0,
+				actionStep: 0,
+				backwards: false
+			};
+
 			this.hasDrawings = false;
 
 			let finalCanvas = document.createElement('CANVAS');
@@ -66,11 +86,6 @@ if (typeof WebPageCanvas === 'undefined') {
 
 			this.optionsStorageKey = 'webPageCanvas_options';
 			this.contentDocument = null;
-
-			this.history = {
-				collection: [],
-				step: 0
-			};
 		}
 
 		attachHandlers() {
@@ -118,7 +133,7 @@ if (typeof WebPageCanvas === 'undefined') {
 		}
 
 		close() {
-			webPageCanvas.toggleContent(false);
+			this.toggleContent(false);
 			chrome.runtime.sendMessage({
 				message: 'manually-closed-canvas'
 			});
@@ -140,7 +155,6 @@ if (typeof WebPageCanvas === 'undefined') {
 					for(let element of document.querySelectorAll('.web-page-canvas')) {
 						element.remove();
 					}
-					this.history.collection = [], this.history.step = 0;
 					resolve();
 				}
 			}.bind(this));
@@ -255,8 +269,6 @@ if (typeof WebPageCanvas === 'undefined') {
 					this.close();
 				else if (action === 'undo')
 					this.undo();
-				else if (action === 'redo')
-					this.redo();
 			}
 
 			this.resetCanvasTools();
@@ -374,7 +386,7 @@ if (typeof WebPageCanvas === 'undefined') {
 			};
 
 			this.canvas.element.onmousemove = function(e) {
-
+				// console.log('moved', e.offsetX, e.offsetY);
 				if (this.canvas.isDrawing) {
 
 					if (this.activeTool.id === 'highlighter' && this.activeTool.options.assist) {
@@ -397,6 +409,16 @@ if (typeof WebPageCanvas === 'undefined') {
 
 				this.canvas.isDrawing = true;
 
+				if (this.activeTool.id !== 'eraser') {
+					this.history.drawStep++;
+					this.history.backwards = false;
+					let btn = document.querySelector("#toolbar.web-page-canvas .option-container[data-action='undo']");
+					if (btn.classList.contains('disabled')) {
+						btn.classList.remove('disabled');
+						this.history.actionStep = 0;
+					}
+				}
+
 				if (this.activeTool.id === 'highlighter' && this.activeTool.options.assist) {
 					if (!this.canvas.startingClickY)
 						this.canvas.startingClickY = e.offsetY;
@@ -411,11 +433,15 @@ if (typeof WebPageCanvas === 'undefined') {
 
 			}.bind(this);
 			this.canvas.element.onmouseup = function() {
+				if (this.canvas.isDrawing)
+					this.saveAction();
 				this.canvas.isDrawing = false;
 				this.resetCanvasTools();
-				this.saveAction();
 			}.bind(this);
 			this.canvas.element.onmouseleave = function() {
+				if (this.canvas.isDrawing)
+					this.saveAction();
+
 				this.canvas.isDrawing = false;
 				this.resetCanvasTools();
 			}.bind(this);
@@ -426,9 +452,6 @@ if (typeof WebPageCanvas === 'undefined') {
 		}
 
 		saveAction() {
-			this.history.step++;
-			if (this.history.step < this.history.collection.length)
-				this.history.collection.length = this.history.step;
 			this.canvas.toImgBlob()
 				.then(function(img) {
 					this.history.collection.push(img);
@@ -440,27 +463,51 @@ if (typeof WebPageCanvas === 'undefined') {
 			this.canvas.clickY.push(y);
 		}
 
-		undo() {
-			if (this.history.step > 0) {
-				if (this.history.step == this.history.collection.length)
-					this.history.step--;
-
-				this.canvas.context.clearAll();
-				this.canvas.context.drawImage(this.history.collection[--this.history.step], 0, 0, this.canvas.element.width, this.canvas.element.height);
-			} else
-				this.canvas.context.clearAll();
+		deleteHistory() {
+			this.history = {
+				collection: [],
+				drawStep: 0,
+				actionStep: 0,
+				backwards: false
+			};
+			let btn = document.querySelector("#toolbar.web-page-canvas .option-container[data-action='undo']");
+			btn.classList.add('disabled');
 		}
 
-		redo() {
-			if (this.history.step <= this.history.collection.length - 1) {
-				this.canvas.context.drawImage(this.history.collection[this.history.step++], 0, 0, this.canvas.element.width, this.canvas.element.height);
-				if (this.history.step == 0)
-					this.history.step++;
+		undo() {
+			// console.log('before', 'drawStep:' + this.history.drawStep, 'actionStep:' + this.history.actionStep, this.history.backwards);
+			if (this.history.drawStep > 0 && this.history.actionStep >= 0) {
+				let step;
+				if (this.history.actionStep > 0 && this.history.backwards)
+					step = --this.history.actionStep;
+				else if (this.history.actionStep == 0) {
+					if (this.history.backwards || this.history.drawStep <= 1) {
+						this.canvas.context.clearAll();
+						this.history.backwards = false;
+						this.history.actionStep = -1;
+						this.deleteHistory();
+						return;
+					} else {
+						this.history.actionStep = this.history.drawStep - 2;
+						this.history.backwards = true;
+						step = this.history.actionStep;
+					}
+				} else if (!this.history.backwards) {
+					this.history.actionStep = this.history.drawStep - 2;
+					this.history.backwards = true;
+					step = this.history.actionStep;
+				}
+
+				let img = this.history.collection[step];
+
+				// console.log('after', 'drawStep:' + this.history.drawStep, 'actionStep:' + this.history.actionStep, 'step:' + step, this.history.backwards);
+
+				this.canvas.context.clearAll();
+				this.canvas.context.drawImage(img, 0, 0, this.canvas.element.width, this.canvas.element.height);
 			}
 		}
 
 		draw() {
-
 			this.hasDrawings = true;
 
 			if (this.activeTool.id === 'highlighter') {
@@ -658,16 +705,12 @@ if (typeof WebPageCanvas === 'undefined') {
 		}
 	}
 
-	var webPageCanvas = new WebPageCanvas();
-	webPageCanvas.getContentDocument()
-		.then(function() {
-			webPageCanvas.toggleContent(true);
-		})
-		.catch(function() {
-			console.error('Could not load toolbar. Web Page Canvas.');
-		});
-}
-
+	if (document.readyState !== 'complete') {
+		document.addEventListener('DOMContentLoaded', webPageCanvas_initialize, {once: true});
+	} else
+		webPageCanvas_initialize();
+} else
+	webPageCanvas_initialize();
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	if (request != null && request.hasOwnProperty('message') && !request.hasOwnProperty('data')) {

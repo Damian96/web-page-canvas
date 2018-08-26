@@ -14,7 +14,7 @@
             "16": "images/draw-16.png",
             "32": "images/draw-32.png"
         },
-        "default_title": "Annotate Page",
+        "default_title": "Draw",
         "default_popup": "/popup/html/home.html"
     },
     "background": {
