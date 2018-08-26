@@ -269,6 +269,8 @@ if (typeof WebPageCanvas === 'undefined') {
 					this.close();
 				else if (action === 'undo')
 					this.undo();
+				else if (action === 'redo')
+					this.redo();
 			}
 
 			this.resetCanvasTools();
@@ -377,9 +379,9 @@ if (typeof WebPageCanvas === 'undefined') {
 							url = URL.createObjectURL(blob);
 	
 							img.onload = function() {
-							URL.revokeObjectURL(url);
-							resolve(img);
-						};
+								URL.revokeObjectURL(url);
+								resolve(img);
+							};
 						img.src = url;
 					});
 				});
@@ -412,9 +414,9 @@ if (typeof WebPageCanvas === 'undefined') {
 				if (this.activeTool.id !== 'eraser') {
 					this.history.drawStep++;
 					this.history.backwards = false;
-					let btn = document.querySelector("#toolbar.web-page-canvas .option-container[data-action='undo']");
-					if (btn.classList.contains('disabled')) {
-						btn.classList.remove('disabled');
+					let undo = document.querySelector("#toolbar.web-page-canvas .option-container[data-action='undo']");
+					if (undo.classList.contains('disabled')) {
+						undo.classList.remove('disabled');
 						this.history.actionStep = 0;
 					}
 				}
@@ -470,15 +472,17 @@ if (typeof WebPageCanvas === 'undefined') {
 				actionStep: 0,
 				backwards: false
 			};
-			let btn = document.querySelector("#toolbar.web-page-canvas .option-container[data-action='undo']");
-			btn.classList.add('disabled');
+			let undo = document.querySelector("#toolbar.web-page-canvas .option-container[data-action='undo']");
+			let redo = document.querySelector("#toolbar.web-page-canvas .option-container[data-action='redo']");
+			undo.classList.add('disabled');
+			redo.classList.add('disabled');
 		}
 
 		undo() {
 			// console.log('before', 'drawStep:' + this.history.drawStep, 'actionStep:' + this.history.actionStep, this.history.backwards);
 			if (this.history.drawStep > 0 && this.history.actionStep >= 0) {
 				let step;
-				if (this.history.actionStep > 0 && this.history.backwards)
+				if (this.history.actionStep != 0 && this.history.backwards)
 					step = --this.history.actionStep;
 				else if (this.history.actionStep == 0) {
 					if (this.history.backwards || this.history.drawStep <= 1) {
@@ -498,6 +502,10 @@ if (typeof WebPageCanvas === 'undefined') {
 					step = this.history.actionStep;
 				}
 
+				let redo = document.querySelector("#toolbar.web-page-canvas .option-container[data-action='redo']");
+				if (redo.classList.contains('disabled'))
+					redo.classList.remove('disabled');
+
 				let img = this.history.collection[step];
 
 				// console.log('after', 'drawStep:' + this.history.drawStep, 'actionStep:' + this.history.actionStep, 'step:' + step, this.history.backwards);
@@ -505,6 +513,28 @@ if (typeof WebPageCanvas === 'undefined') {
 				this.canvas.context.clearAll();
 				this.canvas.context.drawImage(img, 0, 0, this.canvas.element.width, this.canvas.element.height);
 			}
+		}
+
+		redo() {
+			// console.log('before', 'drawStep:' + this.history.drawStep, 'actionStep:' + this.history.actionStep, this.history.backwards);
+
+			let step,
+				redo = document.querySelector("#toolbar.web-page-canvas .option-container[data-action='redo']");
+
+			if (!redo.classList.contains('disabled') && this.history.drawStep >= 0 && this.history.backwards && this.history.actionStep < (this.history.drawStep - 1)) {
+				step = ++this.history.actionStep;
+
+				if (step == this.history.drawStep - 1) {
+					redo.classList.add('disabled');
+				}
+	
+				let img = this.history.collection[step];
+	
+				this.canvas.context.clearAll();
+				this.canvas.context.drawImage(img, 0, 0, this.canvas.element.width, this.canvas.element.height);
+			}
+
+			// console.log('after', 'drawStep:' + this.history.drawStep, 'actionStep:' + this.history.actionStep, 'step:' + step, this.history.backwards);
 		}
 
 		draw() {
