@@ -263,9 +263,10 @@ if (typeof WebPageCanvas === 'undefined') {
 				}
 
 				let action = event.currentTarget.dataset.action;
-				if (action === 'clear')
+				if (action === 'clear') {
 					this.canvas.context.clearAll();
-				else if (action === 'close')
+					this.deleteHistory();
+				} else if (action === 'close')
 					this.close();
 				else if (action === 'undo')
 					this.undo();

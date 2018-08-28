@@ -61,7 +61,7 @@ canvas.web-page-canvas {
     display: block;
     margin-left: 0 !important;
     margin-right: 0 !important; }
-  #toolbar.web-page-canvas .tool-container.active:not([title='Options']) {
+  #toolbar.web-page-canvas .tool-container.active {
     border-bottom: 4px solid gold;
     border-bottom-style: inset; }
   #toolbar.web-page-canvas #tool-col,

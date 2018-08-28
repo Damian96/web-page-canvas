@@ -77,7 +77,7 @@ canvas.web-page-canvas {
         margin-right: 0 !important;
     }
 
-    .tool-container.active:not([title='Options']) {
+    .tool-container.active {
         border-bottom: 4px solid gold;
         border-bottom-style: inset;
     }
