@@ -70,9 +70,9 @@ canvas.web-page-canvas {
   #toolbar.web-page-canvas .option-container {
     display: inline-block;
     width: -webkit-max-content; }
-  #toolbar.web-page-canvas .option-container.disabled .fa,
+  #toolbar.web-page-canvas .option-container.disabled [class*="icon"],
   #toolbar.web-page-canvas .option-container.disabled .tool-label,
-  #toolbar.web-page-canvas .tool-container.disabled .fa,
+  #toolbar.web-page-canvas .tool-container.disabled [class*="icon"],
   #toolbar.web-page-canvas .tool-container.disabled .tool-label {
     color: graytext !important; }
   #toolbar.web-page-canvas #tool-col {
@@ -84,30 +84,30 @@ canvas.web-page-canvas {
   #toolbar.web-page-canvas .option-container > .tool-label {
     color: #fff;
     font-size: 18px; }
-  #toolbar.web-page-canvas .tool-container .fa,
-  #toolbar.web-page-canvas .option-container .fa:not(.fa-undo) {
+  #toolbar.web-page-canvas .tool-container [class*="icon"],
+  #toolbar.web-page-canvas .option-container [class*="icon"]:not(.wpc-icon-undo) {
     font-size: 17px; }
   #toolbar.web-page-canvas .tool-container:active > .tool-label,
   #toolbar.web-page-canvas .option-container:active > .tool-label {
     color: #d2d2d2; }
-  #toolbar.web-page-canvas .fa.fa-pencil-alt {
+  #toolbar.web-page-canvas [class*="icon"].wpc-icon-pencil-alt {
     color: #FFFF00; }
-  #toolbar.web-page-canvas .fa.fa-paint-brush {
+  #toolbar.web-page-canvas [class*="icon"].wpc-icon-paint-brush {
     color: #00FF00;
     font-size: 15px; }
-  #toolbar.web-page-canvas .fa.fa-floppy-disk {
+  #toolbar.web-page-canvas [class*="icon"].wpc-icon-floppy-disk {
     font-size: 15px; }
-  #toolbar.web-page-canvas .fa.fa-eraser {
+  #toolbar.web-page-canvas [class*="icon"].wpc-icon-eraser {
     color: #A52A2A; }
-  #toolbar.web-page-canvas .fa.fa-bars {
+  #toolbar.web-page-canvas [class*="icon"].wpc-icon-bars {
     color: #87ceeb; }
-  #toolbar.web-page-canvas .fa.fa-cog {
+  #toolbar.web-page-canvas [class*="icon"].wpc-icon-cog {
     color: #808040; }
-  #toolbar.web-page-canvas .fa.fa-save {
+  #toolbar.web-page-canvas [class*="icon"].wpc-icon-floppy {
     color: #0000ff; }
-  #toolbar.web-page-canvas .fa.fa-times {
+  #toolbar.web-page-canvas [class*="icon"].wpc-icon-cancel {
     color: #FF0000; }
-  #toolbar.web-page-canvas .fa.fa-undo, #toolbar.web-page-canvas .fa.fa-redo {
+  #toolbar.web-page-canvas [class*="icon"].wpc-icon-undo, #toolbar.web-page-canvas [class*="icon"].wpc-icon-redo {
     color: #DDDDDD;
     font-size: 15px; }
   #toolbar.web-page-canvas #cancel {
@@ -118,7 +118,7 @@ canvas.web-page-canvas {
     color: #FF0000;
     font-weight: bold;
     border-radius: 50%; }
-  #toolbar.web-page-canvas [data-has-dropdown='true'] .fa-caret-down {
+  #toolbar.web-page-canvas [data-has-dropdown='true'] .wpc-icon-caret-down {
     color: #fff;
     font-size: 19px; }
   #toolbar.web-page-canvas .tool-container,

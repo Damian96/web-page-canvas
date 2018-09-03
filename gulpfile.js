@@ -5,6 +5,7 @@ var uglifycss = require('gulp-uglifycss');
 var jshint = require('gulp-jshint');
 var package = require('./package');
 var sass = require('gulp-sass');
+var fontello = require('gulp-fontello');
 var cssOptions = { uglyComments: true };
 
 var paths = {
@@ -29,7 +30,7 @@ var paths = {
         'src/web-resources/html/*',
         'src/web-resources/js/*',
         'src/web-resources/webfonts/*',
-        'src/web-resources/css/font-awesome.min.css',
+        'src/icons/css/wpc.css',
         'src/popup/html/*.html',
         'src/manifest.json'
     ]
@@ -89,18 +90,35 @@ var copyOther = function() {
     gulp.src(paths.other)
         .pipe(gulp.dest(destination));
 };
+ 
+var glyph = function () {
+  return gulp.src('fontello-config.json')
+    .pipe(fontello())
+    .pipe(uglifycss(cssOptions))
+    .pipe(gulp.dest('build/icons'))
+};
+
+var srcGlyph = function () {
+    return gulp.src('fontello-config.json')
+      .pipe(fontello())
+      .pipe(gulp.dest('src/icons'))
+};
 
 gulp.task('debug', debug);
 
-gulp.task('sass', srcSass);
+gulp.task('glyph', glyph);
 
-gulp.task('minifySASS', minifySASS);
+gulp.task('srcGlyph', srcGlyph);
+gulp.task('srcSass', srcSass);
 
+gulp.task('sass', minifySASS);
 gulp.task('minifyJS', minifyJS);
 gulp.task('minifyCSS', minifyCSS);
 gulp.task('copyOther', copyOther);
 
-gulp.task('build', ['minifyCSS', 'minifySASS', 'minifyJS', 'copyOther']);
+gulp.task('release', ['clean', 'minifyCSS', 'minifySASS', 'minifyJS', 'copyOther']);
+gulp.task('dev', ['srcSass', 'srcGlyph']);
+
 gulp.task('watch', function() {
     gulp.watch(paths.js, minifyJS);
     gulp.watch(paths.css, minifyCSS);

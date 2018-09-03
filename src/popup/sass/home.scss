@@ -28,14 +28,14 @@ a.title>.title-text {
 }
 
 .title> {
-    .fa:not(.fa-info),
-    .fa-layers>.fa {
+    [class*="icon"]:not(.wpc-icon-info),
+    .wpc-icon-layers>.wpc {
         font-size: 0.8em;
         transform: translate(0, -10%);
         padding: 0 0 0 5px;
     }
 
-    .fa-info {
+    .wpc-icon-info {
         font-size: 0.8em;
         transform: translate(30%, -10%);
         padding: 0 0 0 5px;
@@ -64,27 +64,27 @@ a.title>.title-text {
         border-width: 0 1px 1px 1px;
     }
 
-    .fa-save {
+    .wpc-icon-save {
         color: darkblue;
     }
 
-    .fa-book {
+    .wpc-icon-book {
         color: brown;
     }
 
-    .fa-cog {
+    .wpc-icon-cog {
         color: darkgray;
     }
 
-    .fa-check {
+    .wpc-icon-check {
         color: green;
     }
 
-    .fa-times {
+    .wpc-icon-times {
         color: red;
     }
 
-    .fa-info {
+    .wpc-icon-info {
         color: blue;
     }
 
@@ -112,7 +112,7 @@ a.title>.title-text {
             font-size: 1em;
         }
 
-        .fa[data-state="disabled"] {
+        .wpc-icon[data-state="disabled"] {
             color: red;
         }
 
@@ -125,23 +125,6 @@ a.title>.title-text {
     &[data-action-id="close"] .title-text[data-state="close"] {
         color: black;
         font-weight: bold;
-    }
-
-    &[data-action-id="library"] {
-        &[data-new-snapshots="0"]>.fa-layers {
-            display: none;
-        }
-
-        &:not([data-new-snapshots="0"]) {
-            >.fa-book {
-                display: none;
-            }
-
-            .fa-layers-counter {
-                font-size: 0.5em;
-                position: absolute;
-            }
-        }
     }
 }
 

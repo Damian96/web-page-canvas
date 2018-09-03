@@ -35,7 +35,8 @@
     "web_accessible_resources": [
         "images/*.png",
         "content-scripts/*",
-        "web-resources/*/*"
+        "web-resources/*/*",
+        "icons/*/*"
     ],
     "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
     "offline_enabled": true,

@@ -140,24 +140,16 @@ if (typeof WebPageCanvas === 'undefined') {
 		}
 
 		toggleContent(add) {
-
-			return new Promise(function (resolve) {
-				if (add) {
-					this.injectCSS()
-						.then(function() {
-							this.injectHTML();
-							this.initCanvas();
-							this.attachHandlers();
-							this.adjustCanvas();
-							resolve();
-						}.bind(this));
-				} else {
-					for(let element of document.querySelectorAll('.web-page-canvas')) {
-						element.remove();
-					}
-					resolve();
+			if (add) {
+				this.injectHTML();
+				this.initCanvas();
+				this.attachHandlers();
+				this.adjustCanvas();
+			} else {
+				for(let element of document.querySelectorAll('.web-page-canvas')) {
+					element.remove();
 				}
-			}.bind(this));
+			}
 		}
 
 		saveCanvas() {
@@ -619,9 +611,8 @@ if (typeof WebPageCanvas === 'undefined') {
 					if (request.readyState == 4 && request.status == 200 && !request.responseType.localeCompare('document')) {
 						this.contentDocument = request.responseXML;
 						resolve();
-					} else {
+					} else
 						reject();
-					}
 
 				}.bind(this);
 
@@ -633,45 +624,10 @@ if (typeof WebPageCanvas === 'undefined') {
 		}
 
 		/**
-		 * Injects all stylsheets on the document
-		 * @returns {Promise} when all the stylesheets are loaded
-		 */
-		injectCSS() {
-			if (this.contentDocument == null) {
-				console.error('Could not load stylsheets. Web Page Canvas');
-				return false;
-			}
-
-			return new Promise((resolve) => {
-
-				let styles = this.contentDocument.querySelectorAll("head > link[rel='stylesheet']");
-				
-				if (styles.length < 0)
-					resolve();
-				else {
-					let styleLoaded = 0;
-					let styleOnLoad = function() {
-						if (++styleLoaded == styles.length)
-							resolve();
-					};
-	
-					for (let styleSheet of styles) {
-						let href = styleSheet.getAttribute('href');
-						let sheet = styleSheet.cloneNode(true);
-						sheet.className = 'web-page-canvas';
-						sheet.onload = styleOnLoad;
-						sheet.setAttribute('href', chrome.runtime.getURL(href));
-						document.head.appendChild(sheet);
-					}
-				}
-
-			});
-		}
-
-		/**
 		 * Injects the HTML on the document.
 		 */
 		injectHTML() {
+			console.error(this.contentDocument);
 			document.body.innerHTML += this.contentDocument.body.innerHTML;
 			setTimeout(this.animateToolbar, 500);
 		}

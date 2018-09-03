@@ -22,6 +22,7 @@
     "gulp-uglifycss": "^1.0.9"
   },
   "devDependencies": {
+    "gulp-fontello": "^0.4.6",
     "gulp-jshint": "^2.1.0",
     "gulp-sass": "^4.0.1",
     "jshint": "^2.9.5"
