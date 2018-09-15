@@ -13,7 +13,7 @@
             <img src="../../images/draw-32.png"/>
             Web Page Canvas
         </h1>
-        <div id="options" class="row form">
+        <form id="options" class="row form">
             <div class="row form-section">
                 <div class="section-title">
                     <span class="title-text">
@@ -79,6 +79,19 @@
                         MB
                     </div>
                 </div>
+                <div class="row form-group">
+                    <div class="form-col">
+                        <label for="snapshotFormat">
+                            <i class="fa fa-image"></i>
+                            Snapshot Format
+                        </label>
+                    </div>
+                    <div class="form-col">
+                        <input type="radio" name="snapshotFormat" value="png"/>PNG (better quality, more storage space required)
+                        <br>
+                        <input type="radio" name="snapshotFormat" value="webp"/>WEBP (good quality, less storage space required)
+                    </div>
+                </div>
                 <div class="row form-action">
                     <div class="button" title="Save" aria-label="Save">Save</div>
                 </div>
@@ -97,17 +110,17 @@
                 </div>
                 <div class="row form-group">
                     <div class="form-col">
-                        <label for="clearSnapshots">
+                        <label for="deleteSnapshots">
                             <i class="fa fa-trash-alt"></i>
-                            Clear Snapshots
+                            Delete Snapshots
                         </label>
                     </div>
                     <div class="form-col">
-                        <input type="checkbox" name="clearSnapshots"/>
+                        <input type="checkbox" name="deleteSnapshots"/>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
     <!-- Javascript -->
     <script src="../js/jszip.min.js" type="text/javascript"></script>

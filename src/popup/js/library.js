@@ -35,6 +35,7 @@ class Library {
 			this.refreshSnapshots()
 			.then(function() {
 				this.refreshSlideshow();
+				console.log('snapshots', this.snapshots);
 			}.bind(this));
 		}
 		this.checkMemoryLimit();

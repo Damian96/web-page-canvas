@@ -30,9 +30,10 @@ if (typeof WebPageCanvas === 'undefined') {
 		constructor() {
 
 			this.options = {
-				size: 5,
-				brushColor: '#FFFF00',
-				highlighterColor: '#FFFF00',
+				size: 				5,
+				brushColor: 		'#FFFF00',
+				highlighterColor: 	'#FFFF00',
+				snapshotFormat:		'webp'
 			};
 
 			this.activeTool = {
@@ -49,9 +50,10 @@ if (typeof WebPageCanvas === 'undefined') {
 			this.getOptions()
 				.then(function(options) {
 					this.options = {
-						size: parseInt(options.size),
-						brushColor: options.brushColor,
-						highlighterColor: options.highlighterColor
+						size:				parseInt(options.size),
+						brushColor:			options.brushColor,
+						highlighterColor:	options.highlighterColor,
+						snapshotFormat:		options.snapshotFormat
 					};
 					this.activeTool.options.color = this.options.brushColor;
 					this.activeTool.options.size = this.options.size;
@@ -191,7 +193,7 @@ if (typeof WebPageCanvas === 'undefined') {
 				var onImgLoad = function (img, x, y) {
 					this.finalCanvas.context.drawImage(img, x, y);
 					if (++this.imagesLoaded == this.snapshots.length) {
-						resolve(this.finalCanvas.element.toDataURL('image/webp', 0.25));
+						resolve(this.finalCanvas.element.toDataURL( 'image/' + this.options.snapshotFormat, 0.25 ));
 					}
 				}.bind(this);
 

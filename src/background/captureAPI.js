@@ -57,21 +57,20 @@ class CaptureAPI {
      * @param {any} param1 The first parameter passed to onSuccess function.
      */
     takeSnapshot(onSuccess, thisArg, param1) {
-        return new Promise((resolve, reject) => {
+        if(typeof onSuccess !== 'function') {
+            reject('invalid takeSnapshot parameters given');
+        }
+
+        if(this.maxSnapshots > 20 || this.pageHeight > 15000) {
+            reject('too large page');
+        }
+
+        return new Promise(function(resolve, reject) {
             let remaining = this.maxSnapshots - this.snapshots.length;
-
-            if(typeof onSuccess !== 'function') {
-                reject('invalid takeSnapshot parameters given!');
-            }
-
-            if(this.maxSnapshots > 20 || this.pageHeight > 15000) {
-                reject('too tall page to take snapshot');
-            }
-
 
             if(remaining > 0) {
                 setTimeout(function() {
-                    chrome.tabs.captureVisibleTab({format: 'jpeg'},
+                    chrome.tabs.captureVisibleTab({format: 'png'},
                         function(onSuccess, thisArg, param1, dataUrl) {
                             this.snapshots.push(dataUrl);
                             chrome.tabs.sendMessage(this.tabID, {message: 'scroll-top'},
@@ -89,7 +88,7 @@ class CaptureAPI {
             } else {
                 resolve(onSuccess.call(thisArg, param1, this.snapshots));
             }
-        });
+        }.bind(this));
     }
 }
 

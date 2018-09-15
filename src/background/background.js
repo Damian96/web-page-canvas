@@ -21,6 +21,21 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     return true;
 });
 
+/**
+ * Retrieves the options from chrome's storage area
+ * @returns {Promise} Returns the options if they exist, else null
+ */
+var getOptions = function() {
+    return new Promise(function (resolve, reject) {
+        chrome.storage.local.get('webPageCanvas_options', function(items) {
+            if ((typeof items['webPageCanvas_options']) !== 'string')
+                reject("Error while retrieving plug-in options: ");
+            else
+                resolve(JSON.parse(items['webPageCanvas_options']));
+        }.bind(this));
+    }.bind(this));
+};
+
 chrome.tabs.onZoomChange.addListener(sendResizeMessage);
 
 chrome.tabs.onUpdated.addListener(removeCanvasOpen);
@@ -39,7 +54,7 @@ window.onload = function () {
 
             chrome.storage.local.set({
                 [snapshotsStorageKey]: '',
-                [optionsStorageKey]: '{"size":"5","brushColor":"#FFFF00","highlighterColor":"#FFFF00","maxStorage":"5"}',
+                [optionsStorageKey]: '{"size":"5","brushColor":"#FFFF00","highlighterColor":"#FFFF00","maxStorage":"5", "snapshotFormat":"png"}',
                 [welcomePageStorageKey]: true
             });
         }

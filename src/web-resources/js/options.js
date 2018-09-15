@@ -14,19 +14,23 @@ class Options {
 
         this.fields = {
             options: {
-                size: $("input[name='size']"),
-                brushColor: $("input[name='brushColor']"),
-                highlighterColor: $("input[name='highlighterColor']"),
+                size:               $("input[name='size']"),
+                brushColor:         $("input[name='brushColor']"),
+                highlighterColor:   $("input[name='highlighterColor']"),
             },
             settings: {
-                maxStorage: $("input[name='maxStorage']"),
-                clearSnapshots: $("input[name='clearSnapshots']"),
-                zipSnapshots: $("input[name='zipSnapshots']")
+                maxStorage:         $("input[name='maxStorage']"),
+                deleteSnapshots:    $("input[name='deleteSnapshots']"),
+                zipSnapshots:       $("input[name='zipSnapshots']"),
+                snapshotFormat: {
+                    png:        $("input[name='snapshotFormat'][value='png']"),
+                    webp:       $("input[name='snapshotFormat'][value='webp']")
+                }
             }
         };
         this.storageKeys = {
-            options: 'webPageCanvas_options',
-            snapshots: 'webPageCanvas_snapshots' 
+            options:    'webPageCanvas_options',
+            snapshots:  'webPageCanvas_snapshots' 
         };
 
         this.refreshValues();
@@ -35,14 +39,14 @@ class Options {
     }
 
     attachHandlers() {
-        this.fields.settings.clearSnapshots.on('change', this.clearChangeHandler.bind(this));
+        this.fields.settings.deleteSnapshots.on('change', this.deleteChangeHandler.bind(this));
         this.fields.settings.zipSnapshots.on('click', this.zipSnapshots.bind(this));
     }
 
     refreshValues() {
         this.getOptions()
-            .then(
-            function(options) {
+            .then(function(options) {
+                console.log(options);
                 $.each(options, function(key, value) {
                     if (key === 'size' && parseInt(value) > 0) {
                         this.fields.options.size.val(value);
@@ -50,13 +54,15 @@ class Options {
                         this.fields.options[key].val(value);
                     } else if (key === 'maxStorage' && parseInt(value) > 10) {
                         this.fields.settings.maxStorage.val(value);
+                    } else if (key === 'snapshotFormat' && value) {
+                        this.fields.settings.snapshotFormat[value][0].checked = true;
                     }
                 }.bind(this));
                 this.getSnapshots()
                     .catch(function (error) {
                         console.log(error);
-                        this.fields.settings.clearSnapshots.attr('disabled', true);
-                        this.fields.settings.clearSnapshots.closest('.form-group').addClass('disabled');
+                        this.fields.settings.deleteSnapshots.attr('disabled', true);
+                        this.fields.settings.deleteSnapshots.closest('.form-group').addClass('disabled');
                     }.bind(this));
             }.bind(this))
             .catch((error) => {
@@ -86,22 +92,35 @@ class Options {
                         maxStorage: prevOptions != null ? prevOptions.maxStorage : 5
                     };
                 } else { // settings save button clicked
+                    let snapshotFormat;
+
+                    if ( this.fields.settings.snapshotFormat.png[0].checked ) {
+                        snapshotFormat  =   'png';
+                    } else if ( this.fields.settings.snapshotFormat.webp[0].checked ) {
+                        snapshotFormat  =   'webp';
+                    } else
+                        snapshotFormat  =   'png';
+
                     options = {
-                        size: prevOptions != null ? prevOptions.maxStorage : 5,
-                        brushColor: prevOptions != null ? prevOptions.brushColor : '#FFFF00',
-                        highlighterColor: prevOptions != null ? prevOptions.highlighterColor : '#FFFF00',
-                        maxStorage: this.fields.settings.maxStorage.val()
+                        size:               prevOptions != null ? prevOptions.maxStorage : 5,
+                        brushColor:         prevOptions != null ? prevOptions.brushColor : '#FFFF00',
+                        highlighterColor:   prevOptions != null ? prevOptions.highlighterColor : '#FFFF00',
+                        maxStorage:         this.fields.settings.maxStorage.val(),
+                        snapshotFormat:     snapshotFormat
                     };
-                    if ( $("input[name='clearSnapshots']")[0].checked )
-                        this.clearSnapshots();
+
+                    if ( this.fields.settings.deleteSnapshots[0].checked )
+                        this.deleteSnapshots();
                 }
+
                 chrome.storage.local.set({ [this.storageKeys.options]: JSON.stringify(options) });
             }.bind(this));
     }
 
-    clearChangeHandler(event) {
+    deleteChangeHandler(event) {
         if (event.currentTarget.checked) {
             if (window.confirm('Are you sure?')) {
+                this.deleteSnapshots();
                 return true;
             } else {
                 event.currentTarget.checked = false;
@@ -136,7 +155,7 @@ class Options {
     /**
      * @method Promise the local snapshots in chrome's local storage.
      */
-    clearSnapshots() {
+    deleteSnapshots() {
         return new Promise(function (resolve) {
             chrome.storage.local.set({
                 [this.storageKeys.snapshots]: []
