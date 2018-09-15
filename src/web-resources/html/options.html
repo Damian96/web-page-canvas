@@ -2,7 +2,7 @@
 <html>
 <head>
     <link rel="stylesheet" href="../css/options.css" type="text/css"/>
-    <link rel="stylesheet" href="../css/font-awesome.min.css" type="text/css"/>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
     <!-- Javascript -->
     <script type="text/javascript" src="../js/jquery-slim.min.js"></script>
     <script type='text/javascript' src="../../popup/js/analytics.js"></script>
@@ -17,15 +17,15 @@
             <div class="row form-section">
                 <div class="section-title">
                     <span class="title-text">
-                        <i class="wpc wpc-icon-sliders-h"></i>
-                        Default Options
+                        <i class="fa fa-sliders-h"></i>
+                        Drawing Options
                         <span class="border-bottom"></span>
                     </span>
                 </div>
                 <div class="row form-group">
                     <div class="form-col">
                         <label for="brushColor">
-                            <i class="wpc wpc-icon-dot-circle"></i>
+                            <i class="fa fa-arrows-alt-h"></i>
                             Size
                         </label>
                     </div>
@@ -36,7 +36,7 @@
                 <div class="row form-group">
                     <div class="form-col">
                         <label for="brushColor">
-                            <i class="wpc wpc-icon-paint-brush"></i>
+                            <i class="fa fa-paint-brush"></i>
                             Paint Brush Color
                         </label>
                     </div>
@@ -47,7 +47,7 @@
                 <div class="row form-group">
                     <div class="form-col">
                         <label for="highlighterColor">
-                            <i class="wpc wpc-icon-pencil-alt"></i>
+                            <i class="fa fa-pencil-alt"></i>
                             Highlighter Color
                         </label>
                     </div>
@@ -62,26 +62,15 @@
             <div class="row form-section">
                 <div class="section-title">
                     <span class="title-text">
-                        <i class="wpc wpc-icon-cog"></i>
+                        <i class="fa fa-cog"></i>
                         Settings
                         <span class="border-bottom"></span>
                     </span>
                 </div>
                 <div class="row form-group">
                     <div class="form-col">
-                        <label for="clearSnapshots">
-                            <i class="wpc wpc-icon-trash-alt"></i>
-                            Clear Snapshots
-                        </label>
-                    </div>
-                    <div class="form-col">
-                        <input type="checkbox" name="clearSnapshots"/>
-                    </div>
-                </div>
-                <div class="row form-group">
-                    <div class="form-col">
                         <label for="maxStorage">
-                            <i class="wpc wpc-icon-hdd"></i>
+                            <i class="fa fa-hdd"></i>
                             Maximum Storage Memory
                         </label>
                     </div>
@@ -94,9 +83,34 @@
                     <div class="button" title="Save" aria-label="Save">Save</div>
                 </div>
             </div>
+            <div class="row form-section">
+                <div class="row form-group">
+                    <div class="form-col">
+                        <label for="zipSnapshots">
+                            <i class="fa fa-save"></i>
+                            Save All Snapshots as .zip
+                        </label>
+                    </div>
+                    <div class="form-col">
+                        <input type="button" name="zipSnapshots" value="Save">
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="form-col">
+                        <label for="clearSnapshots">
+                            <i class="fa fa-trash-alt"></i>
+                            Clear Snapshots
+                        </label>
+                    </div>
+                    <div class="form-col">
+                        <input type="checkbox" name="clearSnapshots"/>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <!-- Javascript -->
+    <script src="../js/jszip.min.js" type="text/javascript"></script>
     <script src="../js/options.js" type="text/javascript"></script>
 </body>
 </html>

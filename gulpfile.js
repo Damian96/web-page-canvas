@@ -5,7 +5,6 @@ var uglifycss = require('gulp-uglifycss');
 var jshint = require('gulp-jshint');
 var package = require('./package');
 var sass = require('gulp-sass');
-var fontello = require('gulp-fontello');
 var cssOptions = { uglyComments: true };
 
 var paths = {
@@ -54,75 +53,59 @@ var destination = function(file) { // file.path, file.base
 };
 
 var debug = function() {
-    gulp.src(paths.js)
+    return gulp.src(paths.js)
         .pipe(jshint(package.jshintConfig))
         .pipe(jshint.reporter('default'));
 };
 
 var minifyJS = function() {
-    gulp.src(paths.js)
+    return gulp.src(paths.js)
         .pipe(uglifyjs())
         .pipe(gulp.dest(destination));
 };
 
 var minifyCSS = function() {
-    gulp.src(paths.css)
+    return gulp.src(paths.css)
         .pipe(uglifycss(cssOptions))
         .pipe(gulp.dest(destination));
 };
 
 var srcSass = function() {
-    gulp.src(paths.sass)
+    return gulp.src(paths.sass)
       .pipe(sass().on('error', sass.logError))
       .pipe(gulp.dest(function(file) {
-        return file.base.replace('\\sass\\', '\\css\\');
-      }));
+        return file.base.replace('sass', 'css');
+    }));
 };
 
 var minifySASS = function() {
-    gulp.src(paths.sass)
+    return gulp.src(paths.sass)
       .pipe(sass().on('error', sass.logError))
       .pipe(uglifycss(cssOptions))
       .pipe(gulp.dest(destination));
 };
 
 var copyOther = function() {
-    gulp.src(paths.other)
+    return gulp.src(paths.other)
         .pipe(gulp.dest(destination));
 };
- 
-var glyph = function () {
-  return gulp.src('fontello-config.json')
-    .pipe(fontello())
-    .pipe(uglifycss(cssOptions))
-    .pipe(gulp.dest('build/icons'))
-};
 
-var srcGlyph = function () {
-    return gulp.src('fontello-config.json')
-      .pipe(fontello())
-      .pipe(gulp.dest('src/icons'))
-};
+gulp.task('clean', clean);
 
 gulp.task('debug', debug);
 
-gulp.task('glyph', glyph);
-
-gulp.task('srcGlyph', srcGlyph);
 gulp.task('srcSass', srcSass);
 
-gulp.task('sass', minifySASS);
+gulp.task('minifySASS', minifySASS);
 gulp.task('minifyJS', minifyJS);
 gulp.task('minifyCSS', minifyCSS);
 gulp.task('copyOther', copyOther);
 
-gulp.task('release', ['clean', 'minifyCSS', 'minifySASS', 'minifyJS', 'copyOther']);
-gulp.task('dev', ['srcSass', 'srcGlyph']);
+gulp.task('release', gulp.series('clean', gulp.parallel('minifyCSS', 'minifySASS', 'minifyJS', 'copyOther')));
 
 gulp.task('watch', function() {
     gulp.watch(paths.js, minifyJS);
     gulp.watch(paths.css, minifyCSS);
-    gulp.watch(paths.other, copyOther);
     gulp.watch(paths.sass, minifySASS);
 });
 
@@ -130,5 +113,4 @@ gulp.task('sass-watch', function() {
     gulp.watch(paths.sass, srcSass);
 });
 
-gulp.task('clean', clean);
-gulp.task('default', ['clean', 'debug', 'build']);
+gulp.task('default', gulp.series('clean', 'debug'));

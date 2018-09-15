@@ -1,3 +1,19 @@
+# Github Files
+/Backups/
+/Cache/
+/CachedData/
+/CachedExtensions/
+/Local Storage/
+/User/
+*.sock
+Cookies
+Cookies-journal
+languagepacks.json
+machineid
+Preferences
+storage.json
+~/
+
 # Ignore Builded Extension
 /build/
 *.zip

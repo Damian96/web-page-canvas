@@ -21,13 +21,13 @@ body {
 a.title > .title-text {
   color: black !important; }
 
-.title > [class*="icon"]:not(.wpc-icon-info),
-.title > .wpc-icon-layers > .wpc {
+.title > .fa:not(.fa-info),
+.title > .fa-layers > .fa- {
   font-size: 0.8em;
   transform: translate(0, -10%);
   padding: 0 0 0 5px; }
 
-.title > .wpc-icon-info {
+.title > .fa-info {
   font-size: 0.8em;
   transform: translate(30%, -10%);
   padding: 0 0 0 5px; }
@@ -48,22 +48,22 @@ a.title > .title-text {
 .title:nth-of-type(2n + 1), .title:nth-of-type(2n) {
   border-width: 0 1px 1px 1px; }
 
-.title .wpc-icon-floppy {
+.title .fa-save {
   color: darkblue; }
 
-.title .wpc-icon-book {
+.title .fa-book {
   color: brown; }
 
-.title .wpc-icon-cog {
+.title .fa-cog {
   color: darkgray; }
 
-.title .wpc-icon-check {
+.title .fa-check {
   color: green; }
 
-.title .wpc-icon-cancel {
+.title .fa-times {
   color: red; }
 
-.title .wpc-icon-info {
+.title .fa-info {
   color: blue; }
 
 .title[data-action-id="open"] [data-state="open"],
@@ -81,7 +81,7 @@ a.title > .title-text {
 .title[data-action-id="disabled"] [data-state="disabled"] {
   font-size: 1em; }
 
-.title[data-action-id="disabled"] .wpc-icon[data-state="disabled"] {
+.title[data-action-id="disabled"] .fa-[data-state="disabled"] {
   color: red; }
 
 .title[data-action-id="disabled"] .title-text[data-state="disabled"] {

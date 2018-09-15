@@ -28,14 +28,14 @@ a.title>.title-text {
 }
 
 .title> {
-    [class*="icon"]:not(.wpc-icon-info),
-    .wpc-icon-layers>.wpc {
+    .fa:not(.fa-info),
+    .fa-layers>.fa- {
         font-size: 0.8em;
         transform: translate(0, -10%);
         padding: 0 0 0 5px;
     }
 
-    .wpc-icon-info {
+    .fa-info {
         font-size: 0.8em;
         transform: translate(30%, -10%);
         padding: 0 0 0 5px;
@@ -64,27 +64,27 @@ a.title>.title-text {
         border-width: 0 1px 1px 1px;
     }
 
-    .wpc-icon-save {
+    .fa-save {
         color: darkblue;
     }
 
-    .wpc-icon-book {
+    .fa-book {
         color: brown;
     }
 
-    .wpc-icon-cog {
+    .fa-cog {
         color: darkgray;
     }
 
-    .wpc-icon-check {
+    .fa-check {
         color: green;
     }
 
-    .wpc-icon-times {
+    .fa-times {
         color: red;
     }
 
-    .wpc-icon-info {
+    .fa-info {
         color: blue;
     }
 
@@ -112,7 +112,7 @@ a.title>.title-text {
             font-size: 1em;
         }
 
-        .wpc-icon[data-state="disabled"] {
+        .fa-[data-state="disabled"] {
             color: red;
         }
 

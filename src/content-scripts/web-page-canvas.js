@@ -141,6 +141,7 @@ if (typeof WebPageCanvas === 'undefined') {
 
 		toggleContent(add) {
 			if (add) {
+				this.insertCSS();
 				this.injectHTML();
 				this.initCanvas();
 				this.attachHandlers();
@@ -627,9 +628,26 @@ if (typeof WebPageCanvas === 'undefined') {
 		 * Injects the HTML on the document.
 		 */
 		injectHTML() {
-			console.error(this.contentDocument);
 			document.body.innerHTML += this.contentDocument.body.innerHTML;
 			setTimeout(this.animateToolbar, 500);
+		}
+
+		/**
+		 * @method	void
+		 */
+		insertCSS() {
+			return new Promise(function(resolve) {
+				let link			= document.createElement( 'link' );
+				link.href			= "https://use.fontawesome.com/releases/v5.3.1/css/all.css";
+				link.integrity		= "sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU";
+				link.rel			= "stylesheet";
+				link.crossOrigin	= "anonymous";
+				document.head.appendChild(link);
+
+				link.onload			= function() {
+					resolve();
+				};
+			}.bind(this));
 		}
 
 		animateToolbar() {

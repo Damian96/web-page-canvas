@@ -84,8 +84,8 @@ div.button:hover {
     background-color: #872929;
 }
 
-.section-title .wpc-icon-cog,
-.section-title .wpc-icon-sliders-h {
+.section-title .fa-cog,
+.section-title .fa-sliders-h {
     color: gray;
 }
 
@@ -112,19 +112,23 @@ div.button:hover {
     font-size: 0.9em;
 }
 
-#options label > .wpc-icon-trash-alt {
+#options label > .fa-trash-alt {
     color: red;
 }
 
-#options label > .wpc-icon-paint-brush {
+#options label > .fa-paint-brush {
     color: green;
 }
 
-#options label > .wpc-icon-pencil-alt {
+#options label > .fa-pencil-alt {
     color: yellow;
 }
 
-#options label > .wpc-icon-hdd {
+#options label > .fa-save {
+    color: blue;
+}
+
+#options label > .fa-hdd {
     color: darkblue;
 }
 

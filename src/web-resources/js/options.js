@@ -20,7 +20,8 @@ class Options {
             },
             settings: {
                 maxStorage: $("input[name='maxStorage']"),
-                clearSnapshots: $("input[name='clearSnapshots']")
+                clearSnapshots: $("input[name='clearSnapshots']"),
+                zipSnapshots: $("input[name='zipSnapshots']")
             }
         };
         this.storageKeys = {
@@ -35,6 +36,7 @@ class Options {
 
     attachHandlers() {
         this.fields.settings.clearSnapshots.on('change', this.clearChangeHandler.bind(this));
+        this.fields.settings.zipSnapshots.on('click', this.zipSnapshots.bind(this));
     }
 
     refreshValues() {
@@ -157,6 +159,41 @@ class Options {
                     reject('No snapshots');
             }.bind(this));
         }.bind(this));
+    }
+
+    /**
+     * 
+     */
+    zipSnapshots() {
+        return new Promise(function(resolve) {
+            this.getSnapshots()
+                .then(function(snapshots) {
+                    let zip = new JSZip();
+
+                    $.each(snapshots, function( key, src ) {
+                        let base64  = this.dataURLtoBase64(src);
+                        zip.file('wpc-snapshot-' + key + '.webp', base64, { base64: true } );
+                    }.bind(this));
+
+                    zip.generateAsync( { type:"blob" } ).then(function(content) {
+                        let url = URL.createObjectURL(content),
+                            filename    = 'wpc-snapshots-' + Date.now() + '.zip';
+
+                        chrome.downloads.download({
+                            url:        url,
+                            filename:   filename,
+                            saveAs:     false
+                        });
+                    });
+                }.bind(this))
+                .catch(function(error) {
+                    console.error(error);
+                });
+        }.bind(this));
+    }
+
+    dataURLtoBase64(data) {
+        return data.replace( 'data:image/webp;base64,', '');
     }
 }
 

@@ -8,7 +8,9 @@ body {
 }
 
 .web-page-canvas {
-    font-family: 'Tahoma', 'serif';
+    &:not(.fa) {
+        font-family: 'Tahoma', 'serif';
+    }
     &.hidden {
         display: none;
     }
@@ -93,7 +95,7 @@ canvas.web-page-canvas {
     .option-container,
     .tool-container {
         &.disabled {
-            [class*="icon"],
+            .fa
             .tool-label {
                 color: graytext !important;
             }
@@ -115,8 +117,8 @@ canvas.web-page-canvas {
         font-size: 18px;
     }
 
-    .tool-container [class*="icon"],
-    .option-container [class*="icon"]:not(.wpc-icon-undo) {
+    .tool-container .fa,
+    .option-container .fa:not(.fa-undo) {
         font-size: 17px;
     }
 
@@ -125,42 +127,42 @@ canvas.web-page-canvas {
         color: #d2d2d2;
     }
 
-    [class*="icon"] {
-        &.wpc-icon-pencil-alt {
+    .fa {
+        &.fa-pencil-alt {
             color: #FFFF00;
         }
 
-        &.wpc-icon-paint-brush {
+        &.fa-paint-brush {
             color: #00FF00;
             font-size: 15px;
         }
     
-        &.wpc-icon-floppy-disk {
+        &.fa-floppy-disk {
             font-size: 15px;
         }
     
-        &.wpc-icon-eraser {
+        &.fa-eraser {
             color: #A52A2A;
         }
     
-        &.wpc-icon-bars {
+        &.fa-bars {
             color: #87ceeb;
         }
     
-        &.wpc-icon-cog {
+        &.fa-cog {
             color: rgb(128, 128, 64);
         }
     
-        &.wpc-icon-save {
+        &.fa-save {
             color: #0000ff;
         }
 
-        &.wpc-icon-times {
+        &.fa-times {
             color: #FF0000;
         }
     
-        &.wpc-icon-undo,
-        &.wpc-icon-redo {
+        &.fa-undo,
+        &.fa-redo {
             color: #DDDDDD;
             font-size: 15px;
         }
@@ -176,7 +178,7 @@ canvas.web-page-canvas {
         border-radius: 50%;
     }
 
-    [data-has-dropdown='true'] .wpc-icon-caret-down {
+    [data-has-dropdown='true'] .fa-caret-down {
         color: #fff;
         font-size: 19px;
     }
@@ -314,7 +316,7 @@ canvas.web-page-canvas {
     }
 }
 
-// div.wpc-hidden {
+// div.fa-hidden {
 //     visibility: hidden !important;
 //     width: 0 !important;
 //     height: 0 !important;
