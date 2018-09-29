@@ -129,6 +129,10 @@ module.exports = function (grunt) {
                 cwd: '<%= paths.src %>',
                 src: 'web-resources/js/*.min.js',
                 dest: '<%= paths.build %>/'
+            },
+            manifest: {
+                src: '<%= paths.src %>/manifest.json',
+                dest: '<%= paths.build %>/manifest.json'
             }
         },
 

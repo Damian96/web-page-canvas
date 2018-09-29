@@ -81,3 +81,7 @@ build/Release
 .env
 
 !.gitignore
+
+# Non Commited Files
+./src/web-resources/css/web-page-canvas.css
+./src/popup/css/*.css
