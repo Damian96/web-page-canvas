@@ -1,0 +1,245 @@
+/*global module:false*/
+module.exports = function (grunt) {
+
+    const path = require('path');
+    const sass = require('node-sass');
+
+    // Project configuration.
+    grunt.initConfig({
+        // Metadata.
+        pkg: grunt.file.readJSON('package.json'),
+        datetime: Date.now(),
+
+        paths: {
+            build: './build',
+            src: './src'
+        },
+
+        clean: [
+            '<%= paths.build %>/*'
+        ],
+
+        jshint: {
+            options: {
+                force: true,
+                undef: true,
+                unused: true,
+                devel: true,
+                esversion: 6,
+                browser: true,
+                globals: {
+                    jQuery: true,
+                    $: true,
+                    chrome: true,
+                    console: true
+                }
+            },
+            background: {
+                src: ['<%= paths.src %>/background/*.js']
+            },
+            content: {
+                src: ['<%= paths.src %>/content-scripts/*.js']
+            },
+            resources: {
+                src: ['<%= paths.src %>/web-resources/js/options.js']
+            }
+        },
+
+        cssmin: {
+            options: {
+                mergeIntoShorthands: false,
+                roundingPrecision: -1
+            },
+            main: {
+                expand: true,
+                cwd: '<%= paths.build %>/',
+                src: ['**/*.css'],
+                dest: '<%= paths.build %>/'
+            }
+        },
+
+        sass: {
+            options: {
+                implementation: sass,
+                sourceMap: false
+            },
+            resources: {
+                src: '<%= paths.src %>/web-resources/sass/web-page-canvas.scss',
+                dest: '<%= paths.build %>/web-resources/css/web-page-canvas.css'
+            },
+            popup: {
+                expand: true,
+                flatten: true,
+                src: ['<%= paths.src %>/popup/sass/*.scss'],
+                rename: function (dest, src) {
+                    var name = path.basename(src, '.scss') + '.css';
+                    return path.join(dest, name);
+                },
+                dest: '<%= paths.build %>/popup/css/'
+            },
+            src_res: {
+                src: '<%= paths.src %>/web-resources/sass/web-page-canvas.scss',
+                dest: '<%= paths.src %>/web-resources/css/web-page-canvas.css'
+            },
+            src_popup: {
+                expand: true,
+                flatten: true,
+                src: ['<%= paths.src %>/popup/sass/*.scss'],
+                rename: function (dest, src) {
+                    var name = path.basename(src, '.scss') + '.css';
+                    return path.join(dest, name);
+                },
+                dest: '<%= paths.src %>/popup/css/'
+            }
+        },
+
+        copy: {
+            about: {
+                expand: true,
+                cwd: '<%= paths.src %>',
+                src: 'about/*',
+                dest: '<%= paths.build %>/'
+            },
+            images: {
+                expand: true,
+                cwd: '<%= paths.src %>',
+                src: 'images/*',
+                dest: '<%= paths.build %>/'
+            },
+            popup: {
+                expand: true,
+                cwd: '<%= paths.src %>',
+                src: 'popup/html/*',
+                dest: '<%= paths.build %>/'
+            },
+            resources: {
+                expand: true,
+                cwd: '<%= paths.src %>',
+                src: 'web-resources/html/*',
+                dest: '<%= paths.build %>/'
+            },
+            reoptions: {
+                expand: true,
+                cwd: '<%= paths.src %>',
+                src: 'web-resources/css/options.css',
+                dest: '<%= paths.build %>/'
+            },
+            libs: {
+                expand: true,
+                cwd: '<%= paths.src %>',
+                src: 'web-resources/js/*.min.js',
+                dest: '<%= paths.build %>/'
+            }
+        },
+
+        uglify: {
+            options: {
+                mangle: {
+                    toplevel: false
+                } // Don't mangle as it seems to break on this
+            },
+            background: {
+                expand: true,
+                cwd: '<%= paths.src %>',
+                src: 'background/*.js',
+                dest: '<%= paths.build %>/'
+            },
+            popup: {
+                expand: true,
+                cwd: '<%= paths.src %>',
+                src: 'popup/js/*.js',
+                dest: '<%= paths.build %>/'
+            },
+            content: {
+                expand: true,
+                cwd: '<%= paths.src %>',
+                src: 'content-scripts/*.js',
+                dest: '<%= paths.build %>/'
+            },
+            resources: {
+                expand: true,
+                cwd: '<%= paths.src %>',
+                src: 'web-resources/js/options.js',
+                dest: '<%= paths.build %>/'
+            }
+        },
+
+        watch: {
+            backgroundjs: {
+                files: ['<%= paths.src %>/background/*.js'],
+                tasks: ['jshint:background'],
+                options: {
+                    spawn: false,
+                    debounceDelay: 750,
+                    interval: 2000,
+                    event: ['changed', 'added']
+                }
+            },
+            contentjs: {
+                files: ['<%= paths.src %>/content-scripts/*.js'],
+                tasks: ['jshint:content'],
+                options: {
+                    spawn: false,
+                    debounceDelay: 750,
+                    interval: 2000,
+                    event: ['changed', 'added']
+                }
+            },
+            resjs: {
+                files: ['<%= paths.src %>/web-resources/js/options.js'],
+                tasks: ['jshint:resources'],
+                options: {
+                    spawn: false,
+                    debounceDelay: 750,
+                    interval: 2000,
+                    event: ['changed', 'added']
+                }
+            },
+            src_popup_sass: {
+                files: ['<%= paths.src %>/popup/sass/*.scss'],
+                tasks: ['sass:src_popup'],
+                options: {
+                    spawn: false,
+                    debounceDelay: 750,
+                    interval: 2000,
+                    event: ['changed', 'added']
+                },
+            },
+            src_res_sass: {
+                files: ['<%= paths.src %>/web-resources/sass/*.scss'],
+                tasks: ['sass:src_res'],
+                options: {
+                    spawn: false,
+                    debounceDelay: 750,
+                    interval: 2000,
+                    event: ['changed', 'added']
+                },
+            }
+        }
+    });
+
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-uglify-es');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-sass');
+
+    // Default task.- alias of 'build'
+    grunt.registerTask( 'default', [
+        'clean', 'copy', 'sass', 'cssmin', 'uglify' 
+    ] );
+
+    // same as 'default'
+    grunt.registerTask( 'build', [
+        'clean', 'copy', 'sass', 'cssmin', 'uglify' 
+    ] );
+
+    // same as 'watch'
+    grunt.registerTask( 'dev', [ 'watch' ] );
+
+    // same as 'jshint'
+    grunt.registerTask( 'debug', [ 'jshint' ] );
+
+};
