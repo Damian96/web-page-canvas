@@ -10,13 +10,14 @@ if (typeof WebPageCanvas === 'undefined') {
 
 	var webPageCanvas_initialize = function() {
 		webPageCanvas = new WebPageCanvas();
-		webPageCanvas.getContentDocument()
-			.then(function() {
-				webPageCanvas.toggleContent(true);
-			})
-			.catch(function() {
-				console.error('Could not load toolbar. Web Page Canvas.');
-			});
+		webPageCanvas.toggleContent(true);
+		// webPageCanvas.getContentDocument()
+		// 	.then(function() {
+		// 		webPageCanvas.toggleContent(true);
+		// 	})
+		// 	.catch(function() {
+		// 		console.error('Could not load toolbar. Web Page Canvas.');
+		// 	});
 	};
 
 	/**
@@ -76,6 +77,11 @@ if (typeof WebPageCanvas === 'undefined') {
 				drawStep: 0,
 				actionStep: 0,
 				backwards: false
+			};
+
+			this.page = {
+				width: this.getMaxWidth(),
+				height: this.getMaxHeight()
 			};
 
 			this.hasDrawings = false;
@@ -143,11 +149,13 @@ if (typeof WebPageCanvas === 'undefined') {
 
 		toggleContent(add) {
 			if (add) {
-				this.insertCSS();
+				// this.insertCSS();
 				this.injectHTML();
 				this.initCanvas();
 				this.attachHandlers();
-				this.adjustCanvas();
+				this.canvas.element.style.top = '0px';
+				this.adjustCanvas(this.getMaxWidth(), this.getMaxHeight());
+				// this.adjustCanvas(this.page.width, this.page.height);
 			} else {
 				for(let element of document.querySelectorAll('.web-page-canvas')) {
 					element.remove();
@@ -630,8 +638,10 @@ if (typeof WebPageCanvas === 'undefined') {
 		 * Injects the HTML on the document.
 		 */
 		injectHTML() {
-			document.body.innerHTML += this.contentDocument.body.innerHTML;
-			setTimeout(this.animateToolbar, 500);
+			// document.body.innerHTML += this.contentDocument.body.innerHTML;
+			// setTimeout(this.animateToolbar, 500);
+			let html = "<canvas class=\"web-page-canvas\"></canvas>\r\n<div id=\"toolbar\" class=\"web-page-canvas aligned-top closed\">\r\n    <div id=\"tool-col\">\r\n        <div class=\"tool-container active\" title=\"Paint Brush\">\r\n            <i class=\"fa fa-paint-brush\"></i><span class=\"tool-label\">&nbsp;Paint Brush</span>\r\n        </div>\r\n        <div class=\"tool-container\" title=\"Eraser\">\r\n            <i class=\"fa fa-eraser\"></i><span class=\"tool-label\">&nbsp;Eraser</span>\r\n        </div>\r\n        <div class=\"tool-container\" title=\"Highlighter\" data-has-dropdown=\"true\">\r\n            <i class=\"fa fa-pencil-alt\"></i><span class=\"tool-label\">&nbsp;Highlighter</span>\r\n            <i class=\"fa fa-caret-down\"></i>\r\n            <div class=\"dropdown hidden\">\r\n                <div class=\"row\">\r\n                    <h3>Transparency</h3>\r\n                    <input data-tool=\"highlighter\" type=\"range\" step=\"5\" min=\"0\" max=\"100\" value=\"60\" data-option=\"transparency\" /><span class=\"range-value\">60%</span>\r\n                    <hr>\r\n                </div>\r\n                <div class=\"row\">\r\n                    <h3>Highlighting Assist</h3>\r\n                    <input type=\"checkbox\" data-tool=\"highlighter\" data-option=\"highlighting-assist\" checked/><span class=\"tool-label\">Draw only Straight Lines</span>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n    <div id=\"option-col\">\r\n        <div class=\"option-container\" title=\"Options\" data-has-dropdown=\"true\">\r\n                <i class=\"fa fa-cog\"></i><span class=\"tool-label\">&nbsp;Options</span>\r\n                <i class=\"fa fa-caret-down\"></i>\r\n                <div class=\"dropdown hidden\">\r\n                    <div class=\"row\">\r\n                        <h3>Color</h3>\r\n                        <input data-tool='options' type='color' title='Color' value=\"#FFFF00\"/>\r\n                        <hr>\r\n                    </div>\r\n                    <div class=\"row\">\r\n                        <h3>Size</h3>\r\n                        <input data-tool='options' type=\"range\" step=\"1\" min=\"1\" max=\"30\" value=\"10\" data-option=\"size\" />\r\n                        <span class=\"range-value\">10</span>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        <div class=\"option-container disabled\" title=\"Undo\" data-action=\"undo\">\r\n            <i class=\"fa fa-undo\"></i><span class=\"tool-label\">&nbsp;Undo</span>\r\n        </div>\r\n        <div class=\"option-container disabled\" title=\"Redo\" data-action=\"redo\">\r\n            <i class=\"fa fa-redo\"></i><span class=\"tool-label\">&nbsp;Redo</span>\r\n        </div>\r\n        <div class=\"option-container\" title=\"Clear All\" data-action=\"clear\">\r\n            <i class=\"fa fa-times\"></i><span class=\"tool-label\">&nbsp;Clear</span>\r\n        </div>\r\n        <div id=\"toolbar-alignment\" class=\"option-container\" title=\"Change Toolbar Position\" data-has-dropdown=\"true\" data-action=\"chage-position\">\r\n            <i class=\"fa fa-bars\"></i><span class=\"tool-label\">&nbsp;Alignment</span>\r\n            <i class=\"fa fa-caret-down\"></i>\r\n            <div class=\"dropdown hidden\">\r\n                <div class=\"dropdown-item top\">\r\n                    <span class=\"icon-align-top\">&uarr;</span><span class=\"tool-label\">&nbsp;Align Top</span>\r\n                </div>\r\n                <div class=\"dropdown-item bottom\">\r\n                    <span class=\"icon-align-bottom\">&darr;</span><span class=\"tool-label\">&nbsp;Align Bottom</span>\r\n                </div>\r\n            </div>\r\n        </div>\r\n        <div id=\"close-toolbar\" class=\"option-container\" title=\"Close Toolbar\" data-action=\"close\">\r\n            <i id=\"cancel\" class=\"fa fa-times-circle\"></i>\r\n        </div>\r\n    </div>\r\n</div>";
+			document.body.innerHTML += html;
 		}
 
 		/**
@@ -665,7 +675,7 @@ if (typeof WebPageCanvas === 'undefined') {
 		 * @returns {number} The maximum height
 		 */
 		getMaxHeight() {
-			return Math.max(window.innerHeight, document.documentElement.scrollHeight);
+			return Math.max(document.documentElement.clientHeight, document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight);
 		}
 
 		/**
@@ -673,17 +683,25 @@ if (typeof WebPageCanvas === 'undefined') {
 		 * @returns {number} The maximum width
 		 */
 		getMaxWidth() {
-			return document.documentElement.offsetWidth;
+			return Math.max(document.documentElement.clientWidth, document.body.scrollWidth, document.documentElement.scrollWidth, document.body.offsetWidth, document.documentElement.offsetWidth);
 		}
 
 		/**
 		 * Adjusts the canvas to the current window
 		 * @returns {void}
 		 */
-		adjustCanvas() {
+		adjustCanvas( width = null, height = null) {
 			if (this.canvas.hasOwnProperty('element') && this.canvas.element != null) {
-				this.canvas.element.width = this.getMaxWidth();
-				this.canvas.element.height = this.getMaxHeight();
+				console.log( 'height', this.getMaxHeight() );
+				if ( width != null )
+					this.canvas.element.width = width;
+				else
+					this.canvas.element.width = this.getMaxWidth();
+				
+				if ( height != null )
+					this.canvas.element.height = height;
+				else
+					this.canvas.element.height = this.getMaxHeight();
 			}
 		}
 
@@ -712,8 +730,8 @@ if (typeof WebPageCanvas === 'undefined') {
 		}
 	}
 
-	if (document.readyState !== 'complete') {
-		document.addEventListener('DOMContentLoaded', webPageCanvas_initialize, {once: true});
+	if (document.readyState === 'loading') {
+		// document.addEventListener('DOMContentLoaded', webPageCanvas_initialize, {once: true});
 	} else
 		webPageCanvas_initialize();
 } else

@@ -33,3 +33,4 @@ A chrome extension that helps you draw on your current webpage.
 * Add png snapshot save format, and option
 * Add keyboard shortcuts for tools, and cheatsheet
 * Add snapshot cropper page
+* Add webpage interact tool 

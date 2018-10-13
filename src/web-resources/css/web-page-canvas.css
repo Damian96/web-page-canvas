@@ -4,27 +4,42 @@ body {
   margin: 0;
   -webkit-user-select: none; }
 
-.web-page-canvas:not(.fa) {
-  font-family: 'Tahoma', 'serif'; }
-
-.web-page-canvas.hidden {
-  display: none; }
+.web-page-canvas {
+  font: inherit;
+  font-family: inherit;
+  vertical-align: baseline;
+  border-width: 0;
+  border-style: initial;
+  border-color: initial; }
+  .web-page-canvas:not(.fa) {
+    font-family: 'Tahoma', 'serif'; }
+  .web-page-canvas.hidden {
+    display: none; }
+  .web-page-canvas > * {
+    font: inherit;
+    font-family: inherit;
+    vertical-align: baseline;
+    border-width: 0;
+    border-style: initial;
+    border-color: initial; }
 
 #toolbar.web-page-canvas .hidden {
   display: none; }
 
 canvas.web-page-canvas {
   position: absolute;
-  z-index: 10000000;
+  z-index: 2147483646;
   top: 0;
   left: 0;
   cursor: crosshair;
+  max-height: 100%;
+  pointer-events: auto;
   background: transparent; }
 
 #toolbar.web-page-canvas {
   background: linear-gradient(#363636, #707070);
   position: fixed;
-  z-index: 10000001;
+  z-index: 2147483647;
   user-select: none;
   transform: translate(-50%, 0);
   width: -webkit-max-content;

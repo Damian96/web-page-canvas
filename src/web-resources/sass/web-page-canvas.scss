@@ -14,6 +14,22 @@ body {
     &.hidden {
         display: none;
     }
+
+    font: inherit;
+    font-family: inherit;
+    vertical-align: baseline;
+    border-width: 0;
+    border-style: initial;
+    border-color: initial;
+
+    > * {
+        font: inherit;
+        font-family: inherit;
+        vertical-align: baseline;
+        border-width: 0;
+        border-style: initial;
+        border-color: initial;
+    }
 }
 
 #toolbar.web-page-canvas .hidden {
@@ -22,10 +38,13 @@ body {
 
 canvas.web-page-canvas {
     position: absolute;
-    z-index: 10000000;
+    z-index: 2147483646;
     top: 0;
     left: 0;
     cursor: crosshair;
+    max-height: 100%;
+    pointer-events: auto;
+    // max-height: 500px;
     background: transparent;
 }
 
@@ -65,7 +84,7 @@ canvas.web-page-canvas {
 
     background: linear-gradient(rgb(54, 54, 54), rgb(112, 112, 112));
     position: fixed;
-    z-index: 10000001;
+    z-index: 2147483647;
     user-select: none;
     transform: translate(-50%, 0);
     width: -webkit-max-content;
