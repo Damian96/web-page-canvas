@@ -11,6 +11,13 @@ if (typeof WebPageCanvas === 'undefined') {
 	var webPageCanvas_initialize = function() {
 		webPageCanvas = new WebPageCanvas();
 		webPageCanvas.toggleContent(true);
+		// webPageCanvas.getContentDocument()
+		// 	.then(function() {
+		// 		webPageCanvas.toggleContent(true);
+		// 	})
+		// 	.catch(function() {
+		// 		console.error('Could not load toolbar. Web Page Canvas.');
+		// 	});
 	};
 
 	/**
@@ -142,6 +149,8 @@ if (typeof WebPageCanvas === 'undefined') {
 
 		toggleContent(add) {
 			if (add) {
+				// this.insertCSS();
+				// this.injectHTML();
 				this.initCanvas();
 				this.attachHandlers();
 				this.canvas.element.style.top = '0px';
@@ -624,6 +633,17 @@ if (typeof WebPageCanvas === 'undefined') {
 
 			});
 		}
+
+		/**
+		 * Injects the HTML on the document.
+		 */
+		// injectHTML() {
+		// 	let frame	= document.createElement('IFRAME');
+		// 	frame.src   = chrome.extension.getURL('/web-resources/html/web-page-canvas.html');
+		// 	frame.width = this.getMaxWidth();
+		// 	frame.height = this.getMaxHeight();
+		// 	document.body.appendChild(frame);
+		// }
 
 		/**
 		 * @method	void

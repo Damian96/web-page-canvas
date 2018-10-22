@@ -70,12 +70,11 @@ class Popup {
      */
     insertContentScript() {
         return new Promise(function(resolve) {
-            chrome.tabs.executeScript(this.tab.id, {file: 'content-scripts/web-page-canvas.js'}, function() {
-                chrome.tabs.insertCSS(this.tab.id, {file: 'web-resources/css/web-page-canvas.css'}, function(result) {
-                    this.overlayOpen = true;
-                    this.storePopupObject();
-                    resolve(result);
-                }.bind(this));
+            chrome.tabs.executeScript(this.tab.id, {file: 'content-scripts/injectHTML.js'}, function() {
+                this.overlayOpen = true;
+                this.storePopupObject();
+                resolve(result);
+                resolve();
             }.bind(this));
         }.bind(this));
     }

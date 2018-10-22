@@ -37,6 +37,9 @@ module.exports = function (grunt) {
             background: {
                 src: ['<%= paths.src %>/background/*.js']
             },
+            popup: {
+                src: ['<%= paths.src %>/popup/js/*.js']
+            },
             content: {
                 src: ['<%= paths.src %>/content-scripts/*.js']
             },
