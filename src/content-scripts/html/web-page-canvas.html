@@ -1,0 +1,119 @@
+<canvas class="web-page-canvas"></canvas>
+<div id="toolbar" class="web-page-canvas aligned-top closed">
+    <div id="tool-col">
+        <div class="tool-container active" title="Paint Brush">
+            <img src="/images/paint-brush.svg" />
+            <span class="tool-label">&nbsp;Paint Brush</span>
+        </div>
+        <div class="tool-container" title="Eraser">
+            <img src="/images/eraser.svg" />
+            <span class="tool-label">&nbsp;Eraser</span>
+        </div>
+        <div
+            class="tool-container"
+            title="Highlighter"
+            data-has-dropdown="true"
+        >
+            <img src="/images/pencil.svg" />
+            <span class="tool-label">&nbsp;Highlighter</span>
+            <img src="/images/caret-down.svg" />
+            <div class="dropdown hidden">
+                <div class="row">
+                    <h3>Transparency</h3>
+                    <input
+                        data-tool="highlighter"
+                        type="range"
+                        step="5"
+                        min="0"
+                        max="100"
+                        value="60"
+                        data-option="transparency"
+                    /><span class="range-value">60%</span>
+                    <hr />
+                </div>
+                <div class="row">
+                    <h3>Highlighting Assist</h3>
+                    <input
+                        type="checkbox"
+                        data-tool="highlighter"
+                        data-option="highlighting-assist"
+                        checked
+                    /><span class="tool-label">Draw only Straight Lines</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="option-col">
+        <div class="option-container" title="Options" data-has-dropdown="true">
+            <img src="/images/cog.svg" />
+            <span class="tool-label">&nbsp;Options</span>
+            <img src="/images/caret-down.svg" />
+            <div class="dropdown hidden">
+                <div class="row">
+                    <h3>Color</h3>
+                    <input
+                        data-tool="options"
+                        type="color"
+                        title="Color"
+                        value="#FFFF00"
+                    />
+                    <hr />
+                </div>
+                <div class="row">
+                    <h3>Size</h3>
+                    <input
+                        data-tool="options"
+                        type="range"
+                        step="1"
+                        min="1"
+                        max="30"
+                        value="10"
+                        data-option="size"
+                    />
+                    <span class="range-value">10</span>
+                </div>
+            </div>
+        </div>
+        <div class="option-container disabled" title="Undo" data-action="undo">
+            <img src="/images/undo-arrow.svg" />
+            <span class="tool-label">&nbsp;Undo</span>
+        </div>
+        <div class="option-container disabled" title="Redo" data-action="redo">
+            <img src="/images/redo.svg" />
+            <span class="tool-label">&nbsp;Redo</span>
+        </div>
+        <div class="option-container" title="Clear All" data-action="clear">
+            <img src="/images/circle-cross.svg" />
+            <span class="tool-label">&nbsp;Clear</span>
+        </div>
+        <div
+            id="toolbar-alignment"
+            class="option-container"
+            title="Change Toolbar Position"
+            data-has-dropdown="true"
+            data-action="chage-position"
+        >
+            <img src="/images/menu.svg" />
+            <span class="tool-label">&nbsp;Alignment</span>
+            <img src="/images/caret-down.svg" />
+            <div class="dropdown hidden">
+                <div class="dropdown-item top">
+                    <img src="./images/align-top.svg" />
+                    <span class="tool-label">&nbsp;Align Top</span>
+                </div>
+                <div class="dropdown-item bottom">
+                    <img src="./images/align-bottom.svg" />
+                    <span class="tool-label">&nbsp;Align Bottom</span>
+                </div>
+            </div>
+        </div>
+        <div
+            id="close-toolbar"
+            class="option-container"
+            title="Close Toolbar"
+            data-action="close"
+        >
+            <img src="/images/circle-cross.svg" />
+        </div>
+    </div>
+</div>
