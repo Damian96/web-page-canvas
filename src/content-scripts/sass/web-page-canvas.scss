@@ -4,7 +4,7 @@ body {
   min-width: 100%;
   min-height: 100%;
   margin: 0;
-  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 
 .web-page-canvas {
@@ -87,7 +87,7 @@ canvas.web-page-canvas {
   z-index: 2147483646;
   user-select: none;
   transform: translate(-50%, 0);
-  width: -webkit-max-content;
+  width: -moz-max-content;
   max-width: 80%;
   min-height: 36px;
   left: 50%;
@@ -108,7 +108,7 @@ canvas.web-page-canvas {
   .tool-container,
   .option-container {
     display: inline-block;
-    width: -webkit-max-content;
+    width: -moz-max-content;
   }
 
   .option-container,
@@ -216,9 +216,9 @@ canvas.web-page-canvas {
   .dropdown:not(.hidden) {
     background-color: #fff;
     border: 1px solid #000;
-    width: -webkit-max-content;
+    width: -moz-max-content;
     min-width: 100%;
-    height: -webkit-max-content;
+    height: -moz-max-content;
     position: absolute;
     left: 0;
     border-radius: 0 0 5px 5px;

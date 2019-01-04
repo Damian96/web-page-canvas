@@ -68,6 +68,10 @@ module.exports = function(grunt) {
         src: "<%= paths.src %>/content-scripts/sass/web-page-canvas.scss",
         dest: "<%= paths.build %>/content-scripts/css/web-page-canvas.css"
       },
+      resources_src: {
+        src: "<%= paths.src %>/content-scripts/sass/web-page-canvas.scss",
+        dest: "<%= paths.src %>/content-scripts/css/web-page-canvas.css"
+      },
       popup: {
         expand: true,
         flatten: true,
@@ -77,6 +81,16 @@ module.exports = function(grunt) {
           return path.join(dest, name);
         },
         dest: "<%= paths.build %>/popup/css/"
+      },
+      popup_src: {
+        expand: true,
+        flatten: true,
+        src: ["<%= paths.src %>/popup/sass/*.scss"],
+        rename: function(dest, src) {
+          var name = path.basename(src, ".scss") + ".css";
+          return path.join(dest, name);
+        },
+        dest: "<%= paths.src %>/popup/css/"
       }
     },
 
@@ -205,7 +219,7 @@ module.exports = function(grunt) {
       },
       src_popup_sass: {
         files: ["<%= paths.src %>/popup/sass/*.scss"],
-        tasks: ["sass:src_popup"],
+        tasks: ["sass:popup_src"],
         options: {
           spawn: false,
           debounceDelay: 750,
@@ -215,7 +229,7 @@ module.exports = function(grunt) {
       },
       src_res_sass: {
         files: ["<%= paths.src %>/web-resources/sass/*.scss"],
-        tasks: ["sass:src_res"],
+        tasks: ["sass:resources_src"],
         options: {
           spawn: false,
           debounceDelay: 750,

@@ -3,7 +3,7 @@ html {
 
 body {
   margin: 0;
-  font-family: 'Tahoma', 'serif';
+  font-family: "Tahoma", "serif";
   font-size: 18px; }
 
 .hidden {
@@ -94,7 +94,7 @@ a.title > .title-text {
 /* .title[data-action-id="save"] {
       border-bottom-width: 0 !important;
   }
-  
+
   .title[data-action-id="about"] {
       border-width: 0 1px 1px 1px;
   } */

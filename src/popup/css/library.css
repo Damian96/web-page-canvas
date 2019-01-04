@@ -3,7 +3,7 @@ body {
   margin: 0; }
 
 body {
-  font-family: 'Tahoma', 'serif';
+  font-family: "Tahoma", "serif";
   font-size: 18px;
   min-width: 300px;
   min-height: 250px; }
@@ -26,8 +26,8 @@ body {
   font-size: 0.7em; }
 
 #slideshow {
-  width: -webkit-fill-available;
-  height: -webkit-fill-available;
+  width: -moz-available;
+  height: -moz-available;
   max-width: 250px;
   max-height: 200px;
   position: absolute;
@@ -116,10 +116,16 @@ body {
 #current-screenshot-number {
   color: green; }
 
-#slideshow:not(.empty) > .screenshot-actions > .download-screenshot:hover > .fa-save {
-  color: #0000FF; }
+#slideshow:not(.empty)
+> .screenshot-actions
+> .download-screenshot:hover
+> .fa-save {
+  color: #0000ff; }
 
-#slideshow:not(.empty) > .screenshot-actions > .delete-screenshot:hover > .fa-trash {
+#slideshow:not(.empty)
+> .screenshot-actions
+> .delete-screenshot:hover
+> .fa-trash {
   color: #ff0000; }
 
 #slideshow.empty > .save-message {
@@ -184,7 +190,7 @@ body {
   width: 0%;
   height: 100%;
   display: block;
-  background-color: #0000FF; }
+  background-color: #0000ff; }
 
 #slideshow > div,
 #slideshow > span {

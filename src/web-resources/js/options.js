@@ -1,4 +1,4 @@
-/* globals chrome, $, jQuery */
+/* globals browser, $, jQuery */
 var options;
 
 /**

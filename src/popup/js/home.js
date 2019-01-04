@@ -1,4 +1,4 @@
-/* globals chrome, InvalidPageError */
+/* globals browser, InvalidPageError */
 
 var background = browser.extension.getBackgroundPage(),
     patterns = {
@@ -81,14 +81,14 @@ class Popup {
     insertContentScript() {
         return new Promise(
             function(resolve) {
-                browser.tabsinsertCSS(
+                browser.tabs.insertCSS(
                     this.tab.id,
-                    { file: "content-scripts/css/web-page-canvas.css" },
+                    { file: "/content-scripts/css/web-page-canvas.css" },
                     function() {
-                        browser.tabsexecuteScript(
+                        browser.tabs.executeScript(
                             this.tab.id,
                             {
-                                file: "content-scripts/js/web-page-canvas.js"
+                                file: "/content-scripts/js/web-page-canvas.js"
                             },
                             function() {
                                 this.overlayOpen = true;
@@ -113,18 +113,20 @@ class Popup {
 }
 
 window.onload = function() {
-    browser.tabsgetSelected().then(function(tab) {
-        try {
-            popup = new Popup(tab);
-            if (
-                !background.isCanvasOpen[popup.tab.id] ||
-                background.isCanvasOpen[popup.tab.id] == null
-            )
-                popup.insertContentScript();
-        } catch (error) {
-            console.error(error);
-        }
-    });
+    browser.tabs
+        .query({ currentWindow: true, active: true })
+        .then(function(tab) {
+            try {
+                popup = new Popup(tab);
+                if (
+                    !background.isCanvasOpen[popup.tab.id] ||
+                    background.isCanvasOpen[popup.tab.id] == null
+                )
+                    popup.insertContentScript();
+            } catch (error) {
+                console.error(error);
+            }
+        });
 };
 
 browser.runtime.onMessage.addListener(function(request) {

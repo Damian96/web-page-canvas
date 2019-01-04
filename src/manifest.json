@@ -18,8 +18,7 @@
     "default_popup": "/popup/html/home.html"
   },
   "background": {
-    "scripts": ["background/background.js", "background/captureAPI.js"],
-    "persistent": true
+    "scripts": ["background/background.js", "background/captureAPI.js"]
   },
   "permissions": [
     "<all_urls>",
@@ -35,6 +34,5 @@
     "web-resources/*/*",
     "icons/*/*"
   ],
-  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
-  "offline_enabled": true
+  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'"
 }

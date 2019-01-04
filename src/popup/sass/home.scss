@@ -1,137 +1,140 @@
 html {
-    margin: 0;
+  margin: 0;
 }
 
 body {
-    margin: 0;
-    font-family: 'Tahoma', 'serif';
-    font-size: 18px;
+  margin: 0;
+  font-family: "Tahoma", "serif";
+  font-size: 18px;
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
 .row {
-    display: block;
+  display: block;
 }
 
 .title {
-    width: 150px;
-    border-style: solid;
-    border-color: black;
-    cursor: pointer;
+  width: 150px;
+  border-style: solid;
+  border-color: black;
+  cursor: pointer;
 }
 
-a.title>.title-text {
-    color: black !important;
+a.title > .title-text {
+  color: black !important;
 }
 
-.title> {
-    .fa:not(.fa-info),
-    .fa-layers>.fa- {
-        font-size: 0.8em;
-        transform: translate(0, -10%);
-        padding: 0 0 0 5px;
-    }
+.title > {
+  .fa:not(.fa-info),
+  .fa-layers > .fa- {
+    font-size: 0.8em;
+    transform: translate(0, -10%);
+    padding: 0 0 0 5px;
+  }
 
-    .fa-info {
-        font-size: 0.8em;
-        transform: translate(30%, -10%);
-        padding: 0 0 0 5px;
-    }
+  .fa-info {
+    font-size: 0.8em;
+    transform: translate(30%, -10%);
+    padding: 0 0 0 5px;
+  }
 }
 
 .title-text {
-    font-size: 1em;
-    position: absolute;
-    left: 25%;
+  font-size: 1em;
+  position: absolute;
+  left: 25%;
 }
 
 .title {
-    &:hover {
-        /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#feffe9+0,e0e0e0+100 */
-        background: linear-gradient(to bottom, rgba(254, 255, 233, 1) 0%, rgba(224, 224, 224, 1) 100%);
-        /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  &:hover {
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#feffe9+0,e0e0e0+100 */
+    background: linear-gradient(
+      to bottom,
+      rgba(254, 255, 233, 1) 0%,
+      rgba(224, 224, 224, 1) 100%
+    );
+    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  }
+
+  &:first-child {
+    border-top-width: 1px !important;
+  }
+
+  &:nth-of-type(2n + 1),
+  &:nth-of-type(2n) {
+    border-width: 0 1px 1px 1px;
+  }
+
+  .fa-save {
+    color: darkblue;
+  }
+
+  .fa-book {
+    color: brown;
+  }
+
+  .fa-cog {
+    color: darkgray;
+  }
+
+  .fa-check {
+    color: green;
+  }
+
+  .fa-times {
+    color: red;
+  }
+
+  .fa-info {
+    color: blue;
+  }
+
+  &[data-action-id="open"] {
+    [data-state="open"],
+    [data-state="disabled"] {
+      display: none;
+    }
+  }
+
+  &[data-action-id="close"] {
+    [data-state="close"],
+    [data-state="disabled"] {
+      display: none;
+    }
+  }
+
+  &[data-action-id="disabled"] {
+    [data-state="open"],
+    [data-state="close"] {
+      display: none;
     }
 
-    &:first-child {
-        border-top-width: 1px !important;
+    [data-state="disabled"] {
+      font-size: 1em;
     }
 
-    &:nth-of-type(2n + 1),
-    &:nth-of-type(2n) {
-        border-width: 0 1px 1px 1px;
+    .fa-[data-state="disabled"] {
+      color: red;
     }
 
-    .fa-save {
-        color: darkblue;
+    .title-text[data-state="disabled"] {
+      color: graytext;
     }
+  }
 
-    .fa-book {
-        color: brown;
-    }
-
-    .fa-cog {
-        color: darkgray;
-    }
-
-    .fa-check {
-        color: green;
-    }
-
-    .fa-times {
-        color: red;
-    }
-
-    .fa-info {
-        color: blue;
-    }
-
-    &[data-action-id="open"] {
-        [data-state="open"],
-        [data-state="disabled"] {
-            display: none;
-        }
-    }
-
-    &[data-action-id="close"] {
-        [data-state="close"],
-        [data-state="disabled"] {
-            display: none;
-        }
-    }
-
-    &[data-action-id="disabled"] {
-        [data-state="open"],
-        [data-state="close"] {
-            display: none;
-        }
-    
-        [data-state="disabled"] {
-            font-size: 1em;
-        }
-
-        .fa-[data-state="disabled"] {
-            color: red;
-        }
-
-        .title-text[data-state="disabled"] {
-            color: graytext;
-        }
-
-    }
-
-    &[data-action-id="close"] .title-text[data-state="close"] {
-        color: black;
-        font-weight: bold;
-    }
+  &[data-action-id="close"] .title-text[data-state="close"] {
+    color: black;
+    font-weight: bold;
+  }
 }
 
 /* .title[data-action-id="save"] {
       border-bottom-width: 0 !important;
   }
-  
+
   .title[data-action-id="about"] {
       border-width: 0 1px 1px 1px;
   } */

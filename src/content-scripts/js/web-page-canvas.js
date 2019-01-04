@@ -969,8 +969,10 @@ if (typeof WebPageCanvas === "undefined") {
                 this.canvas.cxt.globalAlpha = 1;
             }
 
-            this.canvas.cxt.lineWidth = this.activeTool.options.size;
-            this.canvas.cxt.strokeStyle = this.activeTool.options.color;
+            // this.canvas.cxt.lineWidth = this.activeTool.options.size;
+            // this.canvas.cxt.strokeStyle = this.activeTool.options.color;
+            this.canvas.cxt.lineWidth = 5;
+            this.canvas.cxt.strokeStyle = "#000000";
 
             for (let i = 0; i < this.canvas.cX.length; i++) {
                 if (typeof this.canvas.cX[i] === "undefined") continue;
@@ -993,10 +995,10 @@ if (typeof WebPageCanvas === "undefined") {
 
                 this.canvas.cxt.stroke();
 
-                if (i > 0) {
-                    this.canvas.cX[i - 1] = undefined;
-                    this.canvas.cY[i - 1] = undefined;
-                }
+                // if (i > 0) {
+                //     this.canvas.cX[i - 1] = undefined;
+                //     this.canvas.cY[i - 1] = undefined;
+                // }
             }
         }
 
