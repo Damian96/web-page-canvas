@@ -1,4 +1,4 @@
-/* globals chrome */
+/* globals browser */
 /**
  * @TODO:
  * implement save area
@@ -85,7 +85,7 @@ if (typeof WebPageCanvas === "undefined") {
             };
 
             this.optionsStorageKey = "webPageCanvas_options";
-            this.extBase = chrome.extension.getURL("/");
+            this.extBase = browser.extension.getURL("/");
         }
 
         attachHandlers() {
@@ -139,8 +139,7 @@ if (typeof WebPageCanvas === "undefined") {
         getOptions() {
             return new Promise(
                 function(resolve, reject) {
-                    chrome.storage.local.get(
-                        this.optionsStorageKey,
+                    browser.storage.local.get(this.optionsStorageKey).then(
                         function(items) {
                             if (
                                 typeof items[this.optionsStorageKey] !==
@@ -174,7 +173,7 @@ if (typeof WebPageCanvas === "undefined") {
 
         close() {
             this.toggleContent(false);
-            chrome.runtime.sendMessage({
+            browser.runtime.sendMessage({
                 message: "manually-closed-canvas"
             });
         }
@@ -490,15 +489,15 @@ if (typeof WebPageCanvas === "undefined") {
                 .querySelector("#toolbar.web-page-canvas")
                 .classList.add("closed");
             return new Promise((resolve, reject) => {
-                chrome.runtime.sendMessage(
-                    {
+                browser.runtime
+                    .sendMessage({
                         message: "take-snapshot",
                         data: {
                             windowHeight: window.innerHeight,
                             pageHeight: this.getMaxHeight()
                         }
-                    },
-                    function(response) {
+                    })
+                    .then(function(response) {
                         if (
                             response != null &&
                             response.hasOwnProperty("data")
@@ -511,8 +510,7 @@ if (typeof WebPageCanvas === "undefined") {
                         } else {
                             reject();
                         }
-                    }
-                );
+                    });
             });
         }
 
@@ -1053,7 +1051,7 @@ if (typeof WebPageCanvas === "undefined") {
 
                 request.open(
                     "GET",
-                    chrome.runtime.getURL(
+                    browser.runtimegetURL(
                         "/web-resources/html/web-page-canvas.html"
                     )
                 );
@@ -1167,7 +1165,7 @@ if (typeof WebPageCanvas === "undefined") {
     } else webPageCanvas_initialize();
 } else webPageCanvas_initialize();
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+browser.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (
         request != null &&
         request.hasOwnProperty("message") &&

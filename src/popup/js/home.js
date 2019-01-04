@@ -1,6 +1,6 @@
 /* globals chrome, InvalidPageError */
 
-var background = chrome.extension.getBackgroundPage(),
+var background = browser.extension.getBackgroundPage(),
     patterns = {
         fileOrChrome: /^(?:file:\/\/|chrome:\/\/|chrome-extension:\/\/).+$/gim,
         pdf: /^.+\.(?:pdf)$/gim
@@ -81,11 +81,11 @@ class Popup {
     insertContentScript() {
         return new Promise(
             function(resolve) {
-                chrome.tabs.insertCSS(
+                browser.tabsinsertCSS(
                     this.tab.id,
                     { file: "content-scripts/css/web-page-canvas.css" },
                     function() {
-                        chrome.tabs.executeScript(
+                        browser.tabsexecuteScript(
                             this.tab.id,
                             {
                                 file: "content-scripts/js/web-page-canvas.js"
@@ -113,7 +113,7 @@ class Popup {
 }
 
 window.onload = function() {
-    chrome.tabs.getSelected(null, function(tab) {
+    browser.tabsgetSelected().then(function(tab) {
         try {
             popup = new Popup(tab);
             if (
@@ -127,7 +127,7 @@ window.onload = function() {
     });
 };
 
-chrome.runtime.onMessage.addListener(function(request) {
+browser.runtime.onMessage.addListener(function(request) {
     if (request.hasOwnProperty("message") && request.hasOwnProperty("data")) {
         if (!request.message.localeCompare("manually-closed-canvas")) {
             popup.switcherClickHandler.call(

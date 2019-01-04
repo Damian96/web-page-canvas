@@ -36,6 +36,5 @@
     "icons/*/*"
   ],
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
-  "offline_enabled": true,
-  "homepage_url": "http://dgiankakis.it-studies.gr/index.php/en/component/spsimpleportfolio/item/20-web-page-canvas-extension-en"
+  "offline_enabled": true
 }
