@@ -281,20 +281,20 @@ if (typeof WebPageCanvas === 'undefined') {
 
 				let selector = ".tool-container[title='" + event.currentTarget.title + "']";
 
-				if (!event.currentTarget.title.localeCompare("Paint Brush")) {
+				if (event.currentTarget.dataset.tool === 'paint-brush') {
 
 					this.activeTool.id = 'paintBrush';
 					this.activeTool.htmlID = 'paint-brush';
 					document.querySelector("#toolbar.web-page-canvas input[type='color']").value = this.options.brushColor;
 					this.activeTool.options.color = this.options.brushColor;
 					
-				} else if (!event.currentTarget.title.localeCompare('Eraser')) {
+				} else if (event.currentTarget.dataset.tool === 'eraser') {
 
 					this.activeTool.id = 'eraser';
 					this.activeTool.htmlID = 'eraser';
 					this.activeTool.options.color = false;
 
-				} else if (!event.currentTarget.title.localeCompare('Highlighter')) {
+				} else if (event.currentTarget.dataset.tool === 'highlighter') {
 
 					this.activeTool.id = 'highlighter';
 					this.activeTool.htmlID = 'highlighter';

@@ -59,6 +59,7 @@ canvas.web-page-canvas {
         cursor: context-menu !important;
     }
     &.closed {
+        display: none;
         max-height: 0;
         overflow: hidden;
     }
