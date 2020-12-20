@@ -3,7 +3,7 @@
     "name": "Web Page Canvas",
     "short_name": "Web Canvas",
     "description": "An extension that lets you draw on live web pages.",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "icons": {
         "16": "images/draw-16.png",
         "48": "images/draw-48.png",
@@ -38,7 +38,7 @@
         "web-resources/*/*",
         "icons/*/*"
     ],
-    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
+    "content_security_policy": "default-src 'self'; img-src data:",
     "offline_enabled": true,
     "homepage_url": "http://dgiankakis.it-studies.gr/index.php/en/component/spsimpleportfolio/item/20-web-page-canvas-extension-en"
 }

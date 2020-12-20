@@ -9,7 +9,7 @@ var cssOptions = { uglyComments: true };
 var gulpDebug = require('gulp-debug');
 
 var paths = {
-  css: ["src/about/*.css"],
+  css: ["src/about/*.css", "src/web-resources/css/options.css"],
   sass: ["src/web-resources/sass/*.scss", "src/popup/sass/*.scss"],
   js: [
     "src/background/*.js",
@@ -25,6 +25,7 @@ var paths = {
     "src/web-resources/js/*",
     "src/web-resources/webfonts/*",
     'src/icons/css/wpc.css',
+    'src/icons/font/*',
     "src/popup/html/*.html",
     "src/*.json",
   ],
